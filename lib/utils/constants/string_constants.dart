@@ -1,0 +1,3 @@
+class AppString {
+  ///STRING CONTSTANS
+}
