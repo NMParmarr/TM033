@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 class AppColor {
   static const Color primary = Color.fromARGB(255, 0, 108, 158);
   static const Color secondary = Color(0xff3676ff);
+  static const Color tabbarBg = Color.fromARGB(255, 198, 216, 255);
   static const Color theme = Color.fromARGB(255, 4, 66, 117);
 
   MaterialColor getMaterialColor(Color color) {

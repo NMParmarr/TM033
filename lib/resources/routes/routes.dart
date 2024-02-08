@@ -1,15 +1,17 @@
 import 'package:eventflow/views/auth_screens/signup_screen.dart';
+import 'package:eventflow/views/common_screens/event_details_screen.dart';
 import 'package:eventflow/views/user_module/main_home_screen.dart';
 import 'package:flutter/material.dart';
 
 import '../../views/auth_screens/login_screen.dart';
-import '../../views/splash_screen/splash_screen.dart';
+import '../../views/splash_screen.dart';
 
 class Routes {
   static const String splashScreen = '/';
   static const String login = '/login';
   static const String signup = '/signup';
   static const String mainHome = '/mainHome';
+  static const String eventDetails = '/eventDetails';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -24,6 +26,8 @@ class Routes {
 
       case mainHome:
         return MaterialPageRoute(builder: (_) => MainHomeScren());
+      case eventDetails:
+        return MaterialPageRoute(builder: (_) => EventDetailsScreen());
 
       default:
         throw const FormatException('Route not Found');

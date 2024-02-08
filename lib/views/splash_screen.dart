@@ -1,8 +1,8 @@
 import 'package:eventflow/utils/size_config.dart';
 import 'package:flutter/material.dart';
 
-import '../../resources/routes/routes.dart';
-import '../../utils/constants/image_constants.dart';
+import '../resources/routes/routes.dart';
+import '../utils/constants/image_constants.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
