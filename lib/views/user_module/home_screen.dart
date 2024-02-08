@@ -40,15 +40,15 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           VGap(1.h),
           Padding(
-            padding:EdgeInsets.symmetric(horizontal: 3.w),
+            padding: EdgeInsets.symmetric(horizontal: 3.w),
             child: Container(
               height: 5.h,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
+                borderRadius: BorderRadius.circular(10),
                 color: AppColor.tabbarBg,
               ),
               child: TabBar(
-                  splashBorderRadius: BorderRadius.circular(15),
+                  splashBorderRadius: BorderRadius.circular(10),
                   isScrollable: true,
                   dividerHeight: 0,
                   tabAlignment: TabAlignment.start,
@@ -59,7 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   indicatorSize: TabBarIndicatorSize.tab,
                   indicator: BoxDecoration(
                     color: AppColor.primary,
-                    borderRadius: BorderRadius.circular(13),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   tabs: List.generate(eventTypes.length,
                       (index) => Tab(text: eventTypes[index]))),

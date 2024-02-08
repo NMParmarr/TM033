@@ -2,9 +2,12 @@ import 'package:eventflow/utils/constants/color_constants.dart';
 import 'package:eventflow/utils/text.dart';
 import 'package:eventflow/viewmodels/providers/home_provider.dart';
 import 'package:eventflow/views/user_module/home_screen.dart';
+import 'package:eventflow/views/user_module/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+
+import 'joined_events_screen.dart';
 
 class MainHomeScren extends StatefulWidget {
   const MainHomeScren({super.key});
@@ -15,10 +18,9 @@ class MainHomeScren extends StatefulWidget {
 
 class _MainHomeScrenState extends State<MainHomeScren> {
   List<Widget> screens = <Widget>[
-    // Container(child: Center(child: Txt("Home"))),
     HomeScreen(),
-    Container(child: Center(child: Txt("Joined"))),
-    Container(child: Center(child: Txt("Profile"))),
+    JoinedEventsScreen(),
+    ProfileScreen(),
   ];
 
   @override
