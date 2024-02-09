@@ -35,7 +35,7 @@ Future<void> init() async {
   // sl.registerFactory(() => SplashProvider(sharedPreferences: sl()));
   sl.registerFactory(() => ThemeProvider(sharedPreferences: sl()));
   sl.registerFactory(() => AuthProvider(sharedPreferences: sl()));
-  sl.registerFactory(() => HomeProvide(sharedPreferences: sl()));
+  sl.registerFactory(() => HomeProvider(sharedPreferences: sl()));
 
 
   // External

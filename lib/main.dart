@@ -28,7 +28,7 @@ Future<void> main() async {
     providers: [
       ChangeNotifierProvider(create: (context) => di.sl<ThemeProvider>()),
       ChangeNotifierProvider(create: (context) => di.sl<AuthProvider>()),
-      ChangeNotifierProvider(create: (context) => di.sl<HomeProvide>()),
+      ChangeNotifierProvider(create: (context) => di.sl<HomeProvider>()),
     ],
     child: const MyApp(),
   ));

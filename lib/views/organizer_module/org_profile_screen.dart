@@ -4,18 +4,19 @@ import 'package:eventflow/utils/constants/image_constants.dart';
 import 'package:eventflow/utils/gap.dart';
 import 'package:eventflow/utils/size_config.dart';
 import 'package:eventflow/utils/text.dart';
+import 'package:eventflow/views/organizer_module/paricipants_list.dart';
 import 'package:eventflow/views/user_module/event_list.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+class OrgProfileScreen extends StatefulWidget {
+  const OrgProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  State<OrgProfileScreen> createState() => _OrgProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _OrgProfileScreenState extends State<OrgProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,7 +28,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Row(
               children: [
                 Hero(
-                  tag: "userprofile",
+                  tag: "orgprofile",
                   child: CircleAvatar(
                     radius: 9.w,
                     backgroundImage: AssetImage(Images.sampleImage),
@@ -38,8 +39,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Txt("Username", textColor: Colors.black, fontsize: 2.4.t),
-                    Txt("username@gmail.com",
+                    Txt("Organization Name",
+                        textColor: Colors.black, fontsize: 2.4.t),
+                    Txt("organizationmail@gmail.com",
                         textColor: Colors.black, fontsize: 1.7.t)
                   ],
                 )
@@ -81,14 +83,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
               labelStyle: GoogleFonts.philosopher(),
               indicatorSize: TabBarIndicatorSize.tab,
               tabs: [
-                Tab(text: "Events"),
+                Tab(text: "Users"),
                 Tab(text: "About"),
               ]),
           // VGap(1.h),
           Expanded(
               child: TabBarView(
             children: [
-              EventsList(),
+              Scaffold(
+                body: SingleChildScrollView(child: ParticipantsList()),
+                floatingActionButton: FloatingActionButton(
+                    onPressed: () {}, child: Icon(Icons.group_add_outlined)),
+              ),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 3.w),
                 child: ListView(

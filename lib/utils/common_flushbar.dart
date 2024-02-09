@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:another_flushbar/flushbar.dart';
 
-showFlushbar(BuildContext context, String title,
-    {String? msg,
+showFlushbar(BuildContext context, String msg,
+    {String? title,
     Duration? duration,
     FlushbarStyle? style,
     Icon? icon,

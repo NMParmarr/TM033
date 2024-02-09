@@ -2,7 +2,6 @@ import 'package:eventflow/utils/size_config.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../resources/routes/routes.dart';
 import '../../utils/constants/color_constants.dart';
 import '../../utils/gap.dart';
 import '../../utils/text.dart';

@@ -3,18 +3,19 @@ import 'package:eventflow/utils/gap.dart';
 import 'package:eventflow/utils/size_config.dart';
 import 'package:eventflow/utils/text.dart';
 import 'package:eventflow/utils/widgets/custom_text_field.dart';
-import 'package:eventflow/views/user_module/event_list.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+import 'events_org_list.dart';
+
+class HomeOrgScreen extends StatefulWidget {
+  const HomeOrgScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<HomeOrgScreen> createState() => _HomeOrgScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeOrgScreenState extends State<HomeOrgScreen> {
   List<String> eventTypes = [
     "All",
     "Sports",
@@ -28,7 +29,13 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-     
+      floatingActionButton: FloatingActionButton(
+          onPressed: () {},
+          child: Icon(
+            Icons.add,
+            color: Colors.white,
+          ),
+          backgroundColor: AppColor.primary),
       body: DefaultTabController(
         length: eventTypes.length,
         child: Column(children: [
@@ -69,7 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
           VGap(1.h),
           Expanded(
             child: TabBarView(children: [
-              EventsList(),
+              EventsOrgList(),
               Container(child: Center(child: Txt("All"))),
               Container(child: Center(child: Txt("All"))),
               Container(child: Center(child: Txt("All"))),

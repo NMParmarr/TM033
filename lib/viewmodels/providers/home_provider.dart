@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class HomeProvide extends ChangeNotifier {
+class HomeProvider extends ChangeNotifier {
   final SharedPreferences? sharedPreferences;
 
-  HomeProvide({@required this.sharedPreferences});
+  HomeProvider({@required this.sharedPreferences});
 
 // main home screen index
 

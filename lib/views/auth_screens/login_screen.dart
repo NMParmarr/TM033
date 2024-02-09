@@ -162,7 +162,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     showToast("Entered to login");
-                    Navigator.pushNamed(context, Routes.mainHome);
+                    isUserTab
+                        ? Navigator.pushNamed(context, Routes.mainHome)
+                        : Navigator.pushNamed(context, Routes.mainHomeOrg);
                   }
                 },
                 icon: Icon(Icons.login, color: Colors.white),

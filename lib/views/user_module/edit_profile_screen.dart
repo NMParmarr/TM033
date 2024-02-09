@@ -68,8 +68,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           Expanded(
                               child: ElevatedButton.icon(
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        const Color.fromARGB(255, 255, 81, 0),
+                                    backgroundColor:AppColor.orange,
                                   ),
                                   onPressed: () {},
                                   icon: Icon(Icons.delete_outlined,

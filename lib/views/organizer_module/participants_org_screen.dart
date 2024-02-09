@@ -1,18 +1,18 @@
 import 'package:eventflow/utils/gap.dart';
 import 'package:eventflow/utils/size_config.dart';
-import 'package:eventflow/views/user_module/event_list.dart';
+import 'package:eventflow/views/organizer_module/events_org_list.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 
-class JoinedEventsScreen extends StatefulWidget {
-  const JoinedEventsScreen({super.key});
+class ParticipantsOrgScreen extends StatefulWidget {
+  const ParticipantsOrgScreen({super.key});
 
   @override
-  State<JoinedEventsScreen> createState() => _JoinedEventsScreenState();
+  State<ParticipantsOrgScreen> createState() => _ParticipantsOrgScreenState();
 }
 
-class _JoinedEventsScreenState extends State<JoinedEventsScreen> {
+class _ParticipantsOrgScreenState extends State<ParticipantsOrgScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,8 +46,8 @@ class _JoinedEventsScreenState extends State<JoinedEventsScreen> {
           Expanded(
               child: TabBarView(
             children: [
-              EventsList(),
-              EventsList(),
+              EventsOrgList(),
+              EventsOrgList(),
             ],
           ))
         ]),

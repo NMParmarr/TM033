@@ -1,5 +1,7 @@
 import 'package:eventflow/views/auth_screens/signup_screen.dart';
-import 'package:eventflow/views/common_screens/event_details_screen.dart';
+import 'package:eventflow/views/organizer_module/event_details_org_screen.dart';
+import 'package:eventflow/views/user_module/event_details_screen.dart';
+import 'package:eventflow/views/organizer_module/main_home_org_screen.dart';
 import 'package:eventflow/views/user_module/change_password_screen.dart';
 import 'package:eventflow/views/user_module/edit_profile_screen.dart';
 import 'package:eventflow/views/user_module/main_home_screen.dart';
@@ -13,7 +15,9 @@ class Routes {
   static const String login = '/login';
   static const String signup = '/signup';
   static const String mainHome = '/mainHome';
+  static const String mainHomeOrg = '/mainHomeOrg';
   static const String eventDetails = '/eventDetails';
+  static const String eventDetailsOrg = '/eventDetailsOrg';
   static const String editProfile = '/editProfile';
   static const String changePassword = '/changePassword';
 
@@ -31,8 +35,14 @@ class Routes {
       case mainHome:
         return MaterialPageRoute(builder: (_) => MainHomeScren());
 
+      case mainHomeOrg:
+        return MaterialPageRoute(builder: (_) => MainHomeOrgScreen());
+
       case eventDetails:
         return MaterialPageRoute(builder: (_) => EventDetailsScreen());
+
+      case eventDetailsOrg:
+        return MaterialPageRoute(builder: (_) => EventDetailsOrgScreen());
 
       case editProfile:
         return MaterialPageRoute(builder: (_) => EditProfileScreen());
