@@ -9,6 +9,7 @@ class CustomTextField extends StatelessWidget {
   final bool obsecuredText;
   final TextInputType? inputType;
   final String? hintText;
+  final int? lines;
   const CustomTextField({
     required this.ctr,
     this.suffixIcon,
@@ -16,6 +17,7 @@ class CustomTextField extends StatelessWidget {
     this.obsecuredText = false,
     this.inputType,
     this.hintText,
+    this.lines,
     super.key,
   });
 
@@ -25,7 +27,11 @@ class CustomTextField extends StatelessWidget {
       controller: ctr,
       obscureText: obsecuredText,
       keyboardType: inputType,
+      maxLines: lines ?? 1,
       style: GoogleFonts.philosopher(),
+      onTapOutside: (_) {
+        FocusScope.of(context).unfocus();
+      },
       decoration: InputDecoration(
           hintText: hintText,
           contentPadding:
@@ -35,7 +41,8 @@ class CustomTextField extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
               borderSide: BorderSide.none),
           filled: true,
-          fillColor: Colors.grey.shade200,
+          // fillColor: Colors.white,
+          fillColor: Colors.grey.withOpacity(0.25),
           suffixIcon: suffixIcon,
           prefixIcon: prefixIcon),
     );

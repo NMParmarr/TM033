@@ -1,3 +1,4 @@
+import 'package:eventflow/resources/routes/routes.dart';
 import 'package:eventflow/utils/constants/color_constants.dart';
 import 'package:eventflow/utils/constants/image_constants.dart';
 import 'package:eventflow/utils/gap.dart';
@@ -25,9 +26,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             padding: EdgeInsets.symmetric(horizontal: 5.w),
             child: Row(
               children: [
-                CircleAvatar(
-                  radius: 9.w,
-                  backgroundImage: AssetImage(Images.sampleImage),
+                Hero(
+                  tag: "userprofile",
+                  child: CircleAvatar(
+                    radius: 9.w,
+                    backgroundImage: AssetImage(Images.sampleImage),
+                  ),
                 ),
                 HGap(5.w),
                 Column(
@@ -52,15 +56,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColor.primary,
                         ),
-                        onPressed: () {},
-                        icon: Icon(
-                          Icons.edit,
-                          color: Colors.white,
-                        ),
-                        label: Txt(
-                          "Edit Profile",
-                          textColor: Colors.white,
-                        ))),
+                        onPressed: () {
+                          Navigator.pushNamed(context, Routes.editProfile);
+                        },
+                        icon: Icon(Icons.edit, color: Colors.white),
+                        label: Txt("Edit Profile", textColor: Colors.white))),
                 HGap(2.w),
                 Expanded(
                     child: ElevatedButton.icon(
@@ -69,21 +69,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               const Color.fromARGB(255, 255, 81, 0),
                         ),
                         onPressed: () {},
-                        icon: Icon(
-                          Icons.arrow_circle_left_outlined,
-                          color: Colors.white,
-                        ),
+                        icon: Icon(Icons.arrow_circle_left_outlined,
+                            color: Colors.white),
                         label: Txt("Logout", textColor: Colors.white)))
               ],
             ),
           ),
           TabBar(
-            labelStyle: GoogleFonts.philosopher(),
-            
-            indicatorSize: TabBarIndicatorSize.tab, tabs: [
-            Tab(text: "Events"),
-            Tab(text: "About"),
-          ]),
+              labelStyle: GoogleFonts.philosopher(),
+              indicatorSize: TabBarIndicatorSize.tab,
+              tabs: [
+                Tab(text: "Events"),
+                Tab(text: "About"),
+              ]),
           // VGap(1.h),
           Expanded(
               child: TabBarView(

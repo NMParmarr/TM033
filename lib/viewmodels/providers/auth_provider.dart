@@ -23,7 +23,7 @@ class AuthProvider extends ChangeNotifier {
   bool _isOrgCPassVisible = false;
 
   void toggleOrgPass({bool listen = true}) {
-    _isOrgPassVisible = !_isUserPassVisible;
+    _isOrgPassVisible = !_isOrgPassVisible;
     if (listen) notifyListeners();
   }
 
