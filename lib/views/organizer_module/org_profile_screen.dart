@@ -9,6 +9,8 @@ import 'package:eventflow/views/user_module/event_list.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../utils/widgets/custom_text_field.dart';
+
 class OrgProfileScreen extends StatefulWidget {
   const OrgProfileScreen({super.key});
 
@@ -59,7 +61,7 @@ class _OrgProfileScreenState extends State<OrgProfileScreen> {
                           backgroundColor: AppColor.primary,
                         ),
                         onPressed: () {
-                          Navigator.pushNamed(context, Routes.editProfile);
+                          Navigator.pushNamed(context, Routes.editOrgProfile);
                         },
                         icon: Icon(Icons.edit, color: Colors.white),
                         label: Txt("Edit Profile", textColor: Colors.white))),
@@ -91,9 +93,83 @@ class _OrgProfileScreenState extends State<OrgProfileScreen> {
               child: TabBarView(
             children: [
               Scaffold(
-                body: SingleChildScrollView(child: ParticipantsList()),
+                body: SingleChildScrollView(
+                    child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 3.w),
+                  child: ParticipantsList(),
+                )),
                 floatingActionButton: FloatingActionButton(
-                    onPressed: () {}, child: Icon(Icons.group_add_outlined)),
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        builder: (context) {
+                          return Padding(
+                              padding: EdgeInsets.only(
+                                  bottom:
+                                      MediaQuery.of(context).viewInsets.bottom,
+                                  left: 3.w,
+                                  right: 3.w,
+                                  top: 2.w),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Center(
+                                    child: Txt(
+                                      "Add New User",
+                                      fontsize: 2.7.t,
+                                      fontweight: FontWeight.w600,
+                                      textColor: Colors.black,
+                                    ),
+                                  ),
+                                  VGap(2.h),
+                                  Txt("Full Name",
+                                      textColor: Colors.black,
+                                      fontsize: 2.t,
+                                      fontweight: FontWeight.w500),
+                                  CustomTextField(ctr: TextEditingController()),
+                                  VGap(1.5.h),
+                                  Txt("Mobile",
+                                      textColor: Colors.black,
+                                      fontsize: 2.t,
+                                      fontweight: FontWeight.w500),
+                                  CustomTextField(ctr: TextEditingController()),
+                                  VGap(2.h),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                          child: ElevatedButton.icon(
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: Color.fromARGB(
+                                                    255, 155, 155, 155),
+                                              ),
+                                              onPressed: () {},
+                                              icon: Icon(Icons.close,
+                                                  color: Colors.white),
+                                              label: Txt("Cancel",
+                                                  textColor: Colors.white))),
+                                      HGap(2.w),
+                                      Expanded(
+                                          child: ElevatedButton.icon(
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: AppColor.theme,
+                                              ),
+                                              onPressed: () {},
+                                              icon: Icon(
+                                                  Icons.person_add_alt_1_sharp,
+                                                  color: Colors.white),
+                                              label: Txt("Add",
+                                                  textColor: Colors.white))),
+                                    ],
+                                  ),
+                                  VGap(2.h)
+                                ],
+                              ));
+                        },
+                      );
+                    },
+                    child: Icon(Icons.group_add_outlined)),
               ),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 3.w),
@@ -101,34 +177,34 @@ class _OrgProfileScreenState extends State<OrgProfileScreen> {
                   children: [
                     VGap(1.3.h),
                     Txt(
-                      "Birth Date",
-                      fontsize: 2.7.t,
+                      "Organization Name",
+                      fontsize: 2.5.t,
                       fontweight: FontWeight.w600,
                       textColor: Colors.black,
                     ),
                     VGap(0.3.h),
                     Txt(
-                      "DD MMM YYYY",
+                      "Neotech Pvt Ltd",
                       fontsize: 2.t,
                       textColor: Colors.black,
                     ),
                     VGap(1.3.h),
                     Txt(
-                      "Field",
-                      fontsize: 2.7.t,
+                      "Mobile",
+                      fontsize: 2.5.t,
                       fontweight: FontWeight.w600,
                       textColor: Colors.black,
                     ),
                     VGap(0.3.h),
                     Txt(
-                      "Information Technology",
+                      "+91 8141809076",
                       fontsize: 2.t,
                       textColor: Colors.black,
                     ),
                     VGap(1.3.h),
                     Txt(
-                      "Bio",
-                      fontsize: 2.7.t,
+                      "About",
+                      fontsize: 2.5.t,
                       fontweight: FontWeight.w600,
                       textColor: Colors.black,
                     ),
@@ -141,7 +217,7 @@ class _OrgProfileScreenState extends State<OrgProfileScreen> {
                     VGap(1.3.h),
                     Txt(
                       "Join Date",
-                      fontsize: 2.7.t,
+                      fontsize: 2.5.t,
                       fontweight: FontWeight.w600,
                       textColor: Colors.black,
                     ),

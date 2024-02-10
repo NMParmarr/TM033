@@ -77,17 +77,15 @@ class EventsList extends StatelessWidget {
                         )
                       ],
                     ),
-                    Container(
-                        width: 20.w,
-                        child: ElevatedButton.icon(
-                            style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColor.primary),
-                            onPressed: () {},
-                            icon: Icon(
-                              Icons.login,
-                              color: Colors.white,
-                            ),
-                            label: Txt("Join", textColor: Colors.white)))
+                    ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColor.primary),
+                        onPressed: () {},
+                        icon: Icon(
+                          Icons.login,
+                          color: Colors.white,
+                        ),
+                        label: Txt("Join", textColor: Colors.white))
                   ],
                 ),
               ),

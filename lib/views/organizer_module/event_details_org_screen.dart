@@ -90,16 +90,21 @@ class _EventDetailsOrgScreenState extends State<EventDetailsOrgScreen> {
             SingleChildScrollView(
               child: Column(
                 children: [
-                  Container(
-                      height: 45.h,
-                      child: Image.asset(
-                        Images.noDataFound,
-                        fit: BoxFit.cover,
-                      )),
-                  Container(
-                    height: 1.5.h,
-                    width: 100.w,
-                    child: Image.asset(Images.noDataFound, fit: BoxFit.cover),
+                  AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: Container(
+                        width: double.infinity,
+                        child: Image.asset(
+                          Images.sampleImage,
+                          fit: BoxFit.cover,
+                        )),
+                  ),
+                  Transform.flip(
+                    child: Container(
+                      height: 1.5.h,
+                      width: 100.w,
+                      child: Image.asset(Images.sampleImage, fit: BoxFit.fill),
+                    ),
                   ),
                   Transform.translate(
                     offset: Offset(0, -1.5.h),

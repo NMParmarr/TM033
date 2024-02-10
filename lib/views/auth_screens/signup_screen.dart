@@ -77,19 +77,37 @@ class _SignupScreenState extends State<SignupScreen> {
                         textColor: Colors.black,
                         fontsize: 2.t,
                         fontweight: FontWeight.w500),
-                    CustomTextField(ctr: TextEditingController()),
+                    CustomTextField(
+                      ctr: TextEditingController(),
+                      hintText: "Enter organization name",
+                    ),
+                    VGap(2.h),
+                    Txt("Organizer Name",
+                        textColor: Colors.black,
+                        fontsize: 2.t,
+                        fontweight: FontWeight.w500),
+                    CustomTextField(
+                      ctr: TextEditingController(),
+                      hintText: "Enter organizer name",
+                    ),
                     VGap(2.h),
                     Txt("Email",
                         textColor: Colors.black,
                         fontsize: 2.t,
                         fontweight: FontWeight.w500),
-                    CustomTextField(ctr: TextEditingController()),
+                    CustomTextField(
+                      ctr: TextEditingController(),
+                      hintText: "Enter organizer's email",
+                    ),
                     VGap(2.h),
                     Txt("Mobile",
                         textColor: Colors.black,
                         fontsize: 2.t,
                         fontweight: FontWeight.w500),
-                    CustomTextField(ctr: TextEditingController()),
+                    CustomTextField(
+                      ctr: TextEditingController(),
+                      hintText: "Enter organizer's mobile",
+                    ),
                     VGap(2.h),
                     Txt("Password",
                         textColor: Colors.black,
@@ -99,6 +117,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       return CustomTextField(
                           ctr: TextEditingController(),
                           obsecuredText: !provider.isOrgPassVisible,
+                          hintText: "Atleast 8 characters",
                           suffixIcon: IconButton(
                             icon: provider.isOrgPassVisible
                                 ? Icon(Icons.visibility)
@@ -117,6 +136,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       return CustomTextField(
                           ctr: TextEditingController(),
                           obsecuredText: !provider.isOrgCPassVisible,
+                          hintText: "Re-enter same password",
                           suffixIcon: IconButton(
                             icon: provider.isOrgCPassVisible
                                 ? Icon(Icons.visibility)

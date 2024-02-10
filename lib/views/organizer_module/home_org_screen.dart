@@ -1,3 +1,4 @@
+import 'package:eventflow/resources/routes/routes.dart';
 import 'package:eventflow/utils/constants/color_constants.dart';
 import 'package:eventflow/utils/gap.dart';
 import 'package:eventflow/utils/size_config.dart';
@@ -30,12 +31,11 @@ class _HomeOrgScreenState extends State<HomeOrgScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-          onPressed: () {},
-          child: Icon(
-            Icons.add,
-            color: Colors.white,
-          ),
-          backgroundColor: AppColor.primary),
+        onPressed: () {
+          Navigator.pushNamed(context, Routes.addEvent);
+        },
+        child: Icon(Icons.post_add_rounded),
+      ),
       body: DefaultTabController(
         length: eventTypes.length,
         child: Column(children: [

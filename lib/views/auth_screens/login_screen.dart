@@ -113,11 +113,14 @@ class _LoginScreenState extends State<LoginScreen> {
               fontsize: 3.t,
               fontweight: FontWeight.bold),
           VGap(1.h),
-          Txt("Email",
+          Txt("Mobile",
               textColor: Colors.black,
               fontsize: 2.t,
               fontweight: FontWeight.w500),
-          CustomTextField(ctr: TextEditingController()),
+          CustomTextField(
+            ctr: TextEditingController(),
+            hintText: "Enter mobile",
+          ),
           VGap(1.h),
           Txt("Password",
               textColor: Colors.black,
@@ -127,6 +130,7 @@ class _LoginScreenState extends State<LoginScreen> {
             return CustomTextField(
                 ctr: TextEditingController(),
                 obsecuredText: !provider.isUserPassVisible,
+                hintText: "Enter password",
                 suffixIcon: IconButton(
                   icon: provider.isUserPassVisible
                       ? Icon(Icons.visibility)

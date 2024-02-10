@@ -8,6 +8,8 @@ class AppColor {
   static const Color tabbarBg = Color.fromARGB(255, 198, 216, 255);
   static const Color theme = Color(0xFF044275);
   static const Color orange = Color.fromARGB(255, 255, 81, 0);
+  static const Color darkRed = Color.fromARGB(255, 204, 0, 0);
+  static const Color secondaryTxt = Color.fromARGB(255, 104, 104, 104);
 
   MaterialColor getMaterialColor(Color color) {
     return MaterialColor(color.value, {

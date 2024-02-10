@@ -9,14 +9,14 @@ import '../../utils/gap.dart';
 import '../../utils/text.dart';
 import '../../utils/widgets/custom_text_field.dart';
 
-class EditProfileScreen extends StatefulWidget {
-  const EditProfileScreen({super.key});
+class EditOrgProfileScreen extends StatefulWidget {
+  const EditOrgProfileScreen({super.key});
 
   @override
-  State<EditProfileScreen> createState() => _EditProfileScreenState();
+  State<EditOrgProfileScreen> createState() => _EditOrgProfileScreenState();
 }
 
-class _EditProfileScreenState extends State<EditProfileScreen> {
+class _EditOrgProfileScreenState extends State<EditOrgProfileScreen> {
   DateTime? dob;
 
   @override
@@ -43,7 +43,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     VGap(1.h),
                     Center(
                       child: Hero(
-                        tag: "userprofile",
+                        tag: "orgprofile",
                         child: CircleAvatar(
                           radius: 14.w,
                           backgroundImage: AssetImage(Images.sampleImage),
@@ -84,13 +84,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         fontsize: 3.t,
                         fontweight: FontWeight.bold),
                     VGap(1.5.h),
-                    Txt("Full Name",
+                    Txt("Organization Name",
                         textColor: Colors.black,
                         fontsize: 2.t,
                         fontweight: FontWeight.w500),
                     CustomTextField(
                       ctr: TextEditingController(),
-                      hintText: "Enter full name",
+                      hintText: "Enter organization name",
+                    ),
+                    VGap(1.5.h),
+                    Txt("Organizer Name",
+                        textColor: Colors.black,
+                        fontsize: 2.t,
+                        fontweight: FontWeight.w500),
+                    CustomTextField(
+                      ctr: TextEditingController(),
+                      hintText: "Enter organizer name",
                     ),
                     VGap(1.5.h),
                     Txt("Email",
@@ -98,67 +107,58 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         fontsize: 2.t,
                         fontweight: FontWeight.w500),
                     CustomTextField(
-                      ctr: TextEditingController(),
-                      hintText: "Enter email",
-                    ),
+                        ctr: TextEditingController(),
+                        hintText: "Enter organizer's email"),
                     VGap(1.5.h),
                     Txt("Mobile",
                         textColor: Colors.black,
                         fontsize: 2.t,
                         fontweight: FontWeight.w500),
                     CustomTextField(
-                      ctr: TextEditingController(),
-                      hintText: "Enter mobile ",
-                    ),
+                        ctr: TextEditingController(),
+                        hintText: "Enter organizer's mobile",
+                        readOnly: true),
                     VGap(1.5.h),
-                    Txt("Birth Date",
-                        textColor: Colors.black,
-                        fontsize: 2.t,
-                        fontweight: FontWeight.w500),
-                    InkWell(
-                      onTap: () async {
-                        dob = await showDatePicker(
-                            context: context,
-                            firstDate: DateTime(1980),
-                            lastDate: DateTime.now());
-                        setState(() {});
-                      },
-                      child: Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 3.w, vertical: 1.3.h),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: Colors.grey.withOpacity(0.25),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Txt(dob != null
-                                  ? DateFormat('dd-MM-yyyy').format(dob!)
-                                  : "Select Birth Date"),
-                              Icon(Icons.date_range_outlined)
-                            ],
-                          )),
-                    ),
-                    VGap(1.5.h),
-                    Txt("Field",
-                        textColor: Colors.black,
-                        fontsize: 2.t,
-                        fontweight: FontWeight.w500),
-                    CustomTextField(
-                      ctr: TextEditingController(),
-                      hintText: "Enter your field",
-                    ),
+                    // Txt("Birth Date",
+                    //     textColor: Colors.black,
+                    //     fontsize: 2.t,
+                    //     fontweight: FontWeight.w500),
+                    // InkWell(
+                    //   onTap: () async {
+                    //     dob = await showDatePicker(
+                    //         context: context,
+                    //         firstDate: DateTime(1980),
+                    //         lastDate: DateTime.now());
+                    //     setState(() {});
+                    //   },
+                    //   child: Container(
+                    //       width: double.infinity,
+                    //       padding: EdgeInsets.symmetric(
+                    //           horizontal: 3.w, vertical: 1.3.h),
+                    //       decoration: BoxDecoration(
+                    //         borderRadius: BorderRadius.circular(10),
+                    //         color: Colors.grey.withOpacity(0.25),
+                    //       ),
+                    //       child: Txt(dob != null
+                    //           ? DateFormat('dd-MM-yyyy').format(dob!)
+                    //           : "Choose DOB")),
+                    // ),
+                    // VGap(1.5.h),
+                    // Txt("Field",
+                    //     textColor: Colors.black,
+                    //     fontsize: 2.t,
+                    //     fontweight: FontWeight.w500),
+                    // CustomTextField(ctr: TextEditingController()),
                     VGap(1.5.h),
                     Txt("About",
                         textColor: Colors.black,
                         fontsize: 2.t,
                         fontweight: FontWeight.w500),
                     CustomTextField(
-                        ctr: TextEditingController(),
-                        lines: 5,
-                        hintText: "Enter description about yourself.."),
+                      ctr: TextEditingController(),
+                      lines: 5,
+                      hintText: "Enter description of organization",
+                    ),
                     VGap(3.h),
                     Row(
                       children: [

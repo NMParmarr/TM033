@@ -18,11 +18,14 @@ dependencies:
   get_it: ^7.6.4
   connectivity_plus: ^5.0.2
   url_launcher: ^6.2.2
-  another_flushbar: 
+  another_flushbar:
   intl: ^0.19.0
   fluttertoast: ^8.2.4
   google_fonts:
   cached_network_image: ^3.3.1
+  # dropdown_textfield: ^1.0.8
+  # searchfield:
+  # search_choices: ^2.2.7
   firebase_core: ^2.25.4
   firebase_auth: ^4.17.4
   firebase_messaging: ^14.7.15
