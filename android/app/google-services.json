@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:629936892914:android:db12910da3dc1eb4b8d96b",
+        "mobilesdk_app_id": "1:629936892914:android:47a043413d257bd5b8d96b",
         "android_client_info": {
-          "package_name": "com.example.eventflow"
+          "package_name": "com.neondevs.eventflow"
         }
       },
       "oauth_client": [],

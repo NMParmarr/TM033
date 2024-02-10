@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyCrJenJ8QEny2qJsTvLNqt-GEhc4PscDew',
-    appId: '1:629936892914:android:db12910da3dc1eb4b8d96b',
+    appId: '1:629936892914:android:47a043413d257bd5b8d96b',
     messagingSenderId: '629936892914',
     projectId: 'event-floww',
     storageBucket: 'event-floww.appspot.com',
@@ -59,10 +59,10 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyAHxuP2hS26IV_YBdMO5PJjfqmAvD6QtfY',
-    appId: '1:629936892914:ios:ca6b5864249478f3b8d96b',
+    appId: '1:629936892914:ios:c74c1a23ee87eb6fb8d96b',
     messagingSenderId: '629936892914',
     projectId: 'event-floww',
     storageBucket: 'event-floww.appspot.com',
-    iosBundleId: 'com.example.eventflow',
+    iosBundleId: 'com.neondevs.eventflow',
   );
 }

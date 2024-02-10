@@ -1,4 +1,4 @@
-package com.example.eventflow
+package com.neondevs.eventflow
 
 import io.flutter.embedding.android.FlutterActivity
 
