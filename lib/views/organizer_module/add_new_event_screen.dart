@@ -49,14 +49,7 @@ class _AddEventScrenState extends State<AddEventScren> {
                   HGap(2),
                   Expanded(
                     child: TextButton(
-                      onPressed: () {
-                        // setState(() {
-                        //   editableItems.add(DropdownMenuItem(
-                        //     value: "new items",
-                        //     child: Txt("new item"),
-                        //   ));
-                        // }
-                        // );
+                      onPressed: () {                        
                         Navigator.pop(alertContext, "new items");
                       },
                       child: Txt("Ok"),

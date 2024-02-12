@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:eventflow/data/models/organizer_model.dart';
 import 'package:eventflow/data/models/user_model.dart';
+import 'package:eventflow/resources/helper/shared_preferences.dart';
 import 'package:eventflow/utils/common_toast.dart';
+import 'package:eventflow/utils/constants/app_constants.dart';
 
 class FireServices {
   FireServices._();
@@ -23,28 +25,14 @@ class FireServices {
 
   /// --- ORGANIZER SIGNUP - UPDATE
   ///
-  Future<bool> setOrganizer(
+  Future<void> setOrganizer(
       {required String id, required OrganizerModel orgModel}) async {
-    try {
-      await _organizers.doc(id).set(orgModel.toJson());
-      return true;
-    } catch (e) {
-      print(" --- error signuporganizer service : $e");
-      showToast("Something went wrong..!");
-      return false;
-    }
+    await _organizers.doc(id).set(orgModel.toJson());
   }
 
-  Future<bool> updateOrganizer(
+  Future<void> updateOrganizer(
       {required String id, required Map<String, dynamic> updatedJson}) async {
-    try {
-      await _organizers.doc(id).update(updatedJson);
-      return true;
-    } catch (e) {
-      print(" --- error update organizer : $e");
-      showToast("Something went wrong..!");
-      return false;
-    }
+    await _organizers.doc(id).update(updatedJson);
   }
 
   /// --- ALL ORGANIZERS
@@ -68,6 +56,15 @@ class FireServices {
         .then((org) => OrganizerModel.fromJson(org.data() ?? {}));
   }
 
+  Future<OrganizerModel> getCurrentOrganizer() async {
+    final orgId = await Shared_Preferences.prefGetString(App.id, "");
+
+    return _organizers
+        .doc(orgId)
+        .get()
+        .then((org) => OrganizerModel.fromJson(org.data() ?? {}));
+  }
+
   Stream<OrganizerModel> fetchSingleOrganizer({required String id}) {
     return _organizers
         .doc(id)
@@ -76,43 +73,29 @@ class FireServices {
   }
 
   /////////////////////[ USERS ]///////////////////////
-  
+
   /// --- ORGANIZER SIGNUP - UPDATE
   ///
-  Future<bool> setUser(
+  Future<void> setUser(
       {required String id, required OrganizerModel userModel}) async {
-    try {
-      await _users.doc(id).set(userModel.toJson());
-      return true;
-    } catch (e) {
-      print(" --- error seruser service : $e");
-      showToast("Something went wrong..!");
-      return false;
-    }
+    await _users.doc(id).set(userModel.toJson());
   }
 
-  Future<bool> updateUser(
+  Future<void> updateUser(
       {required String id, required Map<String, dynamic> updatedJson}) async {
-    try {
-      await _users.doc(id).update(updatedJson);
-      return true;
-    } catch (e) {
-      print(" --- error update user : $e");
-      showToast("Something went wrong..!");
-      return false;
-    }
+    await _users.doc(id).update(updatedJson);
   }
 
   /// --- ALL ORGANIZERS
   ///
   Future<List<UserModel>> getAllUsers() async {
-    return _users.get().then((user) =>
-        user.docs.map((e) => UserModel.fromJson(e.data())).toList());
+    return _users.get().then(
+        (user) => user.docs.map((e) => UserModel.fromJson(e.data())).toList());
   }
 
   Stream<List<UserModel>> fetchAllUsers() {
-    return _users.snapshots().map((user) =>
-        user.docs.map((e) => UserModel.fromJson(e.data())).toList());
+    return _users.snapshots().map(
+        (user) => user.docs.map((e) => UserModel.fromJson(e.data())).toList());
   }
 
   /// --- SINGLE ORGANIZER
@@ -130,7 +113,6 @@ class FireServices {
         .snapshots()
         .map((user) => UserModel.fromJson(user.data() ?? {}));
   }
-
 }
 
 // final eventmodel =

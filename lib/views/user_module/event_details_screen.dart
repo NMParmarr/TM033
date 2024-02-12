@@ -1,3 +1,4 @@
+import 'package:eventflow/utils/common_utils.dart';
 import 'package:eventflow/utils/constants/color_constants.dart';
 import 'package:eventflow/utils/constants/image_constants.dart';
 import 'package:eventflow/utils/size_config.dart';
@@ -22,34 +23,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
             EdgeInsets.only(left: 2.w, right: 2.w, bottom: 0.5.h, top: 0.5.h),
         child: ElevatedButton.icon(
             onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    title: Txt("Are you sure to join ?"),
-                    actions: [
-                      Container(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(
-                                    title: Icon(Icons.check_circle,
-                                        color: Colors.green, size: 20.w),
-                                        content: Txt("You are now participate of this event..!"),
-                                  );
-                                },
-                              );
-                            },
-                            child: Txt("Join", textColor: Colors.white)),
-                      )
-                    ],
-                  );
-                },
-              );
+              Utils.joinConfirmationDialog(context);
             },
             icon: Icon(
               Icons.login_sharp,
@@ -197,4 +171,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       ),
     );
   }
+
+ 
 }

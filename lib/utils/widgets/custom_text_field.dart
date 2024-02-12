@@ -12,6 +12,9 @@ class CustomTextField extends StatelessWidget {
   final String? hintText;
   final int? lines;
   final bool? readOnly;
+  final int? maxLength;
+  final TextCapitalization? capitalization;
+  final bool tapOutsideDismiss;
   const CustomTextField({
     required this.ctr,
     this.suffixIcon,
@@ -21,6 +24,9 @@ class CustomTextField extends StatelessWidget {
     this.hintText,
     this.lines,
     this.readOnly,
+    this.maxLength,
+    this.tapOutsideDismiss = false,
+    this.capitalization,
     super.key,
   });
 
@@ -30,15 +36,21 @@ class CustomTextField extends StatelessWidget {
       controller: ctr,
       obscureText: obsecuredText,
       keyboardType: inputType,
-      readOnly: readOnly ?? false,    
+      maxLength: maxLength,
+      readOnly: readOnly ?? false,
       maxLines: lines ?? 1,
       style: GoogleFonts.philosopher(),
+      textCapitalization: capitalization ?? TextCapitalization.none,
       onTapOutside: (_) {
-        FocusScope.of(context).unfocus();
+        if (tapOutsideDismiss) {
+          FocusScope.of(context).unfocus();
+        }
       },
       decoration: InputDecoration(
+          counterText: "",
           hintStyle: GoogleFonts.philosopher(color: AppColor.secondaryTxt),
           hintText: hintText,
+          
           contentPadding:
               EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.7.h),
           border: OutlineInputBorder(

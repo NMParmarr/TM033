@@ -1,4 +1,5 @@
 import 'package:eventflow/utils/common_flushbar.dart';
+import 'package:eventflow/utils/common_utils.dart';
 import 'package:eventflow/utils/constants/color_constants.dart';
 import 'package:eventflow/utils/constants/image_constants.dart';
 import 'package:eventflow/utils/size_config.dart';
@@ -43,32 +44,7 @@ class _EventDetailsOrgScreenState extends State<EventDetailsOrgScreen> {
                   style: ElevatedButton.styleFrom(
                       backgroundColor: AppColor.orange),
                   onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: Txt("Are you sure to delete ?"),
-                          actions: [
-                            ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.grey),
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                child: Txt("Cancel", textColor: Colors.white)),
-                            ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColor.orange),
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                  showFlushbar(
-                                      context, "Event Deleted Successfully");
-                                },
-                                child: Txt("Delete", textColor: Colors.white))
-                          ],
-                        );
-                      },
-                    );
+                    Utils.deleteConfirmationDialoag(context);
                   },
                   icon: Icon(
                     Icons.delete,

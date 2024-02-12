@@ -15,18 +15,8 @@ class _SplashScreenState extends State<SplashScreen> {
   // @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 3), () {
-      //     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      //     String token = authProvider.getAuthToken();
-      //     print("token : : --$token :--");
-      //     if (token == '' || token == "null" ) {
-      Navigator.pushReplacementNamed(context, Routes.login);
-      //     } else {
-      //       Navigator.pushReplacementNamed(context, Routes.getProfileDetailsScreen());
-      //       // Navigator.pushReplacementNamed(
-      //       //     context, Routes.getDrawerControllScreen());
-      //
-      //     }
+    Future.delayed(const Duration(seconds: 1), () {
+      Navigator.pushReplacementNamed(context, Routes.auth);
     });
   }
 

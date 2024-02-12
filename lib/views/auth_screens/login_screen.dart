@@ -1,6 +1,9 @@
+import 'package:eventflow/data/datasource/services/firebase_services.dart';
+import 'package:eventflow/data/models/organizer_model.dart';
 import 'package:eventflow/resources/routes/routes.dart';
 import 'package:eventflow/utils/common_toast.dart';
 import 'package:eventflow/utils/constants/image_constants.dart';
+import 'package:eventflow/utils/constants/string_constants.dart';
 import 'package:eventflow/utils/gap.dart';
 import 'package:eventflow/utils/size_config.dart';
 import 'package:eventflow/utils/widgets/custom_text_field.dart';
@@ -10,6 +13,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
+import '../../utils/common_utils.dart';
 import '../../utils/constants/color_constants.dart';
 import '../../utils/text.dart';
 
@@ -22,6 +26,72 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
+
+  TextEditingController? _mobileCtr;
+  TextEditingController? _passCtr;
+
+  @override
+  void initState() {
+    super.initState();
+    initTextControllers();
+    clearTextControllers();
+
+    initAuthProviderMethods();
+  }
+
+  @override
+  void dispose() {
+    disposeTextControllers();
+    super.dispose();
+  }
+
+  void initAuthProviderMethods() {
+    Provider.of<AuthProvider>(context, listen: false).initOrgListSelection();
+  }
+
+  void initTextControllers() {
+    _mobileCtr = TextEditingController();
+    _passCtr = TextEditingController();
+  }
+
+  void disposeTextControllers() {
+    _mobileCtr?.dispose();
+    _passCtr?.dispose();
+  }
+
+  void clearTextControllers() {
+    _mobileCtr?.clear();
+    _passCtr?.clear();
+  }
+
+  bool validateOrgTextFields() {
+    if (_mobileCtr?.text.toString().trim() == "") {
+      showToast("Enter Mobile");
+      return false;
+      //
+    } else if (!Utils.isValidMobile(
+        mobile: _mobileCtr!.text.toString().trim())) {
+      showToast("Enter valid mobile");
+      return false;
+      //
+    } else if (_passCtr?.text.toString().trim() == "") {
+      showToast("Enter Password");
+      return false;
+      //
+    } else if (!Utils.isValidLengthPassword(
+        password: _passCtr!.text.toString().trim())) {
+      showToast("Password must be atleast 8 char long");
+      return false;
+      //
+    } else if (Provider.of<AuthProvider>(context, listen: false)
+            .selectedValue ==
+        Strings.selectOrgTion) {
+      showToast("Please select organization");
+      return false;
+    } else {
+      return true;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,111 +165,144 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _userLogin({required bool isUserTab}) {
-    List clgList = [
-      "Select College",
-      "Geetanjali College",
-      "Harivandana College",
-      "Grace College",
-      "Christ College"
-    ];
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 4.w),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          VGap(2.h),
-          Txt(isUserTab ? "User Login" : "Organizer Login",
-              textColor: Colors.black,
-              fontsize: 3.t,
-              fontweight: FontWeight.bold),
-          VGap(1.h),
-          Txt("Mobile",
-              textColor: Colors.black,
-              fontsize: 2.t,
-              fontweight: FontWeight.w500),
-          CustomTextField(
-            ctr: TextEditingController(),
-            hintText: "Enter mobile",
-          ),
-          VGap(1.h),
-          Txt("Password",
-              textColor: Colors.black,
-              fontsize: 2.t,
-              fontweight: FontWeight.w500),
-          Consumer<AuthProvider>(builder: (context, provider, _) {
-            return CustomTextField(
-                ctr: TextEditingController(),
-                obsecuredText: !provider.isUserPassVisible,
-                hintText: "Enter password",
-                suffixIcon: IconButton(
-                  icon: provider.isUserPassVisible
-                      ? Icon(Icons.visibility)
-                      : Icon(Icons.visibility_off),
-                  onPressed: () {
-                    provider.toggleUserPass();
-                  },
-                ));
-          }),
-          VGap(4.h),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 2.w),
-            decoration: BoxDecoration(color: Colors.grey.shade200),
-            width: double.infinity,
-            child: DropdownButtonHideUnderline(
-                child: DropdownButton(
-                    value: clgList[0],
-                    items: List.generate(
-                        clgList.length,
-                        (index) => DropdownMenuItem(
-                            value: clgList[index], child: Txt(clgList[index]))),
-                    onChanged: (_) {})),
-          ),
-          VGap(3.h),
-          Container(
-            width: 100.w,
-            height: 6.h,
-            child: ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColor.theme,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10))),
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    showToast("Entered to login");
-                    isUserTab
-                        ? Navigator.pushNamed(context, Routes.mainHome)
-                        : Navigator.pushNamed(context, Routes.mainHomeOrg);
+    clearTextControllers();
+    return SingleChildScrollView(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 4.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            VGap(2.h),
+            Txt(isUserTab ? "User Login" : "Organizer Login",
+                textColor: Colors.black,
+                fontsize: 3.t,
+                fontweight: FontWeight.bold),
+            VGap(1.h),
+            Txt("Mobile",
+                textColor: Colors.black,
+                fontsize: 2.t,
+                fontweight: FontWeight.w500),
+            CustomTextField(
+              ctr: _mobileCtr!,
+              hintText: "Enter mobile",
+              inputType: TextInputType.numberWithOptions(
+                  decimal: false, signed: false),
+              maxLength: 10,
+            ),
+            VGap(1.h),
+            Txt("Password",
+                textColor: Colors.black,
+                fontsize: 2.t,
+                fontweight: FontWeight.w500),
+            Consumer<AuthProvider>(builder: (context, provider, _) {
+              return CustomTextField(
+                  ctr: _passCtr!,
+                  obsecuredText: !provider.isUserPassVisible,
+                  hintText: "Enter password",
+                  suffixIcon: IconButton(
+                    icon: provider.isUserPassVisible
+                        ? Icon(Icons.visibility)
+                        : Icon(Icons.visibility_off),
+                    onPressed: () {
+                      provider.toggleUserPass();
+                    },
+                  ));
+            }),
+            VGap(4.h),
+            StreamBuilder<List<OrganizerModel>>(
+                stream: FireServices.instance.fetchAllOrganizers(),
+                builder: (context, orgListSnap) {
+                  if (orgListSnap.hasData) {
+                    Provider.of<AuthProvider>(context, listen: false)
+                        .setOrgList(
+                            orgListData: orgListSnap.data ?? [], listen: false);
                   }
-                },
-                icon: Icon(Icons.login, color: Colors.white),
-                label: Txt(
-                  "Login",
-                  textColor: Colors.white,
-                )),
-          ),
-          Visibility(
-            visible: !isUserTab,
-            child: Center(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Txt(
-                    "Dont have an account?",
-                    textColor: Colors.black,
-                  ),
-                  TextButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, Routes.signup);
-                      },
-                      child: Txt(
-                        "Sign Up",
-                        textColor: AppColor.theme,
-                      ))
-                ],
+                  return Consumer<AuthProvider>(
+                      builder: (context, provider, _) {
+                    return Container(
+                      padding: EdgeInsets.symmetric(horizontal: 2.w),
+                      decoration: BoxDecoration(
+                          color: Colors.grey.shade200,
+                          borderRadius: BorderRadius.circular(10)),
+                      width: double.infinity,
+                      child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                              value: provider.selectedValue,
+                              items: List.generate(
+                                  provider.orgList.length,
+                                  (index) => DropdownMenuItem<String>(
+                                      value:
+                                          provider.orgList[index].organization,
+                                      child: Txt(provider
+                                              .orgList[index].organization ??
+                                          "--"))),
+                              onChanged: (newValue) {
+                                provider.setDropdownValue(value: newValue!);
+                              })),
+                    );
+                  });
+                }),
+            VGap(3.h),
+            Consumer<AuthProvider>(builder: (context, provider, _) {
+              return Container(
+                width: 100.w,
+                height: 6.h,
+                child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColor.theme,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10))),
+                    onPressed: () async {
+                      bool isValid = validateOrgTextFields();
+                      if (!isValid) return;
+                      if (isUserTab) {
+                        //  Navigator.pushNamed(context, Routes.mainHome)
+                      } else {
+                        if (!provider.orgLoginLoading) {
+                          final res = await provider.loginOrg(
+                              mobile: _mobileCtr!.text.toString().trim(),
+                              password: _passCtr!.text.toString().trim());
+                          if (res) {
+                            Navigator.pushNamed(context, Routes.mainHomeOrg);
+                          }
+                        }
+                      }
+                    },
+                    icon: (provider.orgLoginLoading && !isUserTab)
+                        ? SizedBox()
+                        : Icon(Icons.login, color: Colors.white),
+                    label: (provider.orgLoginLoading && !isUserTab)
+                        ? CircularProgressIndicator(color: Colors.white)
+                        : Txt(
+                            "Login",
+                            textColor: Colors.white,
+                          )),
+              );
+            }),
+            Visibility(
+              visible: !isUserTab,
+              child: Center(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Txt(
+                      "Dont have an account?",
+                      textColor: Colors.black,
+                    ),
+                    TextButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, Routes.signup);
+                        },
+                        child: Txt(
+                          "Sign Up",
+                          textColor: AppColor.theme,
+                        ))
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

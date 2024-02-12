@@ -1,3 +1,4 @@
+import 'package:eventflow/views/auth_screens/auth_stream.dart';
 import 'package:eventflow/views/auth_screens/signup_screen.dart';
 import 'package:eventflow/views/organizer_module/add_new_event_screen.dart';
 import 'package:eventflow/views/organizer_module/event_details_org_screen.dart';
@@ -14,6 +15,7 @@ import '../../views/splash_screen.dart';
 
 class Routes {
   static const String splashScreen = '/';
+  static const String auth = '/auth';
   static const String login = '/login';
   static const String signup = '/signup';
   static const String mainHome = '/mainHome';
@@ -32,6 +34,9 @@ class Routes {
 
       case login:
         return MaterialPageRoute(builder: (_) => LoginScreen());
+
+      case auth:
+        return MaterialPageRoute(builder: (_) => AuthStream());
 
       case signup:
         return MaterialPageRoute(builder: (_) => SignupScreen());
