@@ -13,7 +13,7 @@ import 'package:eventflow/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 /// 1/5: define a navigator key
-final navigatorKey = GlobalKey<NavigatorState>();
+// final navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -56,6 +56,7 @@ class _MyAppState extends State<MyApp> {
           builder: (BuildContext context2, Orientation orientation) {
         SizeConfig.init(constraints, orientation);
         return MaterialApp(
+          navigatorKey: MyApp.navigatorKey,
           color: AppColor.theme,
           title: App.appName,
           theme: ThemeData(

@@ -276,8 +276,6 @@ class _SignupScreenState extends State<SignupScreen> {
                                       .toLowerCase(),
                                   mobile: _orgMobileCtr?.text.toString().trim(),
                                   password: _orgPassCtr?.text.toString().trim(),
-                                  about: null,
-                                  image: null,
                                   joinDate: "${DateTime.now()}",
                                 );
                                 final res = await provider.signUpOrganizer(

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:eventflow/data/datasource/services/firebase_services.dart';
 import 'package:eventflow/data/models/organizer_model.dart';
 import 'package:eventflow/resources/routes/routes.dart';
@@ -15,7 +17,8 @@ import '../../utils/text.dart';
 import '../../utils/widgets/custom_text_field.dart';
 
 class EditOrgProfileScreen extends StatefulWidget {
-  const EditOrgProfileScreen({super.key});
+  final OrganizerModel org;
+  const EditOrgProfileScreen({super.key, required this.org});
 
   @override
   State<EditOrgProfileScreen> createState() => _EditOrgProfileScreenState();
@@ -33,6 +36,7 @@ class _EditOrgProfileScreenState extends State<EditOrgProfileScreen> {
   void initState() {
     super.initState();
     initTextControllers();
+    assignValuesToTextControllers();
   }
 
   @override
@@ -63,6 +67,14 @@ class _EditOrgProfileScreenState extends State<EditOrgProfileScreen> {
     _orgEmailCtr?.clear();
     _orgMobileCtr?.clear();
     _orgAboutCtr?.clear();
+  }
+
+  void assignValuesToTextControllers() {
+    _orgTionCtr?.text = widget.org.organization ?? "--";
+    _orgZerCtr?.text = widget.org.organizer ?? "--";
+    _orgEmailCtr?.text = widget.org.email ?? "--";
+    _orgMobileCtr?.text = widget.org.mobile ?? "--";
+    _orgAboutCtr?.text = widget.org.about ?? "--";
   }
 
   bool validateOrgTextFields() {
@@ -110,29 +122,7 @@ class _EditOrgProfileScreenState extends State<EditOrgProfileScreen> {
                 return Future.delayed(Duration(milliseconds: 700));
               },
               child: SingleChildScrollView(
-                child: FutureBuilder<OrganizerModel>(
-                    future: FireServices.instance.getCurrentOrganizer(),
-                    builder: (context, currentOrgSnap) {
-                      if (currentOrgSnap.hasData) {
-                        return _contentWidget(context,
-                            org: currentOrgSnap.data);
-                      } else if (currentOrgSnap.hasError) {
-                        return Center(
-                          child: Padding(
-                              padding: EdgeInsets.symmetric(vertical: 45.h),
-                              child: Column(
-                                children: [
-                                  Icon(Icons.error),
-                                  Txt("Something went wrong..!",
-                                      textColor: AppColor.theme)
-                                ],
-                              )),
-                        );
-                      } else {
-                        return Center(child: Image.asset(Images.loadingGif));
-                      }
-                    }),
-              ),
+                  child: _contentWidget(context, org: widget.org)),
             ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 2.w),
@@ -168,11 +158,16 @@ class _EditOrgProfileScreenState extends State<EditOrgProfileScreen> {
           Center(
             child: Hero(
                 tag: "orgprofile",
-                child: (org != null && org.image != null)
-                    ? CircleAvatar(
-                        radius: 14.w,
-                        backgroundImage: NetworkImage(org.image!),
-                      )
+                child: (org != null && org.image != null && org.image != "")
+                    ? (org.image!.startsWith('http'))
+                        ? CircleAvatar(
+                            radius: 14.w,
+                            backgroundImage: NetworkImage(org.image!),
+                          )
+                        : CircleAvatar(
+                            radius: 14.w,
+                            backgroundImage: FileImage(File("/data/path")),
+                          )
                     : CircleAvatar(
                         radius: 14.w,
                         backgroundImage: AssetImage(Images.imagePlaceholder),
@@ -310,7 +305,8 @@ class _EditOrgProfileScreenState extends State<EditOrgProfileScreen> {
                     ),
                     onPressed: () async {
                       if (!provider.saveLoading) {
-                        await provider.updateOrgDetails(updatedJsonData: {
+                        bool res =
+                            await provider.updateOrgDetails(updatedJsonData: {
                           "organization": _orgTionCtr?.text.toString().trim(),
                           "organizer": _orgZerCtr?.text.toString().trim(),
                           "email": _orgEmailCtr?.text
@@ -320,6 +316,9 @@ class _EditOrgProfileScreenState extends State<EditOrgProfileScreen> {
                           "about": _orgAboutCtr?.text.toString().trim(),
                           "image": provider.imagePath,
                         });
+                        if (res) {
+                          Navigator.pop(context);
+                        }
                       }
                     },
                     icon: provider.saveLoading

@@ -1,18 +1,24 @@
+import 'package:eventflow/resources/helper/loader.dart';
 import 'package:eventflow/utils/common_toast.dart';
+import 'package:eventflow/utils/common_utils.dart';
 import 'package:eventflow/utils/constants/color_constants.dart';
 import 'package:eventflow/utils/size_config.dart';
 import 'package:eventflow/utils/text.dart';
+import 'package:eventflow/viewmodels/providers/home_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../data/models/user_model.dart';
 import '../../utils/constants/image_constants.dart';
 
 class ParticipantsList extends StatelessWidget {
-  const ParticipantsList({super.key});
+  final List<UserModel> usersList;
+  const ParticipantsList({super.key, required this.usersList});
 
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      itemCount: 8,
+      itemCount: usersList.length,
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
       itemBuilder: (context, index) {
@@ -26,30 +32,50 @@ class ParticipantsList extends StatelessWidget {
                         fit: BoxFit.cover,
                         image: AssetImage(Images.sampleImage)))),
           ),
-          title: Txt("Neon Parmar", fontsize: 2.t, fontweight: FontWeight.w600),
-          subtitle: Txt("+91 8141809076"),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                  onPressed: () {
-                    showToast("User Deleted or removed");
-                  },
-                  icon: Icon(Icons.delete, color: AppColor.darkRed)),
-              IconButton(
-                  onPressed: () {
-                    try {
-                      launchUrl(Uri.parse('tel://8141809076'));
-                    } catch (e) {
-                      showToast("Something went wrong");
-                    }
-                  },
-                  icon: Icon(
-                    Icons.call,
-                    color: AppColor.theme,
-                  )),
-            ],
-          ),
+          title: Txt(usersList[index].name ?? "---",
+              fontsize: 2.t, fontweight: FontWeight.w600),
+          subtitle: Txt(usersList[index].mobile != null
+              ? "+91 ${usersList[index].mobile!}"
+              : "-----"),
+          trailing: Builder(builder: (context) {
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Consumer<HomeProvider>(builder: (context, provider, _) {
+                  return IconButton(
+                      onPressed: () {
+                        Utils.deleteUserDialog(context,
+                            username: usersList[index].name ?? "--",
+                            onYes: () async {
+                          showLoader(context);
+                          final bool res = await provider.deleteUser(
+                              userId: usersList[index].id!);
+                          hideLoader();
+                          if (res) {
+                            showToast("User Deleted or removed");
+                          }
+                        });
+                      },
+                      icon: Icon(Icons.delete, color: AppColor.darkRed));
+                }),
+                IconButton(
+                    onPressed: () {
+                      if (usersList[index].mobile != null) {
+                        try {
+                          launchUrl(
+                              Uri.parse('tel://${usersList[index].mobile}'));
+                        } catch (e) {
+                          showToast("Something went wrong");
+                        }
+                      }
+                    },
+                    icon: Icon(
+                      Icons.call,
+                      color: AppColor.theme,
+                    )),
+              ],
+            );
+          }),
         );
       },
     );

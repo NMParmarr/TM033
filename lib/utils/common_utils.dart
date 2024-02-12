@@ -78,6 +78,34 @@ class Utils {
     );
   }
 
+  static Future<dynamic> deleteUserDialog(BuildContext context,
+      {required String username, required VoidCallback onYes}) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Txt("Are you sure to delete ${username} ?"),
+          actions: [
+            ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Txt("Cancel", textColor: Colors.white)),
+            ElevatedButton(
+                style:
+                    ElevatedButton.styleFrom(backgroundColor: AppColor.orange),
+                onPressed: () {
+                  Navigator.pop(context);
+                  onYes();
+                },
+                child: Txt("Delete", textColor: Colors.white))
+          ],
+        );
+      },
+    );
+  }
+
   static Future<dynamic> joinConfirmationDialog(BuildContext context) {
     return showDialog(
       context: context,

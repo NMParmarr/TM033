@@ -1,4 +1,5 @@
 import 'package:eventflow/data/datasource/services/firebase_services.dart';
+import 'package:eventflow/data/models/user_model.dart';
 import 'package:eventflow/resources/helper/shared_preferences.dart';
 import 'package:eventflow/utils/common_toast.dart';
 import 'package:eventflow/utils/constants/string_constants.dart';
@@ -137,7 +138,7 @@ class AuthProvider extends ChangeNotifier {
         }
       } else {
         res = false;
-        showToast("Invalid mobile no");
+        showToast("Invalid mobile number");
       }
     } catch (e) {
       print(" --- err login org : $e");
@@ -145,6 +146,45 @@ class AuthProvider extends ChangeNotifier {
       res = false;
     } finally {
       _orgLoginLoading = false;
+      notifyListeners();
+      return res;
+    }
+  }
+
+  /// --- LOGIN USER
+  ///
+  bool get userLoginLoading => _userLoginLoading;
+  bool _userLoginLoading = false;
+
+  Future<bool> loginUser(
+      {required String mobile, required String password}) async {
+    _userLoginLoading = true;
+    notifyListeners();
+    bool res = false;
+    try {
+      final organization = _orgList
+          .firstWhere((element) => element.organization == selectedValue);
+      final List<UserModel>? users = await FireServices.instance
+          .getUsersByOrgIdMobilePassword(
+              orgId: organization.id!, mobile: mobile, password: password);
+      if (users != null || users?.length != 0) {
+        if (users?.length == 1) {
+          res = true;
+          await Shared_Preferences.prefSetString(
+              App.token, Strings.userLoggedIn);
+          await Shared_Preferences.prefSetString(App.id, users![0].id!);
+        }
+      }
+      if (!res) {
+        showToast("Invalid credetials..!");
+      }
+    } catch (e) {
+      print(" --- err login org : $e");
+      showToast("Something went wrong..!");
+      res = false;
+    } finally {
+      _userLoginLoading = false;
+      notifyListeners();
       return res;
     }
   }

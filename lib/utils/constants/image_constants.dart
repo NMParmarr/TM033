@@ -7,6 +7,7 @@ class Images {
   static const String imagePlaceholder = "assets/images/imagePlaceholder.png";
   static const String loginImg = "assets/images/loginImg.png";
   static const String noDataFound = "assets/images/noDataFound.png";
+  static const String noDataFound2 = "assets/images/noData.png";
   static const String noItemsFound = "assets/images/noItemsFound.png";
   static const String sampleImage = "assets/images/sampleImage.png";
 
@@ -14,13 +15,13 @@ class Images {
 
   /// GIF IMAGES
   static const String loadingGif = "assets/images/loadingGif.gif";
-  static const String loadingPlaceholder = "assets/images/loadingPlaceholder.gif";
+  static const String loadingPlaceholder =
+      "assets/images/loadingPlaceholder.gif";
 }
 
 class AssetIcons {
-
   /// PNG ICONS
-  
+
   /// SVG ICONS
   /// GIF ICONS
 }

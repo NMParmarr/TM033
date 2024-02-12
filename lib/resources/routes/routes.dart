@@ -57,7 +57,8 @@ class Routes {
         return MaterialPageRoute(builder: (_) => EditProfileScreen());
 
       case editOrgProfile:
-        return MaterialPageRoute(builder: (_) => EditOrgProfileScreen());
+      final Map<String, dynamic>? args = settings.arguments as Map<String, dynamic>?;
+        return MaterialPageRoute(builder: (_) => EditOrgProfileScreen(org: args?['org']));
 
       case changePassword:
         return MaterialPageRoute(builder: (_) => ChangePasswordScreen());

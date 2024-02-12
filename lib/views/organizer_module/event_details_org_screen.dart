@@ -175,7 +175,9 @@ class _EventDetailsOrgScreenState extends State<EventDetailsOrgScreen> {
                             fontweight: FontWeight.w700,
                             textColor: Colors.black,
                           ),
-                          ParticipantsList()
+                          ParticipantsList(
+                            usersList: [],
+                          )
                         ],
                       ),
                     ),

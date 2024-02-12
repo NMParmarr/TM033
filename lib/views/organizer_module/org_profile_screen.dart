@@ -1,18 +1,24 @@
 import 'package:eventflow/data/datasource/services/firebase_services.dart';
 import 'package:eventflow/data/models/organizer_model.dart';
+import 'package:eventflow/data/models/user_model.dart';
 import 'package:eventflow/resources/routes/routes.dart';
+import 'package:eventflow/utils/common_flushbar.dart';
 import 'package:eventflow/utils/common_utils.dart';
 import 'package:eventflow/utils/constants/color_constants.dart';
 import 'package:eventflow/utils/constants/image_constants.dart';
 import 'package:eventflow/utils/gap.dart';
 import 'package:eventflow/utils/size_config.dart';
 import 'package:eventflow/utils/text.dart';
+import 'package:eventflow/viewmodels/providers/home_provider.dart';
 import 'package:eventflow/views/organizer_module/paricipants_list.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../resources/helper/shared_preferences.dart';
+import '../../utils/common_toast.dart';
+import '../../utils/constants/app_constants.dart';
 import '../../utils/widgets/custom_text_field.dart';
 import '../../viewmodels/providers/auth_provider.dart';
 
@@ -24,35 +30,120 @@ class OrgProfileScreen extends StatefulWidget {
 }
 
 class _OrgProfileScreenState extends State<OrgProfileScreen> {
+  TextEditingController? _newUserFullNameCtr;
+  TextEditingController? _newUserMobileCtr;
+  TextEditingController? _newUserPassCtr;
+
+  @override
+  void initState() {
+    super.initState();
+    initTextControllers();
+  }
+
+  @override
+  void dispose() {
+    disposeTextControllers();
+    super.dispose();
+  }
+
+  void initTextControllers() {
+    _newUserFullNameCtr = TextEditingController();
+    _newUserMobileCtr = TextEditingController();
+    _newUserPassCtr = TextEditingController();
+  }
+
+  void disposeTextControllers() {
+    _newUserFullNameCtr?.dispose();
+    _newUserMobileCtr?.dispose();
+    _newUserPassCtr?.dispose();
+  }
+
+  void clearTextControllers() {
+    _newUserFullNameCtr?.clear();
+    _newUserMobileCtr?.clear();
+    _newUserPassCtr?.clear();
+  }
+
+  bool validateNewUserTextFields() {
+    if (_newUserFullNameCtr?.text.toString().trim() == "") {
+      showToast("Enter Full Name of user");
+      return false;
+      //
+    } else if (_newUserMobileCtr?.text.toString().trim() == "") {
+      showToast("Enter Mobile number of user");
+      return false;
+      //
+    } else if (!Utils.isValidMobile(
+        mobile: _newUserMobileCtr!.text.toString().trim())) {
+      showToast("Enter valid mobile number");
+      return false;
+      //
+    } else if (_newUserPassCtr?.text.toString().trim() == "") {
+      showToast("Enter Password for new user");
+      return false;
+      //
+    } else if (!Utils.isValidLengthPassword(
+        password: _newUserPassCtr!.text.toString().trim())) {
+      showToast("Password must be atleast 8 char long");
+      return false;
+      //
+    } else {
+      return true;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: FutureBuilder<OrganizerModel>(
-          future: FireServices.instance.getCurrentOrganizer(),
-          builder: (context, currentOrgSnap) {
-            if (currentOrgSnap.hasData) {
-              return _contentWidget(context, org: currentOrgSnap.data);
-            } else if (currentOrgSnap.hasError) {
-              return Center(
-                child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 30.h),
-                    child: Column(
-                      children: [
-                        Icon(Icons.error),
-                        Txt("Something went wrong..!",
-                            textColor: AppColor.theme)
-                      ],
-                    )),
-              );
-            } else {
-              return Center(child: Image.asset(Images.loadingGif));
-            }
-          }),
+      body: FutureBuilder(
+        future: Shared_Preferences.prefGetString(App.id, ""),
+        builder: (context, orgId) {
+          if (orgId.hasData) {
+            return StreamBuilder<OrganizerModel>(
+                stream:
+                    FireServices.instance.fetchSingleOrganizer(id: orgId.data!),
+                builder: (context, currentOrgSnap) {
+                  if (currentOrgSnap.hasData) {
+                    return _contentWidget(context,
+                        org: currentOrgSnap.data, orgId: orgId.data!);
+                  } else if (currentOrgSnap.hasError) {
+                    return Center(
+                      child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 30.h),
+                          child: Column(
+                            children: [
+                              Icon(Icons.error),
+                              Txt("Something went wrong..!",
+                                  textColor: AppColor.theme)
+                            ],
+                          )),
+                    );
+                  } else {
+                    return Center(child: Image.asset(Images.loadingGif));
+                  }
+                });
+          } else if (orgId.hasError) {
+            return Center(
+              child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 30.h),
+                  child: Column(
+                    children: [
+                      Icon(Icons.error),
+                      Txt("Something went wrong..!", textColor: AppColor.theme)
+                    ],
+                  )),
+            );
+          } else {
+            return Center(child: Image.asset(Images.loadingGif));
+          }
+        },
+      ),
     );
   }
 
-  Widget _contentWidget(BuildContext context, {required OrganizerModel? org}) {
+  Widget _contentWidget(BuildContext context,
+      {required OrganizerModel? org, required String orgId}) {
     return DefaultTabController(
       length: 2,
       child: Column(children: [
@@ -92,7 +183,8 @@ class _OrgProfileScreenState extends State<OrgProfileScreen> {
                         backgroundColor: AppColor.primary,
                       ),
                       onPressed: () {
-                        Navigator.pushNamed(context, Routes.editOrgProfile);
+                        Navigator.pushNamed(context, Routes.editOrgProfile,
+                            arguments: {'org': org});
                       },
                       icon: Icon(Icons.edit, color: Colors.white),
                       label: Txt("Edit Profile", textColor: Colors.white))),
@@ -136,11 +228,50 @@ class _OrgProfileScreenState extends State<OrgProfileScreen> {
               body: SingleChildScrollView(
                   child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 3.w),
-                child: ParticipantsList(),
+                child: StreamBuilder<List<UserModel>>(
+                    stream:
+                        FireServices.instance.fetchUsersByOrdId(orgId: orgId),
+                    builder: (context, usersSnap) {
+                      if (usersSnap.hasData) {
+                        if (usersSnap.data?.length == 0) {
+                          return Center(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Image.asset(
+                                  Images.noDataFound2,
+                                  height: 30.h,
+                                ),
+                                Txt("No Users...!",
+                                    fontsize: 3.t, textColor: AppColor.theme)
+                              ],
+                            ),
+                          );
+                        } else {
+                          return ParticipantsList(
+                              usersList: usersSnap.data ?? []);
+                        }
+                      } else if (usersSnap.hasError) {
+                        print(" --- err snap userbyordid : ${usersSnap.error}");
+                        return Center(
+                          child: Padding(
+                              padding: EdgeInsets.symmetric(vertical: 10.h),
+                              child: Column(
+                                children: [
+                                  Icon(Icons.error),
+                                  Txt("Something went wrong..!",
+                                      textColor: AppColor.theme)
+                                ],
+                              )),
+                        );
+                      } else {
+                        return Center(child: Image.asset(Images.loadingGif));
+                      }
+                    }),
               )),
               floatingActionButton: FloatingActionButton(
                   onPressed: () {
-                    _addUserBottomSheet(context);
+                    _addUserBottomSheet(context, orgId: orgId);
                   },
                   child: Icon(Icons.group_add_outlined)),
             ),
@@ -201,7 +332,9 @@ class _OrgProfileScreenState extends State<OrgProfileScreen> {
     );
   }
 
-  Future<dynamic> _addUserBottomSheet(BuildContext context) {
+  Future<dynamic> _addUserBottomSheet(BuildContext context,
+      {required String orgId}) {
+    clearTextControllers();
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -229,13 +362,33 @@ class _OrgProfileScreenState extends State<OrgProfileScreen> {
                     textColor: Colors.black,
                     fontsize: 2.t,
                     fontweight: FontWeight.w500),
-                CustomTextField(ctr: TextEditingController()),
+                CustomTextField(
+                    ctr: _newUserFullNameCtr!,
+                    hintText: "Enter full name of new user",
+                    capitalization: TextCapitalization.words),
                 VGap(1.5.h),
                 Txt("Mobile",
                     textColor: Colors.black,
                     fontsize: 2.t,
                     fontweight: FontWeight.w500),
-                CustomTextField(ctr: TextEditingController()),
+                CustomTextField(
+                  ctr: _newUserMobileCtr!,
+                  hintText: "Enter mobile number of new user",
+                  maxLength: 10,
+                  inputType: TextInputType.numberWithOptions(
+                      decimal: false, signed: false),
+                ),
+                VGap(1.5.h),
+                Txt("Password",
+                    textColor: Colors.black,
+                    fontsize: 2.t,
+                    fontweight: FontWeight.w500),
+                CustomTextField(
+                  ctr: _newUserPassCtr!,
+                  hintText: "Enter password for user to login",
+                  inputType: TextInputType.numberWithOptions(
+                      decimal: false, signed: false),
+                ),
                 VGap(2.h),
                 Row(
                   children: [
@@ -245,19 +398,43 @@ class _OrgProfileScreenState extends State<OrgProfileScreen> {
                               backgroundColor:
                                   Color.fromARGB(255, 155, 155, 155),
                             ),
-                            onPressed: () {},
+                            onPressed: () {
+                              clearTextControllers();
+                              Navigator.pop(context);
+                            },
                             icon: Icon(Icons.close, color: Colors.white),
                             label: Txt("Cancel", textColor: Colors.white))),
                     HGap(2.w),
-                    Expanded(
-                        child: ElevatedButton.icon(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColor.theme,
-                            ),
-                            onPressed: () {},
-                            icon: Icon(Icons.person_add_alt_1_sharp,
-                                color: Colors.white),
-                            label: Txt("Add", textColor: Colors.white))),
+                    Expanded(child:
+                        Consumer<HomeProvider>(builder: (context, provider, _) {
+                      return ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColor.theme,
+                          ),
+                          onPressed: () async {
+                            final isValid = validateNewUserTextFields();
+                            if (isValid) {
+                              final bool res = await provider.addNewUser(
+                                  orgId: orgId,
+                                  fullName: _newUserFullNameCtr!.text
+                                      .toString()
+                                      .trim(),
+                                  mobile:
+                                      _newUserMobileCtr!.text.toString().trim(),
+                                  password:
+                                      _newUserPassCtr!.text.toString().trim());
+                              if (res) {
+                                Navigator.pop(context);
+                                clearTextControllers();
+                                showFlushbar(
+                                    context, "New User Added Succeesfully..!");
+                              }
+                            }
+                          },
+                          icon: Icon(Icons.person_add_alt_1_sharp,
+                              color: Colors.white),
+                          label: Txt("Add", textColor: Colors.white));
+                    })),
                   ],
                 ),
                 VGap(2.h)

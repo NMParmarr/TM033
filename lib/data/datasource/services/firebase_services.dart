@@ -77,7 +77,7 @@ class FireServices {
   /// --- ORGANIZER SIGNUP - UPDATE
   ///
   Future<void> setUser(
-      {required String id, required OrganizerModel userModel}) async {
+      {required String id, required UserModel userModel}) async {
     await _users.doc(id).set(userModel.toJson());
   }
 
@@ -86,7 +86,7 @@ class FireServices {
     await _users.doc(id).update(updatedJson);
   }
 
-  /// --- ALL ORGANIZERS
+  /// --- USERS
   ///
   Future<List<UserModel>> getAllUsers() async {
     return _users.get().then(
@@ -98,13 +98,35 @@ class FireServices {
         (user) => user.docs.map((e) => UserModel.fromJson(e.data())).toList());
   }
 
-  /// --- SINGLE ORGANIZER
-  ///
-  Future<UserModel> getSingleUser({required String id}) async {
+  Stream<List<UserModel>> fetchUsersByOrdId({required String orgId}) {
     return _users
-        .doc(id)
+        .where('orgId', isEqualTo: orgId)
+        .orderBy("joinDate", descending: true)
+        .snapshots()
+        .map((user) =>
+            user.docs.map((e) => UserModel.fromJson(e.data())).toList());
+  }
+
+  Future<UserModel> getSingleUserByUserId({required String userId}) async {
+    return _users
+        .doc(userId)
         .get()
         .then((user) => UserModel.fromJson(user.data() ?? {}));
+  }
+
+  Future<List<UserModel>> getUsersByOrgId({required String orgId}) async {
+    return _users.where('orgId', isEqualTo: orgId).get().then(
+        (user) => user.docs.map((e) => UserModel.fromJson(e.data())).toList());
+  }
+
+  Future<List<UserModel>> getUsersByOrgIdMobilePassword(
+      {required String orgId, required String mobile, required String password}) async {
+    return _users
+        .where('orgId', isEqualTo: orgId)
+        .where('mobile', isEqualTo: mobile).where('password', isEqualTo: password)
+        .get()
+        .then((user) =>
+            user.docs.map((e) => UserModel.fromJson(e.data())).toList());
   }
 
   Stream<UserModel> fetchSingleUser({required String id}) {
@@ -112,6 +134,10 @@ class FireServices {
         .doc(id)
         .snapshots()
         .map((user) => UserModel.fromJson(user.data() ?? {}));
+  }
+
+  Future<void> deleteUser({required String userId}) async {
+    await _users.doc(userId).delete();
   }
 }
 

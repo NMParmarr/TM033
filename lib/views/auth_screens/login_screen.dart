@@ -27,8 +27,11 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  TextEditingController? _mobileCtr;
-  TextEditingController? _passCtr;
+  TextEditingController? _userMobileCtr;
+  TextEditingController? _userPassCtr;
+
+  TextEditingController? _orgMobileCtr;
+  TextEditingController? _orgPassCtr;
 
   @override
   void initState() {
@@ -50,36 +53,71 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void initTextControllers() {
-    _mobileCtr = TextEditingController();
-    _passCtr = TextEditingController();
+    _userMobileCtr = TextEditingController();
+    _userPassCtr = TextEditingController();
+    _orgMobileCtr = TextEditingController();
+    _orgPassCtr = TextEditingController();
   }
 
   void disposeTextControllers() {
-    _mobileCtr?.dispose();
-    _passCtr?.dispose();
+    _userMobileCtr?.dispose();
+    _userPassCtr?.dispose();
+    _orgMobileCtr?.dispose();
+    _orgPassCtr?.dispose();
   }
 
   void clearTextControllers() {
-    _mobileCtr?.clear();
-    _passCtr?.clear();
+    _userMobileCtr?.clear();
+    _userPassCtr?.clear();
+    _orgMobileCtr?.clear();
+    _orgPassCtr?.clear();
   }
 
   bool validateOrgTextFields() {
-    if (_mobileCtr?.text.toString().trim() == "") {
+    if (_orgMobileCtr?.text.toString().trim() == "") {
       showToast("Enter Mobile");
       return false;
       //
     } else if (!Utils.isValidMobile(
-        mobile: _mobileCtr!.text.toString().trim())) {
+        mobile: _orgMobileCtr!.text.toString().trim())) {
       showToast("Enter valid mobile");
       return false;
       //
-    } else if (_passCtr?.text.toString().trim() == "") {
+    } else if (_orgPassCtr?.text.toString().trim() == "") {
       showToast("Enter Password");
       return false;
       //
     } else if (!Utils.isValidLengthPassword(
-        password: _passCtr!.text.toString().trim())) {
+        password: _orgPassCtr!.text.toString().trim())) {
+      showToast("Password must be atleast 8 char long");
+      return false;
+      //
+    } else if (Provider.of<AuthProvider>(context, listen: false)
+            .selectedValue ==
+        Strings.selectOrgTion) {
+      showToast("Please select organization");
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  bool validateUserTextFields() {
+    if (_userMobileCtr?.text.toString().trim() == "") {
+      showToast("Enter Mobile");
+      return false;
+      //
+    } else if (!Utils.isValidMobile(
+        mobile: _userMobileCtr!.text.toString().trim())) {
+      showToast("Enter valid mobile");
+      return false;
+      //
+    } else if (_userPassCtr?.text.toString().trim() == "") {
+      showToast("Enter Password");
+      return false;
+      //
+    } else if (!Utils.isValidLengthPassword(
+        password: _userPassCtr!.text.toString().trim())) {
       showToast("Password must be atleast 8 char long");
       return false;
       //
@@ -165,7 +203,6 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _userLogin({required bool isUserTab}) {
-    clearTextControllers();
     return SingleChildScrollView(
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 4.w),
@@ -183,7 +220,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 fontsize: 2.t,
                 fontweight: FontWeight.w500),
             CustomTextField(
-              ctr: _mobileCtr!,
+              ctr: isUserTab ? _userMobileCtr! : _orgMobileCtr!,
               hintText: "Enter mobile",
               inputType: TextInputType.numberWithOptions(
                   decimal: false, signed: false),
@@ -196,7 +233,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 fontweight: FontWeight.w500),
             Consumer<AuthProvider>(builder: (context, provider, _) {
               return CustomTextField(
-                  ctr: _passCtr!,
+                  ctr: isUserTab ? _userPassCtr! : _orgPassCtr!,
                   obsecuredText: !provider.isUserPassVisible,
                   hintText: "Enter password",
                   suffixIcon: IconButton(
@@ -253,25 +290,38 @@ class _LoginScreenState extends State<LoginScreen> {
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10))),
                     onPressed: () async {
-                      bool isValid = validateOrgTextFields();
-                      if (!isValid) return;
                       if (isUserTab) {
-                        //  Navigator.pushNamed(context, Routes.mainHome)
+                        bool isValid = validateUserTextFields();
+                        if (!isValid) return;
+                        if (!provider.userLoginLoading) {
+                          final res = await provider.loginUser(
+                              mobile: _userMobileCtr!.text.toString().trim(),
+                              password: _userPassCtr!.text.toString().trim());
+                          if (res) {
+                            Navigator.pushReplacementNamed(
+                                context, Routes.mainHome);
+                          }
+                        }
                       } else {
+                        bool isValid = validateOrgTextFields();
+                        if (!isValid) return;
                         if (!provider.orgLoginLoading) {
                           final res = await provider.loginOrg(
-                              mobile: _mobileCtr!.text.toString().trim(),
-                              password: _passCtr!.text.toString().trim());
+                              mobile: _orgMobileCtr!.text.toString().trim(),
+                              password: _orgPassCtr!.text.toString().trim());
                           if (res) {
-                            Navigator.pushNamed(context, Routes.mainHomeOrg);
+                            Navigator.pushReplacementNamed(
+                                context, Routes.mainHomeOrg);
                           }
                         }
                       }
                     },
-                    icon: (provider.orgLoginLoading && !isUserTab)
+                    icon: (provider.orgLoginLoading && !isUserTab) ||
+                            (provider.userLoginLoading && isUserTab)
                         ? SizedBox()
                         : Icon(Icons.login, color: Colors.white),
-                    label: (provider.orgLoginLoading && !isUserTab)
+                    label: (provider.orgLoginLoading && !isUserTab) ||
+                            (provider.userLoginLoading && isUserTab)
                         ? CircularProgressIndicator(color: Colors.white)
                         : Txt(
                             "Login",

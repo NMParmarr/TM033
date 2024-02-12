@@ -10,6 +10,7 @@ String userModelToJson(UserModel data) => json.encode(data.toJson());
 
 class UserModel {
   String? id;
+  String? orgId;
   String? name;
   String? organization;
   String? email;
@@ -23,6 +24,7 @@ class UserModel {
 
   UserModel({
     this.id,
+    this.orgId,
     this.name,
     this.organization,
     this.email,
@@ -37,6 +39,7 @@ class UserModel {
 
   UserModel copyWith({
     String? id,
+    String? orgId,
     String? name,
     String? organization,
     String? email,
@@ -50,6 +53,7 @@ class UserModel {
   }) =>
       UserModel(
         id: id ?? this.id,
+        orgId: orgId ?? this.orgId,
         name: name ?? this.name,
         organization: organization ?? this.organization,
         email: email ?? this.email,
@@ -64,6 +68,7 @@ class UserModel {
 
   factory UserModel.fromJson(Map<String, dynamic> json) => UserModel(
         id: json["id"],
+        orgId: json["orgId"],
         name: json["name"],
         organization: json["organization"],
         email: json["email"],
@@ -78,6 +83,7 @@ class UserModel {
 
   Map<String, dynamic> toJson() => {
         "id": id,
+        "orgId": orgId,
         "name": name,
         "organization": organization,
         "email": email,
