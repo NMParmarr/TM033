@@ -54,7 +54,8 @@ class Routes {
         return MaterialPageRoute(builder: (_) => EventDetailsOrgScreen());
 
       case editProfile:
-        return MaterialPageRoute(builder: (_) => EditProfileScreen());
+      final Map<String, dynamic>? args = settings.arguments as Map<String, dynamic>?;
+        return MaterialPageRoute(builder: (_) => EditProfileScreen(user: args?['user']));
 
       case editOrgProfile:
       final Map<String, dynamic>? args = settings.arguments as Map<String, dynamic>?;

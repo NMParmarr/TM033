@@ -20,6 +20,33 @@ class HomeProvider extends ChangeNotifier {
     if (listen) notifyListeners();
   }
 
+  /// --- USER DETAIL UPDATE
+  ///
+
+  bool get saveUserLoading => _saveUserLoading;
+  bool _saveUserLoading = false;
+
+  Future<bool> updateUserDetails(
+      {required Map<String, dynamic> updatedJsonData}) async {
+    _saveUserLoading = true;
+    notifyListeners();
+    bool res = false;
+    try {
+      final org = await FireServices.instance.getCurrentOrganizer();
+      await FireServices.instance
+          .updateOrganizer(id: org.id!, updatedJson: updatedJsonData);
+      res = true;
+    } catch (e) {
+      print(" --- err update org : $e");
+      showToast("Something went wrong");
+      res = false;
+    } finally {
+      _saveUserLoading = false;
+      notifyListeners();
+      return res;
+    }
+  }
+
   /// --- ORG DETAIL UPDATE
   ///
 
@@ -63,7 +90,8 @@ class HomeProvider extends ChangeNotifier {
   Future<bool> addNewUser(
       {required String orgId,
       required String fullName,
-      required String mobile, required String password}) async {
+      required String mobile,
+      required String password}) async {
     _newUserLoading = true;
     notifyListeners();
     bool res = false;
@@ -72,7 +100,12 @@ class HomeProvider extends ChangeNotifier {
       await FireServices.instance.setUser(
           id: userId,
           userModel: UserModel(
-              id: userId, orgId: orgId, name: fullName, mobile: mobile, password: password));
+              id: userId,
+              orgId: orgId,
+              name: fullName,
+              mobile: mobile,
+              password: password,
+              joinDate: "${DateTime.now()}"));
       res = true;
     } catch (e) {
       print(" --- err add new user : $e");
@@ -105,5 +138,16 @@ class HomeProvider extends ChangeNotifier {
       // notifyListeners();
       return res;
     }
+  }
+
+  /// --- ADD NEW DOB OF USER
+  ///
+  DateTime? get dob => _dob;
+  DateTime? _dob;
+
+  void setUserDOB({required DateTime? dob, bool listen = true}) {
+    _dob = dob;
+
+    if (listen) notifyListeners();
   }
 }

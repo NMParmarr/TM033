@@ -2,22 +2,100 @@ import 'package:eventflow/resources/routes/routes.dart';
 import 'package:eventflow/utils/size_config.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
+import '../../data/models/user_model.dart';
+import '../../utils/common_toast.dart';
+import '../../utils/common_utils.dart';
 import '../../utils/constants/color_constants.dart';
 import '../../utils/constants/image_constants.dart';
 import '../../utils/gap.dart';
 import '../../utils/text.dart';
 import '../../utils/widgets/custom_text_field.dart';
+import '../../viewmodels/providers/home_provider.dart';
 
 class EditProfileScreen extends StatefulWidget {
-  const EditProfileScreen({super.key});
+  final UserModel user;
+  const EditProfileScreen({super.key, required this.user});
 
   @override
   State<EditProfileScreen> createState() => _EditProfileScreenState();
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  DateTime? dob;
+  TextEditingController? _userFullnameCtr;
+  TextEditingController? _userEmailCtr;
+  TextEditingController? _userMobileCtr;
+  TextEditingController? _userFieldCtr;
+  TextEditingController? _userAboutCtr;
+
+  @override
+  void initState() {
+    super.initState();
+    initTextControllers();
+    assignValuesToTextControllers();
+  }
+
+  @override
+  void dispose() {
+    disposeTextControllers();
+    super.dispose();
+  }
+
+  void initTextControllers() {
+    _userFullnameCtr = TextEditingController();
+    _userEmailCtr = TextEditingController();
+    _userMobileCtr = TextEditingController();
+    _userFieldCtr = TextEditingController();
+    _userAboutCtr = TextEditingController();
+  }
+
+  void disposeTextControllers() {
+    _userFullnameCtr?.dispose();
+    _userEmailCtr?.dispose();
+    _userMobileCtr?.dispose();
+    _userFieldCtr?.dispose();
+    _userAboutCtr?.dispose();
+  }
+
+  void clearTextControllers() {
+    _userFullnameCtr?.clear();
+    _userEmailCtr?.clear();
+    _userMobileCtr?.clear();
+    _userFieldCtr?.clear();
+    _userAboutCtr?.clear();
+  }
+
+  void assignValuesToTextControllers() {
+    _userFullnameCtr?.text = widget.user.organization ?? "";
+    _userEmailCtr?.text = widget.user.email ?? "";
+    _userMobileCtr?.text = widget.user.mobile ?? "";
+    _userFieldCtr?.text = widget.user.field ?? "";
+    _userAboutCtr?.text = widget.user.about ?? "";
+  }
+
+  bool validateOrgTextFields() {
+    if (_userFullnameCtr?.text.toString().trim() == "") {
+      showToast("Enter full name");
+      return false;
+      //
+    } else if (_userEmailCtr?.text.toString().trim() == "") {
+      showToast("Enter email");
+      return false;
+      //
+    } else if (!Utils.isValidEmail(
+        email: _userEmailCtr!.text.toString().trim())) {
+      showToast("Enter valid email");
+      return false;
+      //
+    } else if (_userFieldCtr?.text.toString().trim() == "") {
+      showToast("Enter Your Field");
+      return false;
+      //
+    } else {
+      return true;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +167,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         fontsize: 2.t,
                         fontweight: FontWeight.w500),
                     CustomTextField(
-                      ctr: TextEditingController(),
+                      ctr: _userFullnameCtr!,
                       hintText: "Enter full name",
                     ),
                     VGap(1.5.h),
@@ -98,7 +176,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         fontsize: 2.t,
                         fontweight: FontWeight.w500),
                     CustomTextField(
-                      ctr: TextEditingController(),
+                      ctr: _userEmailCtr!,
                       hintText: "Enter email",
                     ),
                     VGap(1.5.h),
@@ -106,48 +184,60 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         textColor: Colors.black,
                         fontsize: 2.t,
                         fontweight: FontWeight.w500),
-                    CustomTextField(
-                      ctr: TextEditingController(),
-                      hintText: "Enter mobile ",
+                    InkWell(
+                      borderRadius: BorderRadius.circular(10),
+                      onTap: () {
+                        showToast("You can't change Mobile.!");
+                      },
+                      child: IgnorePointer(
+                        child: CustomTextField(
+                          readOnly: true,
+                          ctr: _userMobileCtr!,
+                          hintText: "Enter mobile ",
+                        ),
+                      ),
                     ),
                     VGap(1.5.h),
                     Txt("Birth Date",
                         textColor: Colors.black,
                         fontsize: 2.t,
                         fontweight: FontWeight.w500),
-                    InkWell(
-                      onTap: () async {
-                        dob = await showDatePicker(
-                            context: context,
-                            firstDate: DateTime(1980),
-                            lastDate: DateTime.now());
-                        setState(() {});
-                      },
-                      child: Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 3.w, vertical: 1.3.h),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: Colors.grey.withOpacity(0.25),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Txt(dob != null
-                                  ? DateFormat('dd-MM-yyyy').format(dob!)
-                                  : "Select Birth Date"),
-                              Icon(Icons.date_range_outlined)
-                            ],
-                          )),
-                    ),
+                    Consumer<HomeProvider>(builder: (context, provider, _) {
+                      return InkWell(
+                        onTap: () async {
+                          DateTime? dob = await showDatePicker(
+                              context: context,
+                              firstDate: DateTime(1980),
+                              lastDate: DateTime.now());
+                          provider.setUserDOB(dob: dob);
+                        },
+                        child: Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 3.w, vertical: 1.3.h),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: Colors.grey.withOpacity(0.25),
+                            ),
+                            child: Row(
+                              mainAxisAlignment : MainAxisAlignment.spaceBetween,
+                              children: [
+                                Txt(provider.dob != null
+                                    ? DateFormat('dd-MM-yyyy')
+                                        .format(provider.dob!)
+                                    : "Select Birth Date"),
+                                Icon(Icons.date_range_outlined)
+                              ],
+                            )),
+                      );
+                    }),
                     VGap(1.5.h),
                     Txt("Field",
                         textColor: Colors.black,
                         fontsize: 2.t,
                         fontweight: FontWeight.w500),
                     CustomTextField(
-                      ctr: TextEditingController(),
+                      ctr: _userFieldCtr!,
                       hintText: "Enter your field",
                     ),
                     VGap(1.5.h),
@@ -156,7 +246,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         fontsize: 2.t,
                         fontweight: FontWeight.w500),
                     CustomTextField(
-                        ctr: TextEditingController(),
+                        ctr: _userAboutCtr!,
                         lines: 5,
                         hintText: "Enter description about yourself.."),
                     VGap(3.h),
