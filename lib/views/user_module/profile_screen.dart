@@ -38,6 +38,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     return _contentWidget(context,
                         user: currentUserSnap.data, userId: userId.data!);
                   } else if (currentUserSnap.hasError) {
+                    print(
+                        " --- err currentusersnap : ${currentUserSnap.error}");
                     return Center(
                       child: Padding(
                           padding: EdgeInsets.symmetric(vertical: 30.h),

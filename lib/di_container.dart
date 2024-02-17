@@ -2,6 +2,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:eventflow/viewmodels/providers/auth_provider.dart';
 import 'package:eventflow/viewmodels/providers/home_provider.dart';
+import 'package:eventflow/viewmodels/providers/profile_provider.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'data/datasource/dio/dio_clint.dart';
@@ -36,6 +37,7 @@ Future<void> init() async {
   sl.registerFactory(() => ThemeProvider(sharedPreferences: sl()));
   sl.registerFactory(() => AuthProvider(sharedPreferences: sl()));
   sl.registerFactory(() => HomeProvider(sharedPreferences: sl()));
+  sl.registerFactory(() => ProfileProvider(sharedPreferences: sl()));
 
 
   // External

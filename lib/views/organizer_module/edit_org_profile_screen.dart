@@ -3,9 +3,12 @@ import 'dart:io';
 import 'package:eventflow/data/datasource/services/firebase_services.dart';
 import 'package:eventflow/data/models/organizer_model.dart';
 import 'package:eventflow/resources/routes/routes.dart';
+import 'package:eventflow/utils/common_flushbar.dart';
 import 'package:eventflow/utils/size_config.dart';
 import 'package:eventflow/viewmodels/providers/home_provider.dart';
+import 'package:eventflow/viewmodels/providers/profile_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../utils/common_toast.dart';
@@ -235,43 +238,21 @@ class _EditOrgProfileScreenState extends State<EditOrgProfileScreen> {
               textColor: Colors.black,
               fontsize: 2.t,
               fontweight: FontWeight.w500),
-          CustomTextField(
-              ctr: _orgMobileCtr!,
-              inputType: TextInputType.numberWithOptions(
-                  decimal: false, signed: false),
-              hintText: "Enter organizer's mobile",
-              readOnly: true),
-          VGap(1.5.h),
-          // Txt("Birth Date",
-          //     textColor: Colors.black,
-          //     fontsize: 2.t,
-          //     fontweight: FontWeight.w500),
-          // InkWell(
-          //   onTap: () async {
-          //     dob = await showDatePicker(
-          //         context: context,
-          //         firstDate: DateTime(1980),
-          //         lastDate: DateTime.now());
-          //     setState(() {});
-          //   },
-          //   child: Container(
-          //       width: double.infinity,
-          //       padding: EdgeInsets.symmetric(
-          //           horizontal: 3.w, vertical: 1.3.h),
-          //       decoration: BoxDecoration(
-          //         borderRadius: BorderRadius.circular(10),
-          //         color: Colors.grey.withOpacity(0.25),
-          //       ),
-          //       child: Txt(dob != null
-          //           ? DateFormat('dd-MM-yyyy').format(dob!)
-          //           : "Choose DOB")),
-          // ),
-          // VGap(1.5.h),
-          // Txt("Field",
-          //     textColor: Colors.black,
-          //     fontsize: 2.t,
-          //     fontweight: FontWeight.w500),
-          // CustomTextField(ctr: TextEditingController()),
+          InkWell(
+            borderRadius: BorderRadius.circular(10),
+            onTap: () {
+              showToast("You can't change Mobile.!");
+            },
+            child: IgnorePointer(
+              child: CustomTextField(
+                  ctr: _orgMobileCtr!,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  inputType: TextInputType.numberWithOptions(
+                      decimal: false, signed: false),
+                  hintText: "Enter organizer's mobile",
+                  readOnly: true),
+            ),
+          ),
           VGap(1.5.h),
           Txt("About",
               textColor: Colors.black,
@@ -298,12 +279,15 @@ class _EditOrgProfileScreenState extends State<EditOrgProfileScreen> {
                       label: Txt("Discard", textColor: Colors.white))),
               HGap(2.w),
               Expanded(child:
-                  Consumer<HomeProvider>(builder: (context, provider, _) {
+                  Consumer<ProfileProvider>(builder: (context, provider, _) {
                 return ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColor.theme,
                     ),
                     onPressed: () async {
+                      bool isValid = validateOrgTextFields();
+                      if (!isValid) return;
+
                       if (!provider.saveLoading) {
                         bool res =
                             await provider.updateOrgDetails(updatedJsonData: {
@@ -318,6 +302,7 @@ class _EditOrgProfileScreenState extends State<EditOrgProfileScreen> {
                         });
                         if (res) {
                           Navigator.pop(context);
+                          showFlushbar(context, "Saved successfully..!");
                         }
                       }
                     },
@@ -333,7 +318,8 @@ class _EditOrgProfileScreenState extends State<EditOrgProfileScreen> {
           VGap(3.h),
           ListTile(
             onTap: () {
-              Navigator.popAndPushNamed(context, Routes.changePassword);
+              Navigator.popAndPushNamed(context, Routes.changePassword,
+                  arguments: {'isUser': false});
             },
             leading: Icon(
               Icons.lock,

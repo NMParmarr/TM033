@@ -1,6 +1,7 @@
 import 'package:eventflow/utils/constants/color_constants.dart';
 import 'package:eventflow/utils/size_config.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CustomTextField extends StatelessWidget {
@@ -15,6 +16,8 @@ class CustomTextField extends StatelessWidget {
   final int? maxLength;
   final TextCapitalization? capitalization;
   final bool tapOutsideDismiss;
+final List<TextInputFormatter>? inputFormatters;
+
   const CustomTextField({
     required this.ctr,
     this.suffixIcon,
@@ -26,6 +29,7 @@ class CustomTextField extends StatelessWidget {
     this.readOnly,
     this.maxLength,
     this.tapOutsideDismiss = false,
+    this.inputFormatters,
     this.capitalization,
     super.key,
   });
@@ -33,6 +37,7 @@ class CustomTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      inputFormatters: inputFormatters,
       controller: ctr,
       obscureText: obsecuredText,
       keyboardType: inputType,

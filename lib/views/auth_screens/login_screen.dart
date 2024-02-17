@@ -222,6 +222,7 @@ class _LoginScreenState extends State<LoginScreen> {
             CustomTextField(
               ctr: isUserTab ? _userMobileCtr! : _orgMobileCtr!,
               hintText: "Enter mobile",
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               inputType: TextInputType.numberWithOptions(
                   decimal: false, signed: false),
               maxLength: 10,

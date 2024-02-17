@@ -7,6 +7,7 @@ import 'package:eventflow/utils/size_config.dart';
 import 'package:eventflow/utils/text.dart';
 import 'package:eventflow/viewmodels/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../utils/common_toast.dart';
@@ -207,6 +208,8 @@ class _SignupScreenState extends State<SignupScreen> {
                     CustomTextField(
                       ctr: _orgMobileCtr!,
                       hintText: "Enter organizer's mobile",
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+
                       inputType: TextInputType.numberWithOptions(
                           decimal: false, signed: false),
                       maxLength: 10,

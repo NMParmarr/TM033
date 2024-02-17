@@ -10,6 +10,7 @@ import 'package:eventflow/utils/gap.dart';
 import 'package:eventflow/utils/size_config.dart';
 import 'package:eventflow/utils/text.dart';
 import 'package:eventflow/viewmodels/providers/home_provider.dart';
+import 'package:eventflow/viewmodels/providers/profile_provider.dart';
 import 'package:eventflow/views/organizer_module/paricipants_list.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -406,7 +407,7 @@ class _OrgProfileScreenState extends State<OrgProfileScreen> {
                             label: Txt("Cancel", textColor: Colors.white))),
                     HGap(2.w),
                     Expanded(child:
-                        Consumer<HomeProvider>(builder: (context, provider, _) {
+                        Consumer<ProfileProvider>(builder: (context, provider, _) {
                       return ElevatedButton.icon(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColor.theme,

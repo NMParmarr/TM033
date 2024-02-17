@@ -5,6 +5,7 @@ import 'package:eventflow/utils/constants/color_constants.dart';
 import 'package:eventflow/utils/size_config.dart';
 import 'package:eventflow/utils/text.dart';
 import 'package:eventflow/viewmodels/providers/home_provider.dart';
+import 'package:eventflow/viewmodels/providers/profile_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -41,7 +42,7 @@ class ParticipantsList extends StatelessWidget {
             return Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Consumer<HomeProvider>(builder: (context, provider, _) {
+                Consumer<ProfileProvider>(builder: (context, provider, _) {
                   return IconButton(
                       onPressed: () {
                         Utils.deleteUserDialog(context,

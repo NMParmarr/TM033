@@ -1,6 +1,9 @@
 import 'package:eventflow/resources/routes/routes.dart';
+import 'package:eventflow/utils/common_flushbar.dart';
 import 'package:eventflow/utils/size_config.dart';
+import 'package:eventflow/viewmodels/providers/profile_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -32,6 +35,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   void initState() {
     super.initState();
+    Provider.of<ProfileProvider>(context, listen: false)
+        .setUserDOB(dob: DateTime.tryParse(widget.user.dob!), listen: false);
     initTextControllers();
     assignValuesToTextControllers();
   }
@@ -67,14 +72,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   void assignValuesToTextControllers() {
-    _userFullnameCtr?.text = widget.user.organization ?? "";
+    _userFullnameCtr?.text = widget.user.name ?? "";
     _userEmailCtr?.text = widget.user.email ?? "";
     _userMobileCtr?.text = widget.user.mobile ?? "";
     _userFieldCtr?.text = widget.user.field ?? "";
     _userAboutCtr?.text = widget.user.about ?? "";
   }
 
-  bool validateOrgTextFields() {
+  bool validateUserTextFields() {
     if (_userFullnameCtr?.text.toString().trim() == "") {
       showToast("Enter full name");
       return false;
@@ -191,6 +196,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       },
                       child: IgnorePointer(
                         child: CustomTextField(
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
                           readOnly: true,
                           ctr: _userMobileCtr!,
                           hintText: "Enter mobile ",
@@ -202,7 +210,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         textColor: Colors.black,
                         fontsize: 2.t,
                         fontweight: FontWeight.w500),
-                    Consumer<HomeProvider>(builder: (context, provider, _) {
+                    Consumer<ProfileProvider>(builder: (context, provider, _) {
                       return InkWell(
                         onTap: () async {
                           DateTime? dob = await showDatePicker(
@@ -220,7 +228,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               color: Colors.grey.withOpacity(0.25),
                             ),
                             child: Row(
-                              mainAxisAlignment : MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Txt(provider.dob != null
                                     ? DateFormat('dd-MM-yyyy')
@@ -263,22 +271,55 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 label:
                                     Txt("Discard", textColor: Colors.white))),
                         HGap(2.w),
-                        Expanded(
-                            child: ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColor.theme,
-                                ),
-                                onPressed: () {},
-                                icon: Icon(Icons.check_circle,
-                                    color: Colors.white),
-                                label: Txt("Save", textColor: Colors.white))),
+                        Expanded(child: Consumer<ProfileProvider>(
+                            builder: (context, provider, _) {
+                          return ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColor.theme,
+                              ),
+                              onPressed: () async {
+                                bool isValid = validateUserTextFields();
+                                if (!isValid) return;
+                                if (!provider.saveUserLoading) {
+                                  bool res = await provider
+                                      .updateUserDetails(updatedJsonData: {
+                                    "fullName": _userFullnameCtr?.text
+                                        .toString()
+                                        .trim(),
+                                    "email":
+                                        _userEmailCtr?.text.toString().trim(),
+                                    "dob": provider.dob.toString(),
+                                    "field":
+                                        _userFieldCtr?.text.toString().trim(),
+                                    "about":
+                                        _userAboutCtr?.text.toString().trim(),
+                                    "image": provider.imagePath,
+                                  });
+                                  if (res) {
+                                    Navigator.pop(context);
+                                    showFlushbar(
+                                        context, "Saved successfully..!");
+                                    provider.clearUserDOB();
+                                  }
+                                }
+                              },
+                              icon: provider.saveUserLoading
+                                  ? SizedBox()
+                                  : Icon(Icons.check_circle,
+                                      color: Colors.white),
+                              label: provider.saveUserLoading
+                                  ? CircularProgressIndicator(
+                                      color: Colors.white)
+                                  : Txt("Save", textColor: Colors.white));
+                        })),
                       ],
                     ),
                     VGap(3.h),
                     ListTile(
                       onTap: () {
                         Navigator.popAndPushNamed(
-                            context, Routes.changePassword);
+                            context, Routes.changePassword,
+                            arguments: {'isUser': true});
                       },
                       leading: Icon(
                         Icons.lock,

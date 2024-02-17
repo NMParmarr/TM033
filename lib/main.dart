@@ -1,6 +1,7 @@
 import 'package:eventflow/utils/constants/color_constants.dart';
 import 'package:eventflow/viewmodels/providers/auth_provider.dart';
 import 'package:eventflow/viewmodels/providers/home_provider.dart';
+import 'package:eventflow/viewmodels/providers/profile_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -29,6 +30,7 @@ Future<void> main() async {
       ChangeNotifierProvider(create: (context) => di.sl<ThemeProvider>()),
       ChangeNotifierProvider(create: (context) => di.sl<AuthProvider>()),
       ChangeNotifierProvider(create: (context) => di.sl<HomeProvider>()),
+      ChangeNotifierProvider(create: (context) => di.sl<ProfileProvider>()),
     ],
     child: const MyApp(),
   ));

@@ -120,10 +120,13 @@ class FireServices {
   }
 
   Future<List<UserModel>> getUsersByOrgIdMobilePassword(
-      {required String orgId, required String mobile, required String password}) async {
+      {required String orgId,
+      required String mobile,
+      required String password}) async {
     return _users
         .where('orgId', isEqualTo: orgId)
-        .where('mobile', isEqualTo: mobile).where('password', isEqualTo: password)
+        .where('mobile', isEqualTo: mobile)
+        .where('password', isEqualTo: password)
         .get()
         .then((user) =>
             user.docs.map((e) => UserModel.fromJson(e.data())).toList());
@@ -139,6 +142,21 @@ class FireServices {
   Future<void> deleteUser({required String userId}) async {
     await _users.doc(userId).delete();
   }
+
+  /// --- CHANGE PASSWORD ---
+  ///
+
+
+  Future<void> changeOrgPassword(
+      {required String orgId, required String newPass}) async {
+    await _organizers.doc(orgId).update({'password': newPass});
+  }
+
+  Future<void> changeUserPassword(
+      {required String userId, required String newPass}) async {
+    await _users.doc(userId).update({'password': newPass});
+  }
+  
 }
 
 // final eventmodel =
