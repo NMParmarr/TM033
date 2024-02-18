@@ -1,4 +1,5 @@
-import 'package:eventflow/utils/common_flushbar.dart';
+import 'package:eventflow/data/datasource/services/firebase_services.dart';
+import 'package:eventflow/data/models/event_model.dart';
 import 'package:eventflow/utils/common_utils.dart';
 import 'package:eventflow/utils/constants/color_constants.dart';
 import 'package:eventflow/utils/constants/image_constants.dart';
@@ -10,7 +11,10 @@ import '../../utils/gap.dart';
 import '../../utils/text.dart';
 
 class EventDetailsOrgScreen extends StatefulWidget {
-  const EventDetailsOrgScreen({super.key});
+  final String eventId;
+  final String orgId;
+  const EventDetailsOrgScreen(
+      {super.key, required this.eventId, required this.orgId});
 
   @override
   State<EventDetailsOrgScreen> createState() => _EventDetailsOrgScreenState();
@@ -19,6 +23,27 @@ class EventDetailsOrgScreen extends StatefulWidget {
 class _EventDetailsOrgScreenState extends State<EventDetailsOrgScreen> {
   @override
   Widget build(BuildContext context) {
+    return StreamBuilder<EventModel>(
+        stream: FireServices.instance
+            .fetchEventByEventId(orgId: widget.orgId, eventId: widget.eventId),
+        builder: (context, event) {
+          if (event.hasData) {
+            return _contentWidget(context, event: event.data!);
+          } else if (event.hasError) {
+            print(" --- err eventhiuh snap -- ${event.error}");
+            return Container(
+                color: Colors.white,
+                child: Center(child: Icon(Icons.error, color: AppColor.theme)));
+          } else {
+            return Container(
+                color: Colors.white,
+                child: Center(child: Image.asset(Images.loadingGif)));
+          }
+        });
+  }
+
+  Widget _contentWidget(BuildContext context, {required EventModel event}) {
+    print(" --- event name : ${widget.eventId}");
     return Scaffold(
       bottomNavigationBar: Padding(
         padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.2.h),
@@ -68,22 +93,54 @@ class _EventDetailsOrgScreenState extends State<EventDetailsOrgScreen> {
                 children: [
                   AspectRatio(
                     aspectRatio: 16 / 9,
-                    child: Container(
-                        width: double.infinity,
-                        child: Image.asset(
-                          Images.sampleImage,
-                          fit: BoxFit.cover,
-                        )),
-                  ),
-                  Transform.flip(
-                    child: Container(
-                      height: 1.5.h,
-                      width: 100.w,
-                      child: Image.asset(Images.sampleImage, fit: BoxFit.fill),
+                    child: InkWell(
+                      onTap: () {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 1.w, vertical: 2.w),
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: Icon(
+                                          Icons.arrow_back_ios_new_rounded),
+                                      style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.white,
+                                          shape: CircleBorder()),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: InteractiveViewer(
+                                        child: Image.asset(Images.sampleEvent)),
+                                  ),
+                                  SizedBox(height: 5.h)
+                                ],
+                              );
+                            });
+                      },
+                      child: Container(
+                          width: double.infinity,
+                          child: Image.asset(
+                            Images.sampleEvent,
+                            fit: BoxFit.cover,
+                          )),
                     ),
                   ),
+                  // Transform.flip(
+                  //   child: Container(
+                  //     height: 20.h,
+                  //     width: 100.w,
+                  //     child: Image.asset(Images.sampleEvent, fit: BoxFit.fill),
+                  //   ),
+                  // ),
                   Transform.translate(
-                    offset: Offset(0, -1.5.h),
+                    offset: Offset(0, 1.h),
                     child: Container(
                       width: 100.w,
                       // height: 50.h,
@@ -91,7 +148,7 @@ class _EventDetailsOrgScreenState extends State<EventDetailsOrgScreen> {
                       decoration: BoxDecoration(
                         boxShadow: [
                           BoxShadow(
-                              blurRadius: 2,
+                              blurRadius: 5,
                               color: Colors.grey.withOpacity(0.5),
                               offset: Offset(0, -5))
                         ],
@@ -105,7 +162,7 @@ class _EventDetailsOrgScreenState extends State<EventDetailsOrgScreen> {
                         children: [
                           VGap(1.h),
                           Txt(
-                            "Event Name",
+                            event.eventName ?? "--",
                             fontsize: 3.t,
                             fontweight: FontWeight.w700,
                             textColor: Colors.black,
@@ -117,7 +174,7 @@ class _EventDetailsOrgScreenState extends State<EventDetailsOrgScreen> {
                                   color: AppColor.primary),
                               HGap(3.w),
                               Txt(
-                                "02-02-2024  03:30",
+                                "${event.eventDate ?? "--"} ${event.eventTime ?? "--"}",
                                 fontsize: 2.t,
                                 textColor: Colors.black,
                               )
@@ -129,7 +186,7 @@ class _EventDetailsOrgScreenState extends State<EventDetailsOrgScreen> {
                                   color: AppColor.primary),
                               HGap(3.w),
                               Txt(
-                                "Rajkot",
+                                event.location ?? "--",
                                 fontsize: 2.t,
                                 textColor: Colors.black,
                               )
@@ -161,7 +218,7 @@ class _EventDetailsOrgScreenState extends State<EventDetailsOrgScreen> {
                                 ),
                                 VGap(0.3.h),
                                 Txt(
-                                  "Lorem is put hthjdjf djfh jkh fdkj r kfho ieor hdfi poer kjdfoueoj a;lkfkhfg kerkh iadknkjhd uaekjkjahdiu hkenj hoij kjehri jkjhfiuej keu e hjjflkadj oaj pioajf oaheupo jaeiufh iodjf ajdf .",
+                                  event.about ?? "---\n-----",
                                   fontsize: 2.t,
                                   textColor: Colors.black,
                                 ),
@@ -177,7 +234,8 @@ class _EventDetailsOrgScreenState extends State<EventDetailsOrgScreen> {
                           ),
                           ParticipantsList(
                             usersList: [],
-                          )
+                          ),
+                          VGap(2.h),
                         ],
                       ),
                     ),

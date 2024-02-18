@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'common_flushbar.dart';
 import 'constants/color_constants.dart';
+import 'constants/image_constants.dart';
 
 class Utils {
   static bool isValidEmail({required String email}) {
@@ -135,6 +136,26 @@ class Utils {
           ],
         );
       },
+    );
+  }
+
+  static Widget noDataFoundWidget(
+      {required String msg, double? height, double? width, Alignment? alignment}) {
+    return Container(
+      color: Colors.white,
+      height: height,
+      width: width,
+      alignment: alignment,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Image.asset(
+            Images.noDataFound2,
+            height: 30.h,
+          ),
+          Txt(msg, fontsize: 3.t, textColor: AppColor.theme)
+        ],
+      ),
     );
   }
 }

@@ -62,6 +62,7 @@ class _MyAppState extends State<MyApp> {
           color: AppColor.theme,
           title: App.appName,
           theme: ThemeData(
+            scaffoldBackgroundColor: Colors.white,
               elevatedButtonTheme: ElevatedButtonThemeData(
                   style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.resolveWith(

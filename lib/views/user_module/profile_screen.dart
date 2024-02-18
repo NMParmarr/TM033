@@ -1,4 +1,5 @@
 import 'package:eventflow/data/models/organizer_model.dart';
+import 'package:eventflow/resources/helper/loader.dart';
 import 'package:eventflow/resources/helper/shared_preferences.dart';
 import 'package:eventflow/resources/routes/routes.dart';
 import 'package:eventflow/utils/constants/color_constants.dart';
@@ -10,10 +11,13 @@ import 'package:eventflow/views/user_module/event_list.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import '../../data/datasource/services/firebase_services.dart';
 import '../../data/models/user_model.dart';
+import '../../utils/common_utils.dart';
 import '../../utils/constants/app_constants.dart';
+import '../../viewmodels/providers/auth_provider.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -121,18 +125,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       icon: Icon(Icons.edit, color: Colors.white),
                       label: Txt("Edit Profile", textColor: Colors.white))),
               HGap(2.w),
-              Expanded(
-                  child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColor.orange,
-                      ),
-                      onPressed: () {
-                        Navigator.pushNamedAndRemoveUntil(
-                            context, Routes.login, (route) => false);
-                      },
-                      icon: Icon(Icons.arrow_circle_left_outlined,
-                          color: Colors.white),
-                      label: Txt("Logout", textColor: Colors.white)))
+              Expanded(child:
+                  Consumer<AuthProvider>(builder: (context, provider, _) {
+                return Builder(
+                  builder: (context) {
+                    return ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColor.orange,
+                        ),
+                        onPressed: () async {
+                          Utils.logoutConfirmationDialoag(context, onYes: () async {
+                            if (!provider.logoutLoading) {
+                              // showLoader(context);
+                              final res = await provider.logout();
+                              // hideLoader();
+                              if (res) {
+                                Navigator.pushNamedAndRemoveUntil(
+                                    context, Routes.auth, (route) => false);
+                              }
+                            }
+                          });
+                        },
+                        icon: Icon(Icons.arrow_circle_left_outlined,
+                            color: Colors.white),
+                        label: Txt("Logout", textColor: Colors.white));
+                  }
+                );
+              }))
             ],
           ),
         ),

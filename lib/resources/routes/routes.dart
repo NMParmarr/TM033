@@ -48,23 +48,38 @@ class Routes {
         return MaterialPageRoute(builder: (_) => MainHomeOrgScreen());
 
       case eventDetails:
-        return MaterialPageRoute(builder: (_) => EventDetailsScreen());
+        final Map<String, dynamic> args =
+            settings.arguments as Map<String, dynamic>;
+
+        return MaterialPageRoute(
+            builder: (_) => EventDetailsScreen(eventId: args['eventId']));
 
       case eventDetailsOrg:
-        return MaterialPageRoute(builder: (_) => EventDetailsOrgScreen());
+        final Map<String, dynamic> args =
+            settings.arguments as Map<String, dynamic>;
+
+        return MaterialPageRoute(
+            builder: (_) => EventDetailsOrgScreen(
+                orgId: args['orgId'], eventId: args['eventId']));
 
       case editProfile:
-      final Map<String, dynamic>? args = settings.arguments as Map<String, dynamic>?;
-        return MaterialPageRoute(builder: (_) => EditProfileScreen(user: args?['user']));
+        final Map<String, dynamic>? args =
+            settings.arguments as Map<String, dynamic>?;
+        return MaterialPageRoute(
+            builder: (_) => EditProfileScreen(user: args?['user']));
 
       case editOrgProfile:
-      final Map<String, dynamic>? args = settings.arguments as Map<String, dynamic>?;
-        return MaterialPageRoute(builder: (_) => EditOrgProfileScreen(org: args?['org']));
+        final Map<String, dynamic>? args =
+            settings.arguments as Map<String, dynamic>?;
+        return MaterialPageRoute(
+            builder: (_) => EditOrgProfileScreen(org: args?['org']));
 
       case changePassword:
-      final Map<String, dynamic> args = settings.arguments as Map<String, dynamic>;
+        final Map<String, dynamic> args =
+            settings.arguments as Map<String, dynamic>;
 
-        return MaterialPageRoute(builder: (_) => ChangePasswordScreen(isUser:args['isUser'] ));
+        return MaterialPageRoute(
+            builder: (_) => ChangePasswordScreen(isUser: args['isUser']));
 
       case addEvent:
         return MaterialPageRoute(builder: (_) => AddEventScren());

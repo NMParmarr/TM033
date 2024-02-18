@@ -2,8 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:eventflow/data/models/organizer_model.dart';
 import 'package:eventflow/data/models/user_model.dart';
 import 'package:eventflow/resources/helper/shared_preferences.dart';
-import 'package:eventflow/utils/common_toast.dart';
 import 'package:eventflow/utils/constants/app_constants.dart';
+
+import '../../models/event_model.dart';
+import '../../models/event_type.dart';
 
 class FireServices {
   FireServices._();
@@ -17,9 +19,6 @@ class FireServices {
 
   CollectionReference get users => _users;
   final _users = FirebaseFirestore.instance.collection("users");
-
-  CollectionReference get events => _events;
-  final _events = FirebaseFirestore.instance.collection("events");
 
   /////////////////////[ ORGANIZERS ]///////////////////////
 
@@ -146,7 +145,6 @@ class FireServices {
   /// --- CHANGE PASSWORD ---
   ///
 
-
   Future<void> changeOrgPassword(
       {required String orgId, required String newPass}) async {
     await _organizers.doc(orgId).update({'password': newPass});
@@ -156,23 +154,164 @@ class FireServices {
       {required String userId, required String newPass}) async {
     await _users.doc(userId).update({'password': newPass});
   }
-  
-}
 
+  /// --- EVENT MANAGEMENT
+  ///
+  /// --- ORG EVENT TYPE
+  ///
+
+  Future<void> addEventType(
+      {required String orgId,
+      required String typeId,
+      required EventType eventType}) async {
+    await _organizers
+        .doc(orgId)
+        .collection(App.eventTypes)
+        .doc(typeId)
+        .set(eventType.toJson());
+  }
+
+  Stream<List<EventType>> fetchEventTypeByOrg({required String orgId}) {
+    return _organizers.doc(orgId).collection(App.eventTypes).snapshots().map(
+        (event) =>
+            event.docs.map((e) => EventType.fromJson(e.data())).toList());
+  }
+
+  Future<List<EventType>> getEventTypeByOrg({required String orgId}) async {
+    return await _organizers.doc(orgId).collection(App.eventTypes).get().then(
+        (event) =>
+            event.docs.map((e) => EventType.fromJson(e.data())).toList());
+  }
+
+  /// --- ORG EVENT
+  ///
+
+  Future<void> addNewEvent({
+    required String orgId,
+    required String eventId,
+    required EventModel eventModel,
+  }) async {
+    await _organizers
+        .doc(orgId)
+        .collection(App.events)
+        .doc(eventId)
+        .set(eventModel.toJson());
+  }
+
+  Stream<List<EventModel>> fetchEventsByTypeId(
+      {required String orgId, required String typeId}) {
+    return _organizers
+        .doc(orgId)
+        .collection(App.events)
+        .where('typeId', isEqualTo: typeId)
+        .orderBy('eventDate', descending: true)
+        .orderBy('eventTime', descending: true)
+        .snapshots()
+        .map((event) =>
+            event.docs.map((e) => EventModel.fromJson(e.data())).toList());
+  }
+
+  Future<List<EventModel>> getEventByTypeId(
+      {required String orgId, required String typeId}) async {
+    return await _organizers
+        .doc(orgId)
+        .collection(App.events)
+        .where('typeId', isEqualTo: typeId)
+        .orderBy('eventDate', descending: true)
+        .orderBy('eventTime', descending: true)
+        .get()
+        .then((event) =>
+            event.docs.map((e) => EventModel.fromJson(e.data())).toList());
+  }
+
+// -- fetch single event
+  Stream<EventModel> fetchEventByEventId(
+      {required String orgId, required String eventId}) {
+    return _organizers
+        .doc(orgId)
+        .collection(App.events)
+        .doc(eventId)
+        .snapshots()
+        .map((event) => EventModel.fromJson(event.data() ?? {}));
+  }
+
+  Future<EventModel> getEventByEventId(
+      {required String orgId, required String eventId}) {
+    return _organizers
+        .doc(orgId)
+        .collection(App.events)
+        .doc(eventId)
+        .get()
+        .then((event) => EventModel.fromJson(event.data() ?? {}));
+  }
+
+  /// --- fetch upcoming events
+  ///
+
+  Stream<List<EventModel>> fetchUpcomingEvents(
+      {required String orgId, required String todayDate}) {
+    return _organizers
+        .doc(orgId)
+        .collection(App.events)
+        .where('eventDate', isGreaterThanOrEqualTo: todayDate)
+        .orderBy('eventDate', descending: true)
+        .orderBy('eventTime', descending: true)
+        .snapshots()
+        .map((event) =>
+            event.docs.map((e) => EventModel.fromJson(e.data())).toList());
+  }
+
+  Future<List<EventModel>> getUpcomingEvents(
+      {required String orgId, required String todayDate}) async {
+    return _organizers
+        .doc(orgId)
+        .collection(App.events)
+        .where('eventDate', isGreaterThanOrEqualTo: todayDate)
+        .orderBy('eventDate', descending: true)
+        .orderBy('eventTime', descending: true)
+        .get()
+        .then((event) =>
+            event.docs.map((e) => EventModel.fromJson(e.data())).toList());
+  }
+  /// --- fetch past events
+  ///
+
+  Stream<List<EventModel>> fetchPastEvents(
+      {required String orgId, required String todayDate}) {
+    return _organizers
+        .doc(orgId)
+        .collection(App.events)
+        .where('eventDate', isLessThan: todayDate)
+        .orderBy('eventDate', descending: true)
+        .orderBy('eventTime', descending: true)
+        .snapshots()
+        .map((event) =>
+            event.docs.map((e) => EventModel.fromJson(e.data())).toList());
+  }
+
+  Future<List<EventModel>> getPastEvents(
+      {required String orgId, required String todayDate}) async {
+    return _organizers
+        .doc(orgId)
+        .collection(App.events)
+        .where('eventDate', isLessThan: todayDate)
+        .orderBy('eventDate', descending: true)
+        .orderBy('eventTime', descending: true)
+        .get()
+        .then((event) =>
+            event.docs.map((e) => EventModel.fromJson(e.data())).toList());
+  }
+
+  ///----------------
+  ///--------------------------------
+  ///---------------------------------------------------------
+  ///--------------------------------
+  ///----------------
+}
 // final eventmodel =
 // {
-//   "id" : "user12",
-//   "eventName" : "neon perms",
-//   "eventDate" : "neotech",
-//   "eventTime" : "orgemail@gmail.com",
-//   "location" : "8141809076",
-//   "type" : "90-90-8980",
-//   "about" : "null",
-//   "image" : "https:/neotech.com/image.jpg",
-//   "createdAt" : "90-909-909",
-//   "participants" : [
-//     "dadfad",
-//     "dfadfa",
-//     "dafadf"
-//   ]
+//   "typeId" : "user12",
+//   "orgId" : "neon perms",
+//   "name" : "neotech",
+
 // };

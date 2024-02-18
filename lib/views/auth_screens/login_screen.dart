@@ -291,30 +291,34 @@ class _LoginScreenState extends State<LoginScreen> {
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10))),
                     onPressed: () async {
-                      if (isUserTab) {
-                        bool isValid = validateUserTextFields();
-                        if (!isValid) return;
-                        if (!provider.userLoginLoading) {
-                          final res = await provider.loginUser(
-                              mobile: _userMobileCtr!.text.toString().trim(),
-                              password: _userPassCtr!.text.toString().trim());
-                          if (res) {
-                            Navigator.pushReplacementNamed(
-                                context, Routes.mainHome);
+                      try {
+                        if (isUserTab) {
+                          bool isValid = validateUserTextFields();
+                          if (!isValid) return;
+                          if (!provider.userLoginLoading) {
+                            final res = await provider.loginUser(
+                                mobile: _userMobileCtr!.text.toString().trim(),
+                                password: _userPassCtr!.text.toString().trim());
+                            if (res) {
+                              Navigator.pushReplacementNamed(
+                                  context, Routes.mainHome);
+                            }
+                          }
+                        } else {
+                          bool isValid = validateOrgTextFields();
+                          if (!isValid) return;
+                          if (!provider.orgLoginLoading) {
+                            final res = await provider.loginOrg(
+                                mobile: _orgMobileCtr!.text.toString().trim(),
+                                password: _orgPassCtr!.text.toString().trim());
+                            if (res) {
+                              Navigator.pushReplacementNamed(
+                                  context, Routes.mainHomeOrg);
+                            }
                           }
                         }
-                      } else {
-                        bool isValid = validateOrgTextFields();
-                        if (!isValid) return;
-                        if (!provider.orgLoginLoading) {
-                          final res = await provider.loginOrg(
-                              mobile: _orgMobileCtr!.text.toString().trim(),
-                              password: _orgPassCtr!.text.toString().trim());
-                          if (res) {
-                            Navigator.pushReplacementNamed(
-                                context, Routes.mainHomeOrg);
-                          }
-                        }
+                      } catch (e) {
+                        showToast("Something went wrong.!");
                       }
                     },
                     icon: (provider.orgLoginLoading && !isUserTab) ||

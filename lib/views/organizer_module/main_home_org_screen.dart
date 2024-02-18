@@ -40,10 +40,12 @@ class _MainHomeOrgScreenState extends State<MainHomeOrgScreen> {
         },
         child: Scaffold(
           appBar: AppBar(
+            backgroundColor: AppColor.theme,
             automaticallyImplyLeading: false,
             title: Txt(
               "Event Flow",
-              textColor: AppColor.theme,
+              textColor: Colors.white,
+              // textColor: AppColor.theme,
               fontweight: FontWeight.w600,
             ),
           ),

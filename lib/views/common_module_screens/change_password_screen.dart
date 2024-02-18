@@ -73,7 +73,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       showToast("Enter Confirm Password");
       return false;
       //
-    } else if (_newCPassCtr?.text.toString().trim() !=
+    } else if (_newPassCtr?.text.toString().trim() !=
         _newCPassCtr?.text.toString().trim()) {
       showToast("Password Mismatched..");
       return false;
@@ -166,7 +166,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                                   backgroundColor:
                                       Color.fromARGB(255, 155, 155, 155),
                                 ),
-                                onPressed: () {},
+                                onPressed: () {
+                                  clearTextControllers();
+                                  Navigator.pop(context);
+                                },
                                 icon: Icon(Icons.close, color: Colors.white),
                                 label:
                                     Txt("Discard", textColor: Colors.white))),
@@ -185,7 +188,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                                         _currentPassCtr!.text.toString().trim(),
                                     newPass:
                                         _newPassCtr!.text.toString().trim(),
-                                    isUser: true);
+                                    isUser: widget.isUser);
 
                                 if (res) {
                                   Navigator.pop(context);

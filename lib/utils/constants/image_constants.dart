@@ -10,6 +10,7 @@ class Images {
   static const String noDataFound2 = "assets/images/noData.png";
   static const String noItemsFound = "assets/images/noItemsFound.png";
   static const String sampleImage = "assets/images/sampleImage.png";
+  static const String sampleEvent = "assets/images/sample_event.png";
 
   /// SVG IMAGES
 
@@ -17,6 +18,7 @@ class Images {
   static const String loadingGif = "assets/images/loadingGif.gif";
   static const String loadingPlaceholder =
       "assets/images/loadingPlaceholder.gif";
+  static const String welcomGif = "assets/images/welcomeGif.gif";
 }
 
 class AssetIcons {

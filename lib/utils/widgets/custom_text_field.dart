@@ -16,7 +16,8 @@ class CustomTextField extends StatelessWidget {
   final int? maxLength;
   final TextCapitalization? capitalization;
   final bool tapOutsideDismiss;
-final List<TextInputFormatter>? inputFormatters;
+  final List<TextInputFormatter>? inputFormatters;
+  final EdgeInsetsGeometry? contentPadding;
 
   const CustomTextField({
     required this.ctr,
@@ -27,6 +28,7 @@ final List<TextInputFormatter>? inputFormatters;
     this.hintText,
     this.lines,
     this.readOnly,
+    this.contentPadding,
     this.maxLength,
     this.tapOutsideDismiss = false,
     this.inputFormatters,
@@ -55,8 +57,7 @@ final List<TextInputFormatter>? inputFormatters;
           counterText: "",
           hintStyle: GoogleFonts.philosopher(color: AppColor.secondaryTxt),
           hintText: hintText,
-          
-          contentPadding:
+          contentPadding: contentPadding ??
               EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.7.h),
           border: OutlineInputBorder(
               gapPadding: 0,

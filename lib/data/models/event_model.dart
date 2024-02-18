@@ -16,7 +16,7 @@ class EventModel {
   String? eventDate;
   String? eventTime;
   String? location;
-  String? type;
+  String? typeId;
   String? about;
   String? image;
   String? createdAt;
@@ -29,7 +29,7 @@ class EventModel {
     this.eventDate,
     this.eventTime,
     this.location,
-    this.type,
+    this.typeId,
     this.about,
     this.image,
     this.createdAt,
@@ -43,7 +43,7 @@ class EventModel {
     String? eventDate,
     String? eventTime,
     String? location,
-    String? type,
+    String? typeId,
     String? about,
     String? image,
     String? createdAt,
@@ -56,7 +56,7 @@ class EventModel {
         eventDate: eventDate ?? this.eventDate,
         eventTime: eventTime ?? this.eventTime,
         location: location ?? this.location,
-        type: type ?? this.type,
+        typeId: typeId ?? this.typeId,
         about: about ?? this.about,
         image: image ?? this.image,
         createdAt: createdAt ?? this.createdAt,
@@ -70,7 +70,7 @@ class EventModel {
         eventDate: json["eventDate"],
         eventTime: json["eventTime"],
         location: json["location"],
-        type: json["type"],
+        typeId: json["typeId"],
         about: json["about"],
         image: json["image"],
         createdAt: json["createdAt"],
@@ -84,7 +84,7 @@ class EventModel {
         "eventDate": eventDate,
         "eventTime": eventTime,
         "location": location,
-        "type": type,
+        "typeId": typeId,
         "about": about,
         "image": image,
         "createdAt": createdAt,

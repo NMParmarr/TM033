@@ -1,11 +1,20 @@
+import 'package:eventflow/data/datasource/services/firebase_services.dart';
+import 'package:eventflow/data/models/event_type.dart';
+import 'package:eventflow/resources/helper/shared_preferences.dart';
+import 'package:eventflow/utils/common_flushbar.dart';
+import 'package:eventflow/utils/common_toast.dart';
+import 'package:eventflow/utils/constants/app_constants.dart';
 import 'package:eventflow/utils/constants/color_constants.dart';
 import 'package:eventflow/utils/constants/image_constants.dart';
+import 'package:eventflow/utils/constants/string_constants.dart';
 import 'package:eventflow/utils/gap.dart';
 import 'package:eventflow/utils/size_config.dart';
 import 'package:eventflow/utils/text.dart';
 import 'package:eventflow/utils/widgets/custom_text_field.dart';
+import 'package:eventflow/viewmodels/providers/home_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class AddEventScren extends StatefulWidget {
   const AddEventScren({super.key});
@@ -15,55 +24,81 @@ class AddEventScren extends StatefulWidget {
 }
 
 class _AddEventScrenState extends State<AddEventScren> {
-  DateTime? eventDate;
-  TimeOfDay? eventTime;
   String formattedTimeOfDay = '';
+  String formattedDate = '';
 
-  // String? selectedValueSingleDialogEditableItems;
-  // List<DropdownMenuItem> editableItems = List.generate(
-  //     7,
-  //     (index) =>
-  //         DropdownMenuItem(child: Txt("value $index"), value: "value $index"));
+  TextEditingController? _eventNameCtr;
+  TextEditingController? _locationCtr;
+  TextEditingController? _descCtr;
 
-  addItemDialog() async {
-    return await showDialog(
-      context: context,
-      builder: (BuildContext alertContext) {
-        Widget dialogWidget = AlertDialog(
-          title: Txt("Add an item"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              CustomTextField(
-                  ctr: TextEditingController(), hintText: "Enter new type"),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextButton(
-                      onPressed: () {
-                        Navigator.pop(alertContext, null);
-                      },
-                      child: Txt("Cancel"),
-                    ),
-                  ),
-                  HGap(2),
-                  Expanded(
-                    child: TextButton(
-                      onPressed: () {                        
-                        Navigator.pop(alertContext, "new items");
-                      },
-                      child: Txt("Ok"),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
+  @override
+  void initState() {
+    super.initState();
+    initTextControllers();
+    initHomeProvider();
+  }
 
-        return (dialogWidget);
-      },
-    );
+  @override
+  void dispose() {
+    disposeTextControllers();
+    super.dispose();
+  }
+
+  void initHomeProvider() {
+    Provider.of<HomeProvider>(context, listen: false)
+        .setSelectedType(newType: Strings.selectType, listen: false);
+    Provider.of<HomeProvider>(context, listen: false)
+        .setEventDate(date: null, listen: false);
+    Provider.of<HomeProvider>(context, listen: false)
+        .setEventTime(time: null, listen: false);
+  }
+
+  void initTextControllers() {
+    _eventNameCtr = TextEditingController();
+    _locationCtr = TextEditingController();
+    _descCtr = TextEditingController();
+  }
+
+  void disposeTextControllers() {
+    _eventNameCtr?.dispose();
+    _locationCtr?.dispose();
+    _descCtr?.dispose();
+  }
+
+  void clearTextControllers() {
+    _eventNameCtr?.clear();
+    _locationCtr?.clear();
+    _descCtr?.clear();
+  }
+
+  bool validateEventTextFields() {
+    if (_eventNameCtr?.text.toString().trim() == "") {
+      showToast("Enter Event Name");
+      return false;
+      //
+    } else if (Provider.of<HomeProvider>(context, listen: false).eventDate ==
+        null) {
+      showToast("Please select event date");
+      return false;
+    } else if (Provider.of<HomeProvider>(context, listen: false).eventTime ==
+        null) {
+      showToast("Please select event time");
+      return false;
+    } else if (_locationCtr?.text.toString().trim() == "") {
+      showToast("Enter Location");
+      return false;
+      //
+    } else if (Provider.of<HomeProvider>(context, listen: false).selectedType ==
+        Strings.selectType) {
+      showToast("Please select event type");
+      return false;
+    } else if (_descCtr?.text.toString().trim() == "") {
+      showToast("Enter Description");
+      return false;
+      //
+    } else {
+      return true;
+    }
   }
 
   @override
@@ -127,8 +162,9 @@ class _AddEventScrenState extends State<AddEventScren> {
                         fontsize: 2.t,
                         fontweight: FontWeight.w500),
                     CustomTextField(
-                        ctr: TextEditingController(),
-                        hintText: "Enter an event name"),
+                        ctr: _eventNameCtr!,
+                        hintText: "Enter an event name",
+                        capitalization: TextCapitalization.words),
                     VGap(1.5.h),
                     Row(
                       mainAxisSize: MainAxisSize.min,
@@ -142,34 +178,45 @@ class _AddEventScrenState extends State<AddEventScren> {
                                   textColor: Colors.black,
                                   fontsize: 2.t,
                                   fontweight: FontWeight.w500),
-                              InkWell(
-                                onTap: () async {
-                                  eventDate = await showDatePicker(
-                                      context: context,
-                                      firstDate: DateTime.now(),
-                                      lastDate: DateTime(2026));
-                                  setState(() {});
-                                },
-                                child: Container(
-                                    width: double.infinity,
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 3.w, vertical: 1.3.h),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      color: Colors.grey.withOpacity(0.25),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: Txt(eventDate != null
-                                              ? DateFormat('dd-MM-yyyy')
-                                                  .format(eventDate!)
-                                              : "Choose Date"),
-                                        ),
-                                        Icon(Icons.date_range_outlined)
-                                      ],
-                                    )),
-                              ),
+                              Consumer<HomeProvider>(
+                                  builder: (context, provider, _) {
+                                return InkWell(
+                                  onTap: () async {
+                                    FocusScope.of(context).unfocus();
+                                    DateTime? eventDate = await showDatePicker(
+                                        context: context,
+                                        firstDate: DateTime.now(),
+                                        lastDate: DateTime(2026));
+                                    provider.setEventDate(date: eventDate);
+                                  },
+                                  child: Container(
+                                      width: double.infinity,
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 3.w, vertical: 1.3.h),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        color: Colors.grey.withOpacity(0.25),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: Builder(builder: (context) {
+                                              if (provider.eventDate != null)
+                                                formattedDate = DateFormat(
+                                                        'dd-MM-yyyy')
+                                                    .format(
+                                                        provider.eventDate!);
+                                              return Txt(
+                                                  provider.eventDate != null
+                                                      ? formattedDate
+                                                      : "Choose Date");
+                                            }),
+                                          ),
+                                          Icon(Icons.date_range_outlined)
+                                        ],
+                                      )),
+                                );
+                              }),
                             ],
                           ),
                         ),
@@ -183,36 +230,41 @@ class _AddEventScrenState extends State<AddEventScren> {
                                   textColor: Colors.black,
                                   fontsize: 2.t,
                                   fontweight: FontWeight.w500),
-                              InkWell(
-                                onTap: () async {
-                                  eventTime = await showTimePicker(
-                                      context: context,
-                                      initialTime: TimeOfDay.now());
-                                  final localizations =
-                                      MaterialLocalizations.of(context);
-                                  formattedTimeOfDay =
-                                      localizations.formatTimeOfDay(eventTime!);
-                                  setState(() {});
-                                },
-                                child: Container(
-                                    width: double.infinity,
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 3.w, vertical: 1.3.h),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      color: Colors.grey.withOpacity(0.25),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: Txt(eventTime != null
-                                              ? formattedTimeOfDay
-                                              : "Choose Time"),
-                                        ),
-                                        Icon(Icons.watch_later_outlined)
-                                      ],
-                                    )),
-                              ),
+                              Consumer<HomeProvider>(
+                                  builder: (context, provider, _) {
+                                return InkWell(
+                                  onTap: () async {
+                                    FocusScope.of(context).unfocus();
+                                    TimeOfDay? eventTime = await showTimePicker(
+                                        context: context,
+                                        initialTime: TimeOfDay.now());
+                                    final localizations =
+                                        MaterialLocalizations.of(context);
+                                    formattedTimeOfDay = localizations
+                                        .formatTimeOfDay(eventTime!);
+                                    provider.setEventTime(time: eventTime);
+                                  },
+                                  child: Container(
+                                      width: double.infinity,
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 3.w, vertical: 1.3.h),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        color: Colors.grey.withOpacity(0.25),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: Txt(
+                                                provider.eventTime != null
+                                                    ? formattedTimeOfDay
+                                                    : "Choose Time"),
+                                          ),
+                                          Icon(Icons.watch_later_outlined)
+                                        ],
+                                      )),
+                                );
+                              }),
                             ],
                           ),
                         ),
@@ -224,8 +276,9 @@ class _AddEventScrenState extends State<AddEventScren> {
                         fontsize: 2.t,
                         fontweight: FontWeight.w500),
                     CustomTextField(
-                        ctr: TextEditingController(),
-                        hintText: "Enter a location"),
+                        ctr: _locationCtr!,
+                        hintText: "Enter a location",
+                        capitalization: TextCapitalization.words),
                     VGap(1.5.h),
                     Txt("Type",
                         textColor: Colors.black,
@@ -238,35 +291,7 @@ class _AddEventScrenState extends State<AddEventScren> {
                     InkWell(
                         onTap: () {
                           print(" --- show dialog");
-                          showDialog(
-                              context: context,
-                              builder: (_) => AlertDialog(
-                                  title: Txt("Select Type"),
-                                  scrollable: true,
-                                  contentPadding: EdgeInsets.symmetric(
-                                      horizontal: 2.w, vertical: 0.5.h),
-                                  actions: [
-                                    TextButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                          addItemDialog();
-                                        },
-                                        child: Txt("Add New Type"))
-                                  ],
-                                  actionsAlignment: MainAxisAlignment.center,
-                                  content: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: List.generate(
-                                        5,
-                                        (index) => SimpleDialogOption(
-                                              onPressed: () {
-                                                print(" --- value $index");
-                                                Navigator.pop(context);
-                                              },
-                                              child: Txt("Type $index"),
-                                            )),
-                                  )));
+                          _selectTypeDialog(context);
                         },
                         borderRadius: BorderRadius.circular(10),
                         overlayColor: MaterialStateProperty.resolveWith(
@@ -284,121 +309,24 @@ class _AddEventScrenState extends State<AddEventScren> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Txt(
-                                "Select one",
-                                fontsize: 2.t,
-                              ),
+                              Consumer<HomeProvider>(
+                                  builder: (context, provider, _) {
+                                return Txt(
+                                  provider.selectedType,
+                                  fontsize: 2.t,
+                                );
+                              }),
                               Icon(Icons.arrow_drop_down)
                             ],
                           ),
                         )),
-                    // Builder(builder: (context) {
-                    //   return Container(
-                    //     decoration: BoxDecoration(
-                    //       borderRadius: BorderRadius.circular(10),
-                    //       color: Colors.grey.withOpacity(0.25),
-                    //     ),
-                    //     child: SearchChoices.single(
-                    //       // validator: (_) => null,
-                    //       // fieldDecoration: BoxDecoration(),
-                    //       underline: "",
-                    //       padding: EdgeInsets.symmetric(
-                    //         horizontal: 3.w,
-                    //       ),
-                    //       items: editableItems,
-                    //       value: selectedValueSingleDialogEditableItems,
-                    //       hint: "Select one",
-                    //       searchHint: "Select one",
-                    //       autofocus: false,
-                    //       displayClearIcon: false,
-                    //       disabledHint: (Function updateParent) {
-                    //         return (TextButton(
-                    //           onPressed: () {
-                    //             addItemDialog().then((value) async {
-                    //               updateParent(value);
-                    //             });
-                    //           },
-                    //           child: Txt("No choice, click to add one"),
-                    //         ));
-                    //       },
-                    //       closeButton: (String? value,
-                    //           BuildContext closeContext,
-                    //           Function updateParent) {
-                    //         return (editableItems.length >= 100
-                    //             ? "Close"
-                    //             : TextButton(
-                    //                 onPressed: () {
-                    //                   addItemDialog().then((value) async {
-                    //                     if (value != null &&
-                    //                         editableItems.indexWhere(
-                    //                                 (element) =>
-                    //                                     element.value ==
-                    //                                     value) !=
-                    //                             -1) {
-                    //                       Navigator.pop(context);
-                    //                       updateParent(value);
-                    //                     }
-                    //                   });
-                    //                 },
-                    //                 child: const Text("Add and select item"),
-                    //               ));
-                    //       },
-                    //       onChanged: (String? value) {
-                    //         setState(() {
-                    //           if (value is! NotGiven) {
-                    //             selectedValueSingleDialogEditableItems = value;
-                    //           } else {
-                    //             showToast(" --- hello else part : $value");
-                    //           }
-                    //         });
-                    //       },
-                    //       displayItem: (item, selected, Function updateParent) {
-                    //         return (Row(children: [
-                    //           selected
-                    //               ? const Icon(
-                    //                   Icons.check,
-                    //                   color: AppColor.theme,
-                    //                 )
-                    //               : const Icon(
-                    //                   Icons.check_box_outline_blank,
-                    //                   color: Colors.transparent,
-                    //                 ),
-                    //           const SizedBox(width: 7),
-                    //           Expanded(
-                    //             child: item,
-                    //           ),
-                    //           HGap(7),
-                    //           // IconButton(
-                    //           //   icon: const Icon(
-                    //           //     Icons.delete,
-                    //           //     color: Colors.red,
-                    //           //   ),
-                    //           //   onPressed: () {
-                    //           //     editableItems
-                    //           //         .removeWhere((element) => item == element);
-                    //           //     updateParent(null);
-                    //           //     setState(() {});
-                    //           //   },
-                    //           // ),
-                    //         ]));
-                    //       },
-                    //       dialogBox: true,
-                    //       isExpanded: true,
-                    //       doneButton: "Done",
-                    //     ),
-                    //   );
-                    // }),
-
-                    ///
-                    ///
-                    ///
                     VGap(1.5.h),
                     Txt("Description",
                         textColor: Colors.black,
                         fontsize: 2.t,
                         fontweight: FontWeight.w500),
                     CustomTextField(
-                        ctr: TextEditingController(),
+                        ctr: _descCtr!,
                         hintText: "Enter a description",
                         lines: 5),
                     VGap(3.h),
@@ -415,15 +343,42 @@ class _AddEventScrenState extends State<AddEventScren> {
                                 label:
                                     Txt("Discard", textColor: Colors.white))),
                         HGap(2.w),
-                        Expanded(
-                            child: ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColor.theme,
-                                ),
-                                onPressed: () {},
-                                icon: Icon(Icons.check_circle,
-                                    color: Colors.white),
-                                label: Txt("Save", textColor: Colors.white))),
+                        Expanded(child: Consumer<HomeProvider>(
+                            builder: (context, provider, _) {
+                          return ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColor.theme,
+                              ),
+                              onPressed: () async {
+                                if (!provider.eventLoading) {
+                                  final bool isValid =
+                                      validateEventTextFields();
+                                  if (!isValid) return;
+                                  final bool res = await provider.addNewEvent(
+                                      eventName:
+                                          _eventNameCtr!.text.toString().trim(),
+                                      date: formattedDate,
+                                      time: formattedTimeOfDay,
+                                      location:
+                                          _locationCtr!.text.toString().trim(),
+                                      desc: _descCtr!.text.toString().trim());
+
+                                  if (res) {
+                                    Navigator.pop(context);
+                                    showFlushbar(context,
+                                        "Event published successfully..!");
+                                  }
+                                }
+                              },
+                              icon: provider.eventLoading
+                                  ? SizedBox()
+                                  : Icon(Icons.check_circle,
+                                      color: Colors.white),
+                              label: provider.eventLoading
+                                  ? CircularProgressIndicator(
+                                      color: Colors.white)
+                                  : Txt("Publish", textColor: Colors.white));
+                        })),
                       ],
                     ),
                     VGap(3.h),
@@ -444,6 +399,153 @@ class _AddEventScrenState extends State<AddEventScren> {
             )
           ],
         ),
+      ),
+    );
+  }
+
+  Future<dynamic> _selectTypeDialog(BuildContext context) async {
+    final String? orgId = await Shared_Preferences.prefGetString(App.id, "");
+    return showDialog(
+        context: context,
+        builder: (_) => StreamBuilder<List<EventType>>(
+            stream: FireServices.instance.fetchEventTypeByOrg(orgId: orgId!),
+            builder: (context, typeSnap) {
+              return AlertDialog(
+                  title: Txt("Select Type"),
+                  scrollable: true,
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 2.w, vertical: 0.5.h),
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          if (typeSnap.hasData) {
+                            Navigator.pop(context);
+                            addItemDialog(context);
+                          }
+                        },
+                        child: Txt("Add New Type"))
+                  ],
+                  actionsAlignment: MainAxisAlignment.center,
+                  content: Builder(builder: (context) {
+                    if (typeSnap.hasData) {
+                      return Column(
+                        mainAxisSize: MainAxisSize.max,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: List.generate(
+                            typeSnap.data!.length,
+                            (index) => Consumer<HomeProvider>(
+                                    builder: (context, provider, _) {
+                                  return Container(
+                                    width: 70.w,
+                                    height: 6.h,
+                                    child: SimpleDialogOption(
+                                      onPressed: () {
+                                        provider.setSelectedType(
+                                            newType:
+                                                typeSnap.data![index].name!);
+                                        Navigator.pop(context);
+                                      },
+                                      child: Txt(
+                                          "${typeSnap.data?[index].name ?? "--"}"),
+                                    ),
+                                  );
+                                })),
+                      );
+                    } else if (typeSnap.hasError) {
+                      return Center(
+                        child: Icon(Icons.error, color: AppColor.theme),
+                      );
+                    } else {
+                      return Center(
+                          child: CircularProgressIndicator(
+                        color: AppColor.theme,
+                      ));
+                    }
+                  }));
+            }));
+  }
+
+  /// --- ADD NEW TYPE DIALOG
+  Future<dynamic> addItemDialog(BuildContext context) async {
+    return await showDialog(
+      context: context,
+      builder: (BuildContext alertContext) {
+        return NewTypeDialog();
+      },
+    );
+  }
+}
+
+class NewTypeDialog extends StatefulWidget {
+  const NewTypeDialog({
+    super.key,
+  });
+
+  @override
+  State<NewTypeDialog> createState() => _NewTypeDialogState();
+}
+
+class _NewTypeDialogState extends State<NewTypeDialog> {
+  TextEditingController? _newTypeCtr;
+
+  @override
+  void initState() {
+    super.initState();
+    _newTypeCtr = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _newTypeCtr?.clear();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Txt("Add an item"),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          CustomTextField(
+            ctr: _newTypeCtr!,
+            hintText: "Enter new type",
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Txt("Cancel"),
+                ),
+              ),
+              HGap(2),
+              Expanded(
+                child: Consumer<HomeProvider>(builder: (context, provider, _) {
+                  return TextButton(
+                    onPressed: () async {
+                      if (_newTypeCtr?.text.toString().trim() == "") {
+                        showToast("Enter type name..!");
+                        return;
+                      }
+                      final bool res = await provider.addEventType(
+                          typeName: _newTypeCtr!.text.toString().trim());
+                      if (res) {
+                        Navigator.pop(context);
+                        provider.setSelectedType(
+                            newType: _newTypeCtr!.text.toString().trim());
+                        await showFlushbar(context, "Type added successfully");
+                      }
+                    },
+                    child: Txt("Ok"),
+                  );
+                }),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

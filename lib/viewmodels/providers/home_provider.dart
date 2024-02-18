@@ -1,7 +1,11 @@
-
+import 'package:eventflow/data/datasource/services/firebase_services.dart';
+import 'package:eventflow/data/models/event_model.dart';
+import 'package:eventflow/data/models/event_type.dart';
+import 'package:eventflow/utils/common_toast.dart';
+import 'package:eventflow/utils/constants/app_constants.dart';
+import 'package:eventflow/utils/constants/string_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 
 class HomeProvider extends ChangeNotifier {
   final SharedPreferences? sharedPreferences;
@@ -18,4 +22,116 @@ class HomeProvider extends ChangeNotifier {
     if (listen) notifyListeners();
   }
 
+  /// --- ADD EVENT TYPE
+  ///
+  Future<bool> addEventType({required String typeName}) async {
+    bool res = false;
+    try {
+      final orgId = await sharedPreferences!.getString(App.id);
+      final typeId = await FireServices.instance.organizers
+          .doc(orgId)
+          .collection(App.eventTypes)
+          .doc()
+          .id;
+      final EventType eventType = EventType(
+          orgId: orgId,
+          typeId: typeId,
+          name: typeName,
+          createdAt: "${DateTime.now()}");
+      await FireServices.instance
+          .addEventType(orgId: orgId!, typeId: typeId, eventType: eventType);
+      res = true;
+    } catch (e) {
+      print(" --- err add event type --- $e");
+      res = false;
+      showToast("Something went wrong.!");
+    } finally {
+      notifyListeners();
+      return res;
+    }
+  }
+
+  /// --- SELECTED TYPE
+  ///
+  String get selectedType => _selectedType;
+  String _selectedType = Strings.selectType;
+
+  void setSelectedType({required String newType, bool listen = true}) {
+    _selectedType = newType;
+
+    if (listen) notifyListeners();
+  }
+
+  /// --- EVENT DATE - TIME
+  ///
+  DateTime? get eventDate => _eventDate;
+  DateTime? _eventDate;
+
+  TimeOfDay? get eventTime => _eventTime;
+  TimeOfDay? _eventTime;
+
+  void setEventDate({required DateTime? date, bool listen = true}) {
+    _eventDate = date;
+    if (listen) notifyListeners();
+  }
+
+  void setEventTime({required TimeOfDay? time, bool listen = true}) {
+    _eventTime = time;
+    if (listen) notifyListeners();
+  }
+
+  /// --- ADD NEW EVENT
+  ///
+
+  bool get eventLoading => _eventLoading;
+  bool _eventLoading = false;
+
+  Future<bool> addNewEvent(
+      {required String eventName,
+      required String date,
+      required String time,
+      required String location,
+      required String desc}) async {
+    _eventLoading = true;
+    notifyListeners();
+    bool res = false;
+    try {
+      final String? orgId = await sharedPreferences!.getString(App.id);
+      final String eventId = await FireServices.instance.organizers
+          .doc(orgId!)
+          .collection(App.events)
+          .doc()
+          .id;
+      final List<EventType> eventTypes =
+          await FireServices.instance.getEventTypeByOrg(orgId: orgId);
+      final String typeId = eventTypes[
+              eventTypes.indexWhere((element) => element.name == selectedType)]
+          .typeId!;
+      final EventModel eventModel = EventModel(
+        eventId: eventId,
+        orgId: orgId,
+        eventName: eventName,
+        eventDate: date,
+        eventTime: time,
+        location: location,
+        typeId: typeId,
+        about: desc,
+        createdAt: DateTime.now().toString(),
+
+        ///image : null
+      );
+
+      await FireServices.instance
+          .addNewEvent(orgId: orgId, eventId: eventId, eventModel: eventModel);
+      res = true;
+    } catch (e) {
+      print(" --- err add new event --- $e");
+      showToast("Something went wrong.!");
+      res = false;
+    } finally {
+      _eventLoading = false;
+      notifyListeners();
+      return res;
+    }
+  }
 }

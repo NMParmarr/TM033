@@ -1,9 +1,15 @@
+import 'package:eventflow/data/datasource/services/firebase_services.dart';
+import 'package:eventflow/data/models/event_model.dart';
+import 'package:eventflow/resources/helper/shared_preferences.dart';
+import 'package:eventflow/utils/constants/app_constants.dart';
+import 'package:eventflow/utils/constants/color_constants.dart';
+import 'package:eventflow/utils/constants/image_constants.dart';
 import 'package:eventflow/utils/gap.dart';
 import 'package:eventflow/utils/size_config.dart';
 import 'package:eventflow/views/organizer_module/events_org_list.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:intl/intl.dart';
 
 class ParticipantsOrgScreen extends StatefulWidget {
   const ParticipantsOrgScreen({super.key});
@@ -13,6 +19,8 @@ class ParticipantsOrgScreen extends StatefulWidget {
 }
 
 class _ParticipantsOrgScreenState extends State<ParticipantsOrgScreen> {
+  final formattedTodayDate = DateFormat("dd-MM-yyyy").format(DateTime.now());
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,12 +52,60 @@ class _ParticipantsOrgScreenState extends State<ParticipantsOrgScreen> {
               ]),
           VGap(2.h),
           Expanded(
-              child: TabBarView(
-            children: [
-              EventsOrgList(),
-              EventsOrgList(),
-            ],
-          ))
+              child: FutureBuilder<String?>(
+                  future: Shared_Preferences.prefGetString(App.id, ""),
+                  builder: (context, orgId) {
+                    if (orgId.hasData) {
+                      return TabBarView(
+                        children: [
+                          StreamBuilder<List<EventModel>>(
+                              stream: FireServices.instance.fetchUpcomingEvents(
+                                  orgId: orgId.data!,
+                                  todayDate: formattedTodayDate),
+                              builder: (context, upcomingEvents) {
+                                if (upcomingEvents.hasData) {
+                                  return EventsOrgList(
+                                      events: upcomingEvents.data!);
+                                } else if (upcomingEvents.hasError) {
+                                  print(
+                                      " --- err dfdfsdgh : ${upcomingEvents.error}");
+                                  return Center(
+                                      child: Icon(Icons.error,
+                                          color: AppColor.theme));
+                                } else {
+                                  return Center(
+                                      child: Image.asset(Images.loadingGif));
+                                }
+                              }),
+                          StreamBuilder<List<EventModel>>(
+                              stream: FireServices.instance.fetchPastEvents(
+                                  orgId: orgId.data!,
+                                  todayDate: formattedTodayDate),
+                              builder: (context, pastEvents) {
+                                if (pastEvents.hasData) {
+                                  return EventsOrgList(
+                                      events: pastEvents.data ?? []);
+                                } else if (pastEvents.hasError) {
+                                  print(
+                                      " --- err df5adfs : ${pastEvents.error}");
+                                  return Center(
+                                      child: Icon(Icons.error,
+                                          color: AppColor.theme));
+                                } else {
+                                  return Center(
+                                      child: Image.asset(Images.loadingGif));
+                                }
+                              }),
+                        ],
+                      );
+                    } else if (orgId.hasError) {
+                      print(" --- err dfkjlaiejlkf : ${orgId.error}");
+                      return Center(
+                          child: Icon(Icons.error, color: AppColor.theme));
+                    } else {
+                      return Center(child: Image.asset(Images.loadingGif));
+                    }
+                  }))
         ]),
       ),
     );

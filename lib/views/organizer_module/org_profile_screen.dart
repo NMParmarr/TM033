@@ -13,6 +13,7 @@ import 'package:eventflow/viewmodels/providers/home_provider.dart';
 import 'package:eventflow/viewmodels/providers/profile_provider.dart';
 import 'package:eventflow/views/organizer_module/paricipants_list.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -148,6 +149,7 @@ class _OrgProfileScreenState extends State<OrgProfileScreen> {
     return DefaultTabController(
       length: 2,
       child: Column(children: [
+        VGap(1.h),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 5.w),
           child: Row(
@@ -235,19 +237,9 @@ class _OrgProfileScreenState extends State<OrgProfileScreen> {
                     builder: (context, usersSnap) {
                       if (usersSnap.hasData) {
                         if (usersSnap.data?.length == 0) {
-                          return Center(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Image.asset(
-                                  Images.noDataFound2,
-                                  height: 30.h,
-                                ),
-                                Txt("No Users...!",
-                                    fontsize: 3.t, textColor: AppColor.theme)
-                              ],
-                            ),
-                          );
+                          return Utils.noDataFoundWidget(
+                              msg: "No Users..!",
+                              alignment: Alignment.topCenter);
                         } else {
                           return ParticipantsList(
                               usersList: usersSnap.data ?? []);
@@ -376,6 +368,7 @@ class _OrgProfileScreenState extends State<OrgProfileScreen> {
                   ctr: _newUserMobileCtr!,
                   hintText: "Enter mobile number of new user",
                   maxLength: 10,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   inputType: TextInputType.numberWithOptions(
                       decimal: false, signed: false),
                 ),
@@ -406,35 +399,37 @@ class _OrgProfileScreenState extends State<OrgProfileScreen> {
                             icon: Icon(Icons.close, color: Colors.white),
                             label: Txt("Cancel", textColor: Colors.white))),
                     HGap(2.w),
-                    Expanded(child:
-                        Consumer<ProfileProvider>(builder: (context, provider, _) {
+                    Expanded(child: Consumer<ProfileProvider>(
+                        builder: (context, provider, _) {
                       return ElevatedButton.icon(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColor.theme,
                           ),
                           onPressed: () async {
                             final isValid = validateNewUserTextFields();
-                            if (isValid) {
-                              final bool res = await provider.addNewUser(
-                                  orgId: orgId,
-                                  fullName: _newUserFullNameCtr!.text
-                                      .toString()
-                                      .trim(),
-                                  mobile:
-                                      _newUserMobileCtr!.text.toString().trim(),
-                                  password:
-                                      _newUserPassCtr!.text.toString().trim());
-                              if (res) {
-                                Navigator.pop(context);
-                                clearTextControllers();
-                                showFlushbar(
-                                    context, "New User Added Succeesfully..!");
-                              }
+                            if (!isValid) return;
+                            final bool res = await provider.addNewUser(
+                                orgId: orgId,
+                                fullName:
+                                    _newUserFullNameCtr!.text.toString().trim(),
+                                mobile:
+                                    _newUserMobileCtr!.text.toString().trim(),
+                                password:
+                                    _newUserPassCtr!.text.toString().trim());
+                            if (res) {
+                              Navigator.pop(context);
+                              clearTextControllers();
+                              showFlushbar(
+                                  context, "New User Added Succeesfully..!");
                             }
                           },
-                          icon: Icon(Icons.person_add_alt_1_sharp,
-                              color: Colors.white),
-                          label: Txt("Add", textColor: Colors.white));
+                          icon: provider.newUserLoading
+                              ? SizedBox()
+                              : Icon(Icons.person_add_alt_1_sharp,
+                                  color: Colors.white),
+                          label: provider.newUserLoading
+                              ? CircularProgressIndicator(color: Colors.white)
+                              : Txt("Add", textColor: Colors.white));
                     })),
                   ],
                 ),
