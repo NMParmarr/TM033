@@ -43,7 +43,6 @@ class _EventDetailsOrgScreenState extends State<EventDetailsOrgScreen> {
   }
 
   Widget _contentWidget(BuildContext context, {required EventModel event}) {
-    print(" --- event name : ${widget.eventId}");
     return Scaffold(
       bottomNavigationBar: Padding(
         padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.2.h),

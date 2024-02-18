@@ -23,12 +23,13 @@ class _MainHomeScrenState extends State<MainHomeScren> {
     ProfileScreen(),
   ];
 
-
-@override
-  void initState() {  
+  @override
+  void initState() {
     super.initState();
-    Provider.of<HomeProvider>(context,listen: false).setCurrentScreenIndex(index: 0, listen: false);
+    Provider.of<HomeProvider>(context, listen: false)
+        .setCurrentScreenIndex(index: 0, listen: false);
   }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<HomeProvider>(builder: (context, provider, _) {
@@ -39,15 +40,16 @@ class _MainHomeScrenState extends State<MainHomeScren> {
         },
         child: Scaffold(
           appBar: AppBar(
+            backgroundColor: AppColor.theme,
             automaticallyImplyLeading: false,
             title: Txt(
               "Event Flow",
-              textColor: AppColor.theme,
+              textColor: Colors.white,
               fontweight: FontWeight.w600,
             ),
           ),
           body: screens[provider.currentScreenIndex],
-          bottomNavigationBar: BottomNavigationBar(        
+          bottomNavigationBar: BottomNavigationBar(
               currentIndex: provider.currentScreenIndex,
               onTap: (index) => provider.setCurrentScreenIndex(index: index),
               selectedItemColor: AppColor.theme,

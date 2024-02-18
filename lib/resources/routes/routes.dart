@@ -50,14 +50,13 @@ class Routes {
       case eventDetails:
         final Map<String, dynamic> args =
             settings.arguments as Map<String, dynamic>;
-
         return MaterialPageRoute(
-            builder: (_) => EventDetailsScreen(eventId: args['eventId']));
+            builder: (_) => EventDetailsScreen(
+                orgId: args['orgId'], eventId: args['eventId']));
 
       case eventDetailsOrg:
         final Map<String, dynamic> args =
             settings.arguments as Map<String, dynamic>;
-
         return MaterialPageRoute(
             builder: (_) => EventDetailsOrgScreen(
                 orgId: args['orgId'], eventId: args['eventId']));

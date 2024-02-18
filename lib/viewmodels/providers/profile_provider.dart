@@ -96,6 +96,7 @@ class ProfileProvider extends ChangeNotifier {
               name: fullName,
               mobile: mobile,
               password: password,
+              isProfileCompleted: false,
               joinDate: "${DateTime.now()}"));
       res = true;
     } catch (e) {

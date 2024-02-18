@@ -46,8 +46,8 @@ class _JoinedEventsScreenState extends State<JoinedEventsScreen> {
           Expanded(
               child: TabBarView(
             children: [
-              EventsList(),
-              EventsList(),
+              EventsList(events: []),
+              EventsList(events: []),
             ],
           ))
         ]),

@@ -15,7 +15,6 @@ import '../../utils/constants/image_constants.dart';
 import '../../utils/gap.dart';
 import '../../utils/text.dart';
 import '../../utils/widgets/custom_text_field.dart';
-import '../../viewmodels/providers/home_provider.dart';
 
 class EditProfileScreen extends StatefulWidget {
   final UserModel user;
@@ -35,8 +34,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   void initState() {
     super.initState();
-    Provider.of<ProfileProvider>(context, listen: false)
-        .setUserDOB(dob: DateTime.tryParse(widget.user.dob!), listen: false);
+    Provider.of<ProfileProvider>(context, listen: false).setUserDOB(
+        dob: DateTime.tryParse(widget.user.dob ?? ""), listen: false);
     initTextControllers();
     assignValuesToTextControllers();
   }
@@ -294,6 +293,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                     "about":
                                         _userAboutCtr?.text.toString().trim(),
                                     "image": provider.imagePath,
+                                    "isProfileCompleted": true,
                                   });
                                   if (res) {
                                     Navigator.pop(context);

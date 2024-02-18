@@ -83,6 +83,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return DefaultTabController(
       length: 2,
       child: Column(children: [
+        VGap(1.h),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 5.w),
           child: Row(
@@ -127,30 +128,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
               HGap(2.w),
               Expanded(child:
                   Consumer<AuthProvider>(builder: (context, provider, _) {
-                return Builder(
-                  builder: (context) {
-                    return ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColor.orange,
-                        ),
-                        onPressed: () async {
-                          Utils.logoutConfirmationDialoag(context, onYes: () async {
-                            if (!provider.logoutLoading) {
-                              // showLoader(context);
-                              final res = await provider.logout();
-                              // hideLoader();
-                              if (res) {
-                                Navigator.pushNamedAndRemoveUntil(
-                                    context, Routes.auth, (route) => false);
-                              }
+                return Builder(builder: (context) {
+                  return ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColor.orange,
+                      ),
+                      onPressed: () async {
+                        Utils.logoutConfirmationDialoag(context,
+                            onYes: () async {
+                          if (!provider.logoutLoading) {
+                            // showLoader(context);
+                            final res = await provider.logout();
+                            // hideLoader();
+                            if (res) {
+                              Navigator.pushNamedAndRemoveUntil(
+                                  context, Routes.auth, (route) => false);
                             }
-                          });
-                        },
-                        icon: Icon(Icons.arrow_circle_left_outlined,
-                            color: Colors.white),
-                        label: Txt("Logout", textColor: Colors.white));
-                  }
-                );
+                          }
+                        });
+                      },
+                      icon: Icon(Icons.arrow_circle_left_outlined,
+                          color: Colors.white),
+                      label: Txt("Logout", textColor: Colors.white));
+                });
               }))
             ],
           ),
@@ -166,7 +166,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Expanded(
             child: TabBarView(
           children: [
-            EventsList(),
+            EventsList(events: []),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 3.w),
               child: ListView(
@@ -198,11 +198,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   VGap(0.3.h),
                   Builder(builder: (context) {
-                    String? formattedBirthDate = DateFormat('dd MMM yyyy')
-                        .format(DateTime.parse(
-                            user.dob ?? DateTime.now().toString()));
+                    String? formattedBirthDate;
+                    if (user.dob != null)
+                      formattedBirthDate = DateFormat('dd MMM yyyy')
+                          .format(DateTime.parse(user.dob!));
                     return Txt(
-                      formattedBirthDate,
+                      formattedBirthDate ?? "-- --- ----",
                       fontsize: 2.t,
                       textColor: Colors.black,
                     );

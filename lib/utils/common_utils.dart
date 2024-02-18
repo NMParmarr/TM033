@@ -1,3 +1,5 @@
+import 'package:eventflow/data/datasource/services/firebase_services.dart';
+import 'package:eventflow/resources/helper/loader.dart';
 import 'package:eventflow/utils/size_config.dart';
 import 'package:eventflow/utils/text.dart';
 import 'package:flutter/material.dart';
@@ -107,9 +109,12 @@ class Utils {
     );
   }
 
-  static Future<dynamic> joinConfirmationDialog(BuildContext context) {
+  static Future<dynamic> joinConfirmationDialog(BuildContext pctx,
+      {required String orgId,
+      required String userId,
+      required String eventId}) {
     return showDialog(
-      context: context,
+      context: pctx,
       builder: (context) {
         return AlertDialog(
           title: Txt("Are you sure to join ?"),
@@ -117,10 +122,14 @@ class Utils {
             Container(
               width: double.infinity,
               child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     Navigator.pop(context);
-                    showDialog(
-                      context: context,
+                    showLoader(pctx);
+                    await FireServices.instance.joinEventParticipant(
+                        orgId: orgId, eventId: eventId, userId: userId);
+                    hideLoader();
+                    await showDialog(
+                      context: pctx,
                       builder: (context) {
                         return AlertDialog(
                           title: Icon(Icons.check_circle,
@@ -139,8 +148,43 @@ class Utils {
     );
   }
 
+  static Future<dynamic> leaveConfirmationDialog(BuildContext pctx,
+      {required String orgId,
+      required String userId,
+      required String eventId}) {
+    return showDialog(
+      context: pctx,
+      builder: (context) {
+        return AlertDialog(
+          title: Txt("Are you sure to leave ?"),
+          actions: [
+            Container(
+              width: double.infinity,
+              child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColor.orange),
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    showLoader(pctx);
+                    await FireServices.instance.leaveEventParticipant(
+                        orgId: orgId, eventId: eventId, userId: userId);
+                    hideLoader();
+                    showFlushbar(
+                        pctx, "You are no more participate of this event..!");
+                  },
+                  child: Txt("Leave", textColor: Colors.white)),
+            )
+          ],
+        );
+      },
+    );
+  }
+
   static Widget noDataFoundWidget(
-      {required String msg, double? height, double? width, Alignment? alignment}) {
+      {required String msg,
+      double? height,
+      double? width,
+      Alignment? alignment}) {
     return Container(
       color: Colors.white,
       height: height,

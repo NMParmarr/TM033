@@ -21,6 +21,7 @@ class UserModel {
   String? about;
   String? image;
   String? joinDate;
+  bool? isProfileCompleted;
 
   UserModel({
     this.id,
@@ -35,6 +36,7 @@ class UserModel {
     this.about,
     this.image,
     this.joinDate,
+    this.isProfileCompleted,
   });
 
   UserModel copyWith({
@@ -50,6 +52,7 @@ class UserModel {
     String? about,
     String? image,
     String? joinDate,
+    bool? isProfileCompleted,
   }) =>
       UserModel(
         id: id ?? this.id,
@@ -64,6 +67,7 @@ class UserModel {
         about: about ?? this.about,
         image: image ?? this.image,
         joinDate: joinDate ?? this.joinDate,
+        isProfileCompleted: isProfileCompleted ?? this.isProfileCompleted,
       );
 
   factory UserModel.fromJson(Map<String, dynamic> json) => UserModel(
@@ -79,6 +83,7 @@ class UserModel {
         about: json["about"],
         image: json["image"],
         joinDate: json["joinDate"],
+        isProfileCompleted: json['isProfileCompleted'],
       );
 
   Map<String, dynamic> toJson() => {
@@ -94,5 +99,6 @@ class UserModel {
         "about": about,
         "image": image,
         "joinDate": joinDate,
+        "isProfileCompleted" : isProfileCompleted,
       };
 }

@@ -173,6 +173,7 @@ class AuthProvider extends ChangeNotifier {
           await Shared_Preferences.prefSetString(
               App.token, Strings.userLoggedIn);
           await Shared_Preferences.prefSetString(App.id, users![0].id!);
+          await Shared_Preferences.prefSetString(App.orgId, users[0].orgId!);
         }
       }
       if (!res) {

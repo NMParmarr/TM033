@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:eventflow/data/models/organizer_model.dart';
+import 'package:eventflow/data/models/participant.dart';
 import 'package:eventflow/data/models/user_model.dart';
 import 'package:eventflow/resources/helper/shared_preferences.dart';
 import 'package:eventflow/utils/constants/app_constants.dart';
@@ -273,6 +274,7 @@ class FireServices {
         .then((event) =>
             event.docs.map((e) => EventModel.fromJson(e.data())).toList());
   }
+
   /// --- fetch past events
   ///
 
@@ -302,6 +304,59 @@ class FireServices {
             event.docs.map((e) => EventModel.fromJson(e.data())).toList());
   }
 
+  /// --- JOIN EVENT PARICIPANTS
+  ///
+
+  Future<void> joinEventParticipant(
+      {required String orgId,
+      required String eventId,
+      required String userId}) async {
+    final participant = Participant(
+        orgId: orgId,
+        eventId: eventId,
+        userId: userId,
+        joinedDate: DateTime.now().toString());
+    await _organizers
+        .doc(orgId)
+        .collection(App.events)
+        .doc(eventId)
+        .collection(App.participants)
+        .doc(userId)
+        .set(participant.toJson());
+  }
+
+  Future<void> leaveEventParticipant(
+      {required String orgId,
+      required String eventId,
+      required String userId}) async {    
+    await _organizers
+        .doc(orgId)
+        .collection(App.events)
+        .doc(eventId)
+        .collection(App.participants)
+        .doc(userId)
+        .delete();
+  }
+
+  Stream<bool> isUserJoinedEvent(
+      {required String userId,
+      required String eventId,
+      required String orgId}) {
+    return _organizers
+        .doc(orgId)
+        .collection(App.events)
+        .doc(eventId)
+        .collection(App.participants)
+        .where('userId', isEqualTo: userId)
+        .snapshots()
+        .map((event) =>
+            event.docs
+                .map((e) => Participant.fromJson(e.data()))
+                .toList()
+                .length !=
+            0);
+  }
+
   ///----------------
   ///--------------------------------
   ///---------------------------------------------------------
@@ -310,8 +365,9 @@ class FireServices {
 }
 // final eventmodel =
 // {
-//   "typeId" : "user12",
-//   "orgId" : "neon perms",
-//   "name" : "neotech",
+//   "orgId" :"fdf",
+//   "eventId" : "fdf",
+//   "userId" : "user12",
+//   "joinedDate" : "neon perms",
 
 // };
