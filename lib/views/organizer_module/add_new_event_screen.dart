@@ -1,8 +1,10 @@
 import 'package:eventflow/data/datasource/services/firebase_services.dart';
 import 'package:eventflow/data/models/event_type.dart';
+import 'package:eventflow/resources/helper/loader.dart';
 import 'package:eventflow/resources/helper/shared_preferences.dart';
 import 'package:eventflow/utils/common_flushbar.dart';
 import 'package:eventflow/utils/common_toast.dart';
+import 'package:eventflow/utils/common_utils.dart';
 import 'package:eventflow/utils/constants/app_constants.dart';
 import 'package:eventflow/utils/constants/color_constants.dart';
 import 'package:eventflow/utils/constants/image_constants.dart';
@@ -16,8 +18,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../data/models/event_model.dart';
+
 class AddEventScren extends StatefulWidget {
-  const AddEventScren({super.key});
+  final EventModel? updateEvent;
+  const AddEventScren({super.key, this.updateEvent});
 
   @override
   State<AddEventScren> createState() => _AddEventScrenState();
@@ -36,6 +41,7 @@ class _AddEventScrenState extends State<AddEventScren> {
     super.initState();
     initTextControllers();
     initHomeProvider();
+    assignValues();
   }
 
   @override
@@ -57,6 +63,30 @@ class _AddEventScrenState extends State<AddEventScren> {
     _eventNameCtr = TextEditingController();
     _locationCtr = TextEditingController();
     _descCtr = TextEditingController();
+  }
+
+  void assignValues() {
+    if (widget.updateEvent != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        final eventType = await FireServices.instance.getEventTypeByTypeId(
+            orgId: widget.updateEvent!.orgId!,
+            typeId: widget.updateEvent!.typeId!);
+        Provider.of<HomeProvider>(context, listen: false)
+            .setSelectedType(newType: eventType.name ?? Strings.selectType);
+      });
+      DateFormat format = DateFormat('dd-MM-yyyy');
+      DateTime? date = widget.updateEvent?.eventDate == null
+          ? null
+          : format.tryParse(widget.updateEvent!.eventDate!);
+
+      Provider.of<HomeProvider>(context, listen: false)
+          .setEventDate(date: date, listen: false);
+      Provider.of<HomeProvider>(context, listen: false)
+          .setEventTime(time: widget.updateEvent?.eventTime, listen: false);
+      _eventNameCtr?.text = widget.updateEvent?.eventName ?? "";
+      _locationCtr?.text = widget.updateEvent?.location ?? "";
+      _descCtr?.text = widget.updateEvent?.about ?? "";
+    }
   }
 
   void disposeTextControllers() {
@@ -242,7 +272,8 @@ class _AddEventScrenState extends State<AddEventScren> {
                                         MaterialLocalizations.of(context);
                                     formattedTimeOfDay = localizations
                                         .formatTimeOfDay(eventTime!);
-                                    provider.setEventTime(time: eventTime);
+                                    provider.setEventTime(
+                                        time: formattedTimeOfDay);
                                   },
                                   child: Container(
                                       width: double.infinity,
@@ -257,7 +288,7 @@ class _AddEventScrenState extends State<AddEventScren> {
                                           Expanded(
                                             child: Txt(
                                                 provider.eventTime != null
-                                                    ? formattedTimeOfDay
+                                                    ? provider.eventTime!
                                                     : "Choose Time"),
                                           ),
                                           Icon(Icons.watch_later_outlined)
@@ -347,26 +378,46 @@ class _AddEventScrenState extends State<AddEventScren> {
                             builder: (context, provider, _) {
                           return ElevatedButton.icon(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColor.theme,
-                              ),
+                                  backgroundColor: AppColor.theme),
                               onPressed: () async {
                                 if (!provider.eventLoading) {
                                   final bool isValid =
                                       validateEventTextFields();
                                   if (!isValid) return;
-                                  final bool res = await provider.addNewEvent(
-                                      eventName:
-                                          _eventNameCtr!.text.toString().trim(),
-                                      date: formattedDate,
-                                      time: formattedTimeOfDay,
-                                      location:
-                                          _locationCtr!.text.toString().trim(),
-                                      desc: _descCtr!.text.toString().trim());
+                                  if (widget.updateEvent == null) {
+                                    final bool res = await provider.addNewEvent(
+                                        eventName: _eventNameCtr!.text
+                                            .toString()
+                                            .trim(),
+                                        date: formattedDate,
+                                        time: formattedTimeOfDay,
+                                        location: _locationCtr!.text
+                                            .toString()
+                                            .trim(),
+                                        desc: _descCtr!.text.toString().trim());
 
-                                  if (res) {
-                                    Navigator.pop(context);
-                                    showFlushbar(context,
-                                        "Event published successfully..!");
+                                    if (res) {
+                                      Navigator.pop(context);
+                                      showFlushbar(context,
+                                          "Event published successfully..!");
+                                    }
+                                  } else {
+                                    final bool res = await provider.editEvent(
+                                        eventId: widget.updateEvent!.eventId!,
+                                        eventName: _eventNameCtr!.text
+                                            .toString()
+                                            .trim(),
+                                        date: formattedDate,
+                                        time: formattedTimeOfDay,
+                                        location: _locationCtr!.text
+                                            .toString()
+                                            .trim(),
+                                        desc: _descCtr!.text.toString().trim());
+                                    if (res) {
+                                      Navigator.pop(context);
+                                      showFlushbar(
+                                          context, "Saved successfully..!");
+                                    }
                                   }
                                 }
                               },
@@ -377,7 +428,11 @@ class _AddEventScrenState extends State<AddEventScren> {
                               label: provider.eventLoading
                                   ? CircularProgressIndicator(
                                       color: Colors.white)
-                                  : Txt("Publish", textColor: Colors.white));
+                                  : Txt(
+                                      widget.updateEvent == null
+                                          ? "Publish"
+                                          : "Save",
+                                      textColor: Colors.white));
                         })),
                       ],
                     ),

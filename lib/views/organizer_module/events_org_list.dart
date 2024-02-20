@@ -1,3 +1,5 @@
+import 'package:eventflow/data/datasource/services/firebase_services.dart';
+import 'package:eventflow/data/models/participant.dart';
 import 'package:eventflow/resources/routes/routes.dart';
 import 'package:eventflow/utils/common_utils.dart';
 import 'package:eventflow/utils/constants/image_constants.dart';
@@ -88,18 +90,27 @@ class EventsOrgList extends StatelessWidget {
                               )
                             ],
                           ),
-                          Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Txt(
-                                "23",
-                                textColor: Colors.white,
-                                fontweight: FontWeight.w600,
-                                fontsize: 2.5.t,
-                              ),
-                              Txt("Participants", textColor: Colors.white),
-                            ],
-                          )
+                          StreamBuilder<List<Participant>>(
+                              stream: FireServices.instance
+                                  .fetchJoinedParticipants(
+                                      orgId: events[index].orgId!,
+                                      eventId: events[index].eventId!),
+                              builder: (context, participants) {
+                                return Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Txt(
+                                      participants.data?.length.toString() ??
+                                          "--",
+                                      textColor: Colors.white,
+                                      fontweight: FontWeight.w600,
+                                      fontsize: 2.5.t,
+                                    ),
+                                    Txt("${participants.data != null && participants.data!.length == 1 ? "Participant" : "Participants"}",
+                                        textColor: Colors.white),
+                                  ],
+                                );
+                              })
                         ],
                       ),
                     ),

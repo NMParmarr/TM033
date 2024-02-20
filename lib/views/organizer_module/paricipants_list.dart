@@ -1,3 +1,5 @@
+import 'package:eventflow/data/datasource/services/firebase_services.dart';
+import 'package:eventflow/data/models/participant.dart';
 import 'package:eventflow/resources/helper/loader.dart';
 import 'package:eventflow/utils/common_toast.dart';
 import 'package:eventflow/utils/common_utils.dart';
@@ -7,70 +9,59 @@ import 'package:eventflow/utils/text.dart';
 import 'package:eventflow/viewmodels/providers/home_provider.dart';
 import 'package:eventflow/viewmodels/providers/profile_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../data/models/user_model.dart';
 import '../../utils/constants/image_constants.dart';
 
 class ParticipantsList extends StatelessWidget {
-  final List<UserModel> usersList;
-  const ParticipantsList({super.key, required this.usersList});
+  final List<Participant> participants;
+  const ParticipantsList({super.key, required this.participants});
 
   @override
   Widget build(BuildContext context) {
-    return usersList.length <= 0
+    return participants.length <= 0
         ? Txt(
             "No Participant joined yet..!",
             textColor: AppColor.theme,
           )
         : ListView.builder(
-            itemCount: usersList.length,
+            itemCount: participants.length,
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
             itemBuilder: (context, index) {
-              return ListTile(
-                leading: AspectRatio(
-                  aspectRatio: 1,
-                  child: Container(
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          image: DecorationImage(
-                              fit: BoxFit.cover,
-                              image: AssetImage(Images.sampleImage)))),
-                ),
-                title: Txt(usersList[index].name ?? "---",
-                    fontsize: 2.t, fontweight: FontWeight.w600),
-                subtitle: Txt(usersList[index].mobile != null
-                    ? "+91 ${usersList[index].mobile!}"
-                    : "-----"),
-                trailing: Builder(builder: (context) {
-                  return Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Consumer<ProfileProvider>(
-                          builder: (context, provider, _) {
-                        return IconButton(
-                            onPressed: () {
-                              Utils.deleteUserDialog(context,
-                                  username: usersList[index].name ?? "--",
-                                  onYes: () async {
-                                showLoader(context);
-                                final bool res = await provider.deleteUser(
-                                    userId: usersList[index].id!);
-                                hideLoader();
-                                if (res) {
-                                  showToast("User Deleted or removed");
-                                }
-                              });
-                            },
-                            icon: Icon(Icons.delete, color: AppColor.darkRed));
+              return StreamBuilder<UserModel>(
+                  stream: FireServices.instance
+                      .fetchSingleUser(id: participants[index].userId!),
+                  builder: (context, user) {
+                    return ListTile(
+                      leading: AspectRatio(
+                        aspectRatio: 1,
+                        child: Container(
+                            decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: DecorationImage(
+                                    fit: BoxFit.cover,
+                                    image: AssetImage(Images.sampleImage)))),
+                      ),
+                      title: Txt(user.data?.name ?? "---",
+                          fontsize: 2.t, fontweight: FontWeight.w600),
+                      subtitle: Builder(builder: (context) {
+                        final String? formattedDate = (user.data != null &&
+                                user.data?.joinDate != null)
+                            ? DateFormat('dd-MM-yyyy hh:mm a')
+                                .format(DateTime.parse(user.data!.joinDate!))
+                            : null;
+                        return Txt(
+                            "Join: ${formattedDate ?? "--/--/---- --:--"}");
                       }),
-                      IconButton(
+                      trailing: IconButton(
                           onPressed: () {
-                            if (usersList[index].mobile != null) {
+                            if (user.data?.mobile != null) {
                               try {
-                                launchUrl(Uri.parse(
-                                    'tel://${usersList[index].mobile}'));
+                                launchUrl(
+                                    Uri.parse('tel://${user.data?.mobile}'));
                               } catch (e) {
                                 showToast("Something went wrong");
                               }
@@ -80,10 +71,8 @@ class ParticipantsList extends StatelessWidget {
                             Icons.call,
                             color: AppColor.theme,
                           )),
-                    ],
-                  );
-                }),
-              );
+                    );
+                  });
             },
           );
   }

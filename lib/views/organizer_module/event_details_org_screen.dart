@@ -1,14 +1,22 @@
 import 'package:eventflow/data/datasource/services/firebase_services.dart';
 import 'package:eventflow/data/models/event_model.dart';
+import 'package:eventflow/data/models/participant.dart';
+import 'package:eventflow/resources/helper/loader.dart';
+import 'package:eventflow/resources/helper/shared_preferences.dart';
 import 'package:eventflow/utils/common_utils.dart';
+import 'package:eventflow/utils/constants/app_constants.dart';
 import 'package:eventflow/utils/constants/color_constants.dart';
 import 'package:eventflow/utils/constants/image_constants.dart';
 import 'package:eventflow/utils/size_config.dart';
 import 'package:eventflow/views/organizer_module/paricipants_list.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../resources/routes/routes.dart';
+import '../../utils/constants/string_constants.dart';
 import '../../utils/gap.dart';
 import '../../utils/text.dart';
+import '../../viewmodels/providers/home_provider.dart';
 
 class EventDetailsOrgScreen extends StatefulWidget {
   final String eventId;
@@ -49,18 +57,23 @@ class _EventDetailsOrgScreenState extends State<EventDetailsOrgScreen> {
         child: Row(
           children: [
             Expanded(
-              child: ElevatedButton.icon(
-                  onPressed: () {},
-                  icon: Icon(
-                    Icons.edit,
-                    color: Colors.white,
-                  ),
-                  label: Txt(
-                    "Edit",
-                    textColor: Colors.white,
-                    fontsize: 2.4.t,
-                    fontweight: FontWeight.w500,
-                  )),
+              child: Consumer<HomeProvider>(builder: (context, provider, _) {
+                return ElevatedButton.icon(
+                    onPressed: () async {                     
+                      Navigator.pushNamed(context, Routes.addEvent,
+                          arguments: {'updateEvent': event});
+                    },
+                    icon: Icon(
+                      Icons.edit,
+                      color: Colors.white,
+                    ),
+                    label: Txt(
+                      "Edit",
+                      textColor: Colors.white,
+                      fontsize: 2.4.t,
+                      fontweight: FontWeight.w500,
+                    ));
+              }),
             ),
             HGap(2.w),
             Expanded(
@@ -195,11 +208,18 @@ class _EventDetailsOrgScreenState extends State<EventDetailsOrgScreen> {
                             children: [
                               Icon(Icons.groups_2, color: AppColor.primary),
                               HGap(3.w),
-                              Txt(
-                                "23 Participants",
-                                fontsize: 2.t,
-                                textColor: Colors.black,
-                              )
+                              StreamBuilder<List<Participant>>(
+                                  stream: FireServices.instance
+                                      .fetchJoinedParticipants(
+                                          orgId: widget.orgId,
+                                          eventId: widget.eventId),
+                                  builder: (context, participants) {
+                                    return Txt(
+                                      "${participants.data?.length ?? "--"} ${participants.data != null && participants.data!.length == 1 ? "Participant" : "Participants"}",
+                                      fontsize: 2.t,
+                                      textColor: Colors.black,
+                                    );
+                                  })
                             ],
                           ),
                           VGap(1.3.h),
@@ -231,9 +251,26 @@ class _EventDetailsOrgScreenState extends State<EventDetailsOrgScreen> {
                             fontweight: FontWeight.w700,
                             textColor: Colors.black,
                           ),
-                          ParticipantsList(
-                            usersList: [],
-                          ),
+                          StreamBuilder<List<Participant>>(
+                              stream: FireServices.instance
+                                  .fetchJoinedParticipants(
+                                      orgId: widget.orgId,
+                                      eventId: widget.eventId),
+                              builder: (context, participants) {
+                                if (participants.hasData) {
+                                  return ParticipantsList(
+                                    participants: participants.data ?? [],
+                                  );
+                                } else if (participants.hasError) {
+                                  return Center(
+                                      child: Icon(Icons.error,
+                                          color: AppColor.theme));
+                                } else {
+                                  return Center(
+                                      child: CircularProgressIndicator(
+                                          color: AppColor.theme));
+                                }
+                              }),
                           VGap(2.h),
                         ],
                       ),

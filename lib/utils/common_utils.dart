@@ -3,6 +3,7 @@ import 'package:eventflow/resources/helper/loader.dart';
 import 'package:eventflow/utils/size_config.dart';
 import 'package:eventflow/utils/text.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import 'common_flushbar.dart';
 import 'constants/color_constants.dart';
@@ -26,6 +27,10 @@ class Utils {
     return pwdValid;
   }
 
+static TimeOfDay stringToTimeOfDay(String tod) {
+  final format = DateFormat.jm(); //"6:00 AM"
+  return TimeOfDay.fromDateTime(format.parse(tod));
+}
   static Future<dynamic> deleteConfirmationDialoag(BuildContext context) {
     return showDialog(
       context: context,

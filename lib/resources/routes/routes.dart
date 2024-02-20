@@ -81,7 +81,12 @@ class Routes {
             builder: (_) => ChangePasswordScreen(isUser: args['isUser']));
 
       case addEvent:
-        return MaterialPageRoute(builder: (_) => AddEventScren());
+        final Map<String, dynamic>? args =
+            settings.arguments as Map<String, dynamic>?;
+        return MaterialPageRoute(
+            builder: (_) => AddEventScren(
+                  updateEvent: args?['updateEvent'],
+                ));
 
       default:
         throw const FormatException('Route not Found');

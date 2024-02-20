@@ -67,15 +67,15 @@ class HomeProvider extends ChangeNotifier {
   DateTime? get eventDate => _eventDate;
   DateTime? _eventDate;
 
-  TimeOfDay? get eventTime => _eventTime;
-  TimeOfDay? _eventTime;
+  String? get eventTime => _eventTime;
+  String? _eventTime;
 
   void setEventDate({required DateTime? date, bool listen = true}) {
     _eventDate = date;
     if (listen) notifyListeners();
   }
 
-  void setEventTime({required TimeOfDay? time, bool listen = true}) {
+  void setEventTime({required String? time, bool listen = true}) {
     _eventTime = time;
     if (listen) notifyListeners();
   }
@@ -126,6 +126,51 @@ class HomeProvider extends ChangeNotifier {
       res = true;
     } catch (e) {
       print(" --- err add new event --- $e");
+      showToast("Something went wrong.!");
+      res = false;
+    } finally {
+      _eventLoading = false;
+      notifyListeners();
+      return res;
+    }
+  }
+
+  /// --- EDIT  EVENT
+  ///
+
+  Future<bool> editEvent(
+      {required String eventId,
+      required String eventName,
+      required String date,
+      required String time,
+      required String location,
+      required String desc}) async {
+    _eventLoading = true;
+    notifyListeners();
+    bool res = false;
+    try {
+      final String? orgId = await sharedPreferences!.getString(App.id);
+      final List<EventType> eventTypes =
+          await FireServices.instance.getEventTypeByOrg(orgId: orgId!);
+      final String typeId = eventTypes[
+              eventTypes.indexWhere((element) => element.name == selectedType)]
+          .typeId!;
+
+      final updatedEvent = {
+        "eventName": eventName,
+        "eventDate": eventDate,
+        "eventTime": eventTime,
+        "location": location,
+        "typeId": typeId,
+        "about": desc,
+        // "image": image,
+      };
+
+      await FireServices.instance
+          .editEvent(orgId: orgId, eventId: eventId, updatedJson: updatedEvent);
+      res = true;
+    } catch (e) {
+      print(" --- err edit event --- $e");
       showToast("Something went wrong.!");
       res = false;
     } finally {

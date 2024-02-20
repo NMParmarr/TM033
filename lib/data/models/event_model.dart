@@ -19,8 +19,7 @@ class EventModel {
   String? typeId;
   String? about;
   String? image;
-  String? createdAt;
-  // List<String>? participants;
+  String? createdAt;  
 
   EventModel({
     this.eventId,
@@ -33,7 +32,6 @@ class EventModel {
     this.about,
     this.image,
     this.createdAt,
-    // this.participants,
   });
 
   EventModel copyWith({
@@ -46,8 +44,7 @@ class EventModel {
     String? typeId,
     String? about,
     String? image,
-    String? createdAt,
-    // List<String>? participants,
+    String? createdAt,    
   }) =>
       EventModel(
         eventId: eventId ?? this.eventId,
@@ -59,8 +56,7 @@ class EventModel {
         typeId: typeId ?? this.typeId,
         about: about ?? this.about,
         image: image ?? this.image,
-        createdAt: createdAt ?? this.createdAt,
-        // participants: participants ?? this.participants,
+        createdAt: createdAt ?? this.createdAt,        
       );
 
   factory EventModel.fromJson(Map<String, dynamic> json) => EventModel(
@@ -73,8 +69,7 @@ class EventModel {
         typeId: json["typeId"],
         about: json["about"],
         image: json["image"],
-        createdAt: json["createdAt"],
-        // participants: List<String>.from(json["participants"].map((x) => x)),
+        createdAt: json["createdAt"],        
       );
 
   Map<String, dynamic> toJson() => {
@@ -88,6 +83,5 @@ class EventModel {
         "about": about,
         "image": image,
         "createdAt": createdAt,
-        // "participants": List<dynamic>.from(participants!.map((x) => x)),
       };
 }

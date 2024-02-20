@@ -56,7 +56,8 @@ class _HomeOrgScreenState extends State<HomeOrgScreen> {
                       .fetchEventTypeByOrg(orgId: orgId.data!),
                   builder: (context, typeSnap) {
                     if (typeSnap.hasData) {
-                      return _contentWidget(eventTypes: typeSnap.data!);
+                      return _contentWidget(
+                          eventTypes: typeSnap.data!, orgId: orgId.data!);
                     } else if (orgId.hasError) {
                       print(" --- err event type snap -- ${orgId.error}");
                       return Center(
@@ -113,7 +114,9 @@ class _HomeOrgScreenState extends State<HomeOrgScreen> {
     );
   }
 
-  Widget _contentWidget({required List<EventType> eventTypes}) {
+  Widget _contentWidget(
+      {required List<EventType> eventTypes, required String orgId}) {
+    eventTypes.insert(0, EventType(name: "All"));
     return eventTypes.length <= 0
         ? welcomeScreen()
         : DefaultTabController(
@@ -164,9 +167,12 @@ class _HomeOrgScreenState extends State<HomeOrgScreen> {
                     children: List.generate(
                         eventTypes.length,
                         (index) => StreamBuilder<List<EventModel>>(
-                            stream: FireServices.instance.fetchEventsByTypeId(
-                                orgId: eventTypes[index].orgId!,
-                                typeId: eventTypes[index].typeId!),
+                            stream: index == 0
+                                ? FireServices.instance
+                                    .fetchAllEventsByOrgId(orgId: orgId)
+                                : FireServices.instance.fetchEventsByTypeId(
+                                    orgId: eventTypes[index].orgId!,
+                                    typeId: eventTypes[index].typeId!),
                             builder: (context, eventSnap) {
                               if (eventSnap.hasData) {
                                 return EventsOrgList(events: eventSnap.data!);

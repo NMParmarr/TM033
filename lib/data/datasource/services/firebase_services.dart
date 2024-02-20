@@ -184,6 +184,16 @@ class FireServices {
             event.docs.map((e) => EventType.fromJson(e.data())).toList());
   }
 
+  Future<EventType> getEventTypeByTypeId(
+      {required String orgId, required String typeId}) async {
+    return await _organizers
+        .doc(orgId)
+        .collection(App.eventTypes)
+        .doc(typeId)
+        .get()
+        .then((e) => EventType.fromJson(e.data() ?? {}));
+  }
+
   /// --- ORG EVENT
   ///
 
@@ -205,6 +215,17 @@ class FireServices {
         .doc(orgId)
         .collection(App.events)
         .where('typeId', isEqualTo: typeId)
+        .orderBy('eventDate', descending: true)
+        .orderBy('eventTime', descending: true)
+        .snapshots()
+        .map((event) =>
+            event.docs.map((e) => EventModel.fromJson(e.data())).toList());
+  }
+
+  Stream<List<EventModel>> fetchAllEventsByOrgId({required String orgId}) {
+    return _organizers
+        .doc(orgId)
+        .collection(App.events)
         .orderBy('eventDate', descending: true)
         .orderBy('eventTime', descending: true)
         .snapshots()
@@ -304,6 +325,29 @@ class FireServices {
             event.docs.map((e) => EventModel.fromJson(e.data())).toList());
   }
 
+  /// --- edit event
+
+  Future<void> editEvent({
+    required String orgId,
+    required String eventId,
+    required Map<String, dynamic> updatedJson,
+  }) async {
+    await _organizers
+        .doc(orgId)
+        .collection(App.events)
+        .doc(eventId)
+        .update(updatedJson);
+  }
+
+  /// --- delete event
+
+  Future<void> deleteEvent({
+    required String orgId,
+    required String eventId,
+  }) async {
+    await _organizers.doc(orgId).collection(App.events).doc(eventId).delete();
+  }
+
   /// --- JOIN EVENT PARICIPANTS
   ///
 
@@ -328,7 +372,7 @@ class FireServices {
   Future<void> leaveEventParticipant(
       {required String orgId,
       required String eventId,
-      required String userId}) async {    
+      required String userId}) async {
     await _organizers
         .doc(orgId)
         .collection(App.events)
@@ -355,6 +399,19 @@ class FireServices {
                 .toList()
                 .length !=
             0);
+  }
+
+  Stream<List<Participant>> fetchJoinedParticipants(
+      {required String orgId, required String eventId}) {
+    return _organizers
+        .doc(orgId)
+        .collection(App.events)
+        .doc(eventId)
+        .collection(App.participants)
+        .orderBy('joinedDate', descending: true)
+        .snapshots()
+        .map((event) =>
+            event.docs.map((e) => Participant.fromJson(e.data())).toList());
   }
 
   ///----------------

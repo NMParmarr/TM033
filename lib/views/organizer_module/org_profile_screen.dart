@@ -12,6 +12,7 @@ import 'package:eventflow/utils/text.dart';
 import 'package:eventflow/viewmodels/providers/home_provider.dart';
 import 'package:eventflow/viewmodels/providers/profile_provider.dart';
 import 'package:eventflow/views/organizer_module/paricipants_list.dart';
+import 'package:eventflow/views/organizer_module/users_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -241,7 +242,7 @@ class _OrgProfileScreenState extends State<OrgProfileScreen> {
                               msg: "No Users..!",
                               alignment: Alignment.topCenter);
                         } else {
-                          return ParticipantsList(
+                          return UsersList(
                               usersList: usersSnap.data ?? []);
                         }
                       } else if (usersSnap.hasError) {

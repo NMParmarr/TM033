@@ -48,7 +48,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       .fetchEventTypeByOrg(orgId: orgId.data!),
                   builder: (context, typeSnap) {
                     if (typeSnap.hasData) {
-                      return _contentWidget(eventTypes: typeSnap.data!);
+                      return _contentWidget(
+                          eventTypes: typeSnap.data!, orgId: orgId.data!);
                     } else if (orgId.hasError) {
                       print(" --- err event type snap -- ${orgId.error}");
                       return Center(
@@ -105,8 +106,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _contentWidget({required List<EventType> eventTypes}) {
-    print(" --- length of eventtypes : ${eventTypes.length}");
+  Widget _contentWidget(
+      {required List<EventType> eventTypes, required String orgId}) {
+    eventTypes.insert(0, EventType(name: "All"));
     return eventTypes.length <= 0
         ? welcomeScreen()
         : DefaultTabController(
@@ -154,9 +156,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: List.generate(
                         eventTypes.length,
                         (index) => StreamBuilder<List<EventModel>>(
-                            stream: FireServices.instance.fetchEventsByTypeId(
-                                orgId: eventTypes[index].orgId!,
-                                typeId: eventTypes[index].typeId!),
+                            stream: index == 0
+                                ? FireServices.instance
+                                    .fetchAllEventsByOrgId(orgId: orgId)
+                                : FireServices.instance.fetchEventsByTypeId(
+                                    orgId: eventTypes[index].orgId!,
+                                    typeId: eventTypes[index].typeId!),
                             builder: (context, eventSnap) {
                               if (eventSnap.hasData) {
                                 return EventsList(events: eventSnap.data!);
