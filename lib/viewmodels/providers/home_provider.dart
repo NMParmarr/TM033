@@ -1,4 +1,4 @@
-import 'package:eventflow/data/datasource/services/firebase_services.dart';
+import 'package:eventflow/data/datasource/services/firebase/firebase_services.dart';
 import 'package:eventflow/data/models/event_model.dart';
 import 'package:eventflow/data/models/event_type.dart';
 import 'package:eventflow/utils/common_toast.dart';

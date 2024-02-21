@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../data/datasource/services/connection/network_checker_widget.dart';
 import 'joined_events_screen.dart';
 
 class MainHomeScren extends StatefulWidget {
@@ -38,28 +39,30 @@ class _MainHomeScrenState extends State<MainHomeScren> {
         onPopInvoked: (_) {
           SystemChannels.platform.invokeMethod('SystemNavigator.pop');
         },
-        child: Scaffold(
-          appBar: AppBar(
-            backgroundColor: AppColor.theme,
-            automaticallyImplyLeading: false,
-            title: Txt(
-              "Event Flow",
-              textColor: Colors.white,
-              fontweight: FontWeight.w600,
+        child: NetworkCheckerWidget(
+          child: Scaffold(
+            appBar: AppBar(
+              backgroundColor: AppColor.theme,
+              automaticallyImplyLeading: false,
+              title: Txt(
+                "Event Flow",
+                textColor: Colors.white,
+                fontweight: FontWeight.w600,
+              ),
             ),
+            body: screens[provider.currentScreenIndex],
+            bottomNavigationBar: BottomNavigationBar(
+                currentIndex: provider.currentScreenIndex,
+                onTap: (index) => provider.setCurrentScreenIndex(index: index),
+                selectedItemColor: AppColor.theme,
+                items: [
+                  BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+                  BottomNavigationBarItem(
+                      icon: Icon(Icons.calendar_month_outlined), label: "Joined"),
+                  BottomNavigationBarItem(
+                      icon: Icon(Icons.person), label: "Profile"),
+                ]),
           ),
-          body: screens[provider.currentScreenIndex],
-          bottomNavigationBar: BottomNavigationBar(
-              currentIndex: provider.currentScreenIndex,
-              onTap: (index) => provider.setCurrentScreenIndex(index: index),
-              selectedItemColor: AppColor.theme,
-              items: [
-                BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-                BottomNavigationBarItem(
-                    icon: Icon(Icons.calendar_month_outlined), label: "Joined"),
-                BottomNavigationBarItem(
-                    icon: Icon(Icons.person), label: "Profile"),
-              ]),
         ),
       );
     });

@@ -1,4 +1,4 @@
-import 'package:eventflow/data/datasource/services/firebase_services.dart';
+import 'package:eventflow/data/datasource/services/firebase/firebase_services.dart';
 import 'package:eventflow/data/models/organizer_model.dart';
 import 'package:eventflow/data/models/user_model.dart';
 import 'package:eventflow/resources/routes/routes.dart';
@@ -19,6 +19,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../data/datasource/services/connection/network_checker_widget.dart';
 import '../../resources/helper/shared_preferences.dart';
 import '../../utils/common_toast.dart';
 import '../../utils/constants/app_constants.dart';
@@ -97,50 +98,52 @@ class _OrgProfileScreenState extends State<OrgProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: FutureBuilder(
-        future: Shared_Preferences.prefGetString(App.id, ""),
-        builder: (context, orgId) {
-          if (orgId.hasData) {
-            return StreamBuilder<OrganizerModel>(
-                stream:
-                    FireServices.instance.fetchSingleOrganizer(id: orgId.data!),
-                builder: (context, currentOrgSnap) {
-                  if (currentOrgSnap.hasData) {
-                    return _contentWidget(context,
-                        org: currentOrgSnap.data, orgId: orgId.data!);
-                  } else if (currentOrgSnap.hasError) {
-                    return Center(
-                      child: Padding(
-                          padding: EdgeInsets.symmetric(vertical: 30.h),
-                          child: Column(
-                            children: [
-                              Icon(Icons.error),
-                              Txt("Something went wrong..!",
-                                  textColor: AppColor.theme)
-                            ],
-                          )),
-                    );
-                  } else {
-                    return Center(child: Image.asset(Images.loadingGif));
-                  }
-                });
-          } else if (orgId.hasError) {
-            return Center(
-              child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 30.h),
-                  child: Column(
-                    children: [
-                      Icon(Icons.error),
-                      Txt("Something went wrong..!", textColor: AppColor.theme)
-                    ],
-                  )),
-            );
-          } else {
-            return Center(child: Image.asset(Images.loadingGif));
-          }
-        },
+    return NetworkCheckerWidget(
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: FutureBuilder(
+          future: Shared_Preferences.prefGetString(App.id, ""),
+          builder: (context, orgId) {
+            if (orgId.hasData) {
+              return StreamBuilder<OrganizerModel>(
+                  stream:
+                      FireServices.instance.fetchSingleOrganizer(id: orgId.data!),
+                  builder: (context, currentOrgSnap) {
+                    if (currentOrgSnap.hasData) {
+                      return _contentWidget(context,
+                          org: currentOrgSnap.data, orgId: orgId.data!);
+                    } else if (currentOrgSnap.hasError) {
+                      return Center(
+                        child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 30.h),
+                            child: Column(
+                              children: [
+                                Icon(Icons.error),
+                                Txt("Something went wrong..!",
+                                    textColor: AppColor.theme)
+                              ],
+                            )),
+                      );
+                    } else {
+                      return Center(child: Image.asset(Images.loadingGif));
+                    }
+                  });
+            } else if (orgId.hasError) {
+              return Center(
+                child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 30.h),
+                    child: Column(
+                      children: [
+                        Icon(Icons.error),
+                        Txt("Something went wrong..!", textColor: AppColor.theme)
+                      ],
+                    )),
+              );
+            } else {
+              return Center(child: Image.asset(Images.loadingGif));
+            }
+          },
+        ),
       ),
     );
   }

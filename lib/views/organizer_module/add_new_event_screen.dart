@@ -1,4 +1,4 @@
-import 'package:eventflow/data/datasource/services/firebase_services.dart';
+import 'package:eventflow/data/datasource/services/firebase/firebase_services.dart';
 import 'package:eventflow/data/models/event_type.dart';
 import 'package:eventflow/resources/helper/loader.dart';
 import 'package:eventflow/resources/helper/shared_preferences.dart';
@@ -18,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../data/datasource/services/connection/network_checker_widget.dart';
 import '../../data/models/event_model.dart';
 
 class AddEventScren extends StatefulWidget {
@@ -133,326 +134,328 @@ class _AddEventScrenState extends State<AddEventScren> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      // backgroundColor: Color.fromARGB(255, 240, 240, 240),
-      body: SafeArea(
-        child: Stack(
-          children: [
-            SingleChildScrollView(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 4.w),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    VGap(1.5.h),
-                    Center(
-                      child: Txt("Add New Event",
-                          textColor: Colors.black,
-                          fontsize: 3.t,
-                          fontweight: FontWeight.bold),
-                    ),
-                    VGap(1.h),
-                    AspectRatio(
-                      aspectRatio: 16 / 9,
-                      child: Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 3.w, vertical: 1.3.h),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: Colors.grey.withOpacity(0.25),
-                            image: 1 == 1
-                                ? null
-                                : DecorationImage(
-                                    image: AssetImage(Images.imagePlaceholder),
-                                    fit: BoxFit.cover)),
-                        child: Visibility(
-                            child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.image_outlined,
-                              size: 20.w,
-                              color: AppColor.secondaryTxt,
-                            ),
-                            Txt(
-                              "Tap to add an image",
-                              fontsize: 3.t,
-                              textColor: AppColor.secondaryTxt,
-                            ),
-                          ],
-                        )),
+    return NetworkCheckerWidget(
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        // backgroundColor: Color.fromARGB(255, 240, 240, 240),
+        body: SafeArea(
+          child: Stack(
+            children: [
+              SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 4.w),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      VGap(1.5.h),
+                      Center(
+                        child: Txt("Add New Event",
+                            textColor: Colors.black,
+                            fontsize: 3.t,
+                            fontweight: FontWeight.bold),
                       ),
-                    ),
-                    VGap(2.h),
-                    Txt("Event Name",
-                        textColor: Colors.black,
-                        fontsize: 2.t,
-                        fontweight: FontWeight.w500),
-                    CustomTextField(
-                        ctr: _eventNameCtr!,
-                        hintText: "Enter an event name",
-                        capitalization: TextCapitalization.words),
-                    VGap(1.5.h),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Txt("Date",
-                                  textColor: Colors.black,
-                                  fontsize: 2.t,
-                                  fontweight: FontWeight.w500),
-                              Consumer<HomeProvider>(
-                                  builder: (context, provider, _) {
-                                return InkWell(
-                                  onTap: () async {
-                                    FocusScope.of(context).unfocus();
-                                    DateTime? eventDate = await showDatePicker(
-                                        context: context,
-                                        firstDate: DateTime.now(),
-                                        lastDate: DateTime(2026));
-                                    provider.setEventDate(date: eventDate);
-                                  },
-                                  child: Container(
-                                      width: double.infinity,
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 3.w, vertical: 1.3.h),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(10),
-                                        color: Colors.grey.withOpacity(0.25),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          Expanded(
-                                            child: Builder(builder: (context) {
-                                              if (provider.eventDate != null)
-                                                formattedDate = DateFormat(
-                                                        'dd-MM-yyyy')
-                                                    .format(
-                                                        provider.eventDate!);
-                                              return Txt(
-                                                  provider.eventDate != null
-                                                      ? formattedDate
-                                                      : "Choose Date");
-                                            }),
-                                          ),
-                                          Icon(Icons.date_range_outlined)
-                                        ],
-                                      )),
-                                );
-                              }),
-                            ],
-                          ),
-                        ),
-                        HGap(3.w),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Txt("Time",
-                                  textColor: Colors.black,
-                                  fontsize: 2.t,
-                                  fontweight: FontWeight.w500),
-                              Consumer<HomeProvider>(
-                                  builder: (context, provider, _) {
-                                return InkWell(
-                                  onTap: () async {
-                                    FocusScope.of(context).unfocus();
-                                    TimeOfDay? eventTime = await showTimePicker(
-                                        context: context,
-                                        initialTime: TimeOfDay.now());
-                                    final localizations =
-                                        MaterialLocalizations.of(context);
-                                    formattedTimeOfDay = localizations
-                                        .formatTimeOfDay(eventTime!);
-                                    provider.setEventTime(
-                                        time: formattedTimeOfDay);
-                                  },
-                                  child: Container(
-                                      width: double.infinity,
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 3.w, vertical: 1.3.h),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(10),
-                                        color: Colors.grey.withOpacity(0.25),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          Expanded(
-                                            child: Txt(
-                                                provider.eventTime != null
-                                                    ? provider.eventTime!
-                                                    : "Choose Time"),
-                                          ),
-                                          Icon(Icons.watch_later_outlined)
-                                        ],
-                                      )),
-                                );
-                              }),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    VGap(1.5.h),
-                    Txt("Location",
-                        textColor: Colors.black,
-                        fontsize: 2.t,
-                        fontweight: FontWeight.w500),
-                    CustomTextField(
-                        ctr: _locationCtr!,
-                        hintText: "Enter a location",
-                        capitalization: TextCapitalization.words),
-                    VGap(1.5.h),
-                    Txt("Type",
-                        textColor: Colors.black,
-                        fontsize: 2.t,
-                        fontweight: FontWeight.w500),
-
-                    ///
-                    /// type search field
-                    ///
-                    InkWell(
-                        onTap: () {
-                          print(" --- show dialog");
-                          _selectTypeDialog(context);
-                        },
-                        borderRadius: BorderRadius.circular(10),
-                        overlayColor: MaterialStateProperty.resolveWith(
-                            (states) => Colors.transparent),
+                      VGap(1.h),
+                      AspectRatio(
+                        aspectRatio: 16 / 9,
                         child: Container(
-                          alignment: Alignment.centerLeft,
-                          height: 6.h,
+                          width: double.infinity,
                           padding: EdgeInsets.symmetric(
                               horizontal: 3.w, vertical: 1.3.h),
-                          width: double.infinity,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: Colors.grey.withOpacity(0.25),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              borderRadius: BorderRadius.circular(10),
+                              color: Colors.grey.withOpacity(0.25),
+                              image: 1 == 1
+                                  ? null
+                                  : DecorationImage(
+                                      image: AssetImage(Images.imagePlaceholder),
+                                      fit: BoxFit.cover)),
+                          child: Visibility(
+                              child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Consumer<HomeProvider>(
-                                  builder: (context, provider, _) {
-                                return Txt(
-                                  provider.selectedType,
-                                  fontsize: 2.t,
-                                );
-                              }),
-                              Icon(Icons.arrow_drop_down)
+                              Icon(
+                                Icons.image_outlined,
+                                size: 20.w,
+                                color: AppColor.secondaryTxt,
+                              ),
+                              Txt(
+                                "Tap to add an image",
+                                fontsize: 3.t,
+                                textColor: AppColor.secondaryTxt,
+                              ),
                             ],
+                          )),
+                        ),
+                      ),
+                      VGap(2.h),
+                      Txt("Event Name",
+                          textColor: Colors.black,
+                          fontsize: 2.t,
+                          fontweight: FontWeight.w500),
+                      CustomTextField(
+                          ctr: _eventNameCtr!,
+                          hintText: "Enter an event name",
+                          capitalization: TextCapitalization.words),
+                      VGap(1.5.h),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Txt("Date",
+                                    textColor: Colors.black,
+                                    fontsize: 2.t,
+                                    fontweight: FontWeight.w500),
+                                Consumer<HomeProvider>(
+                                    builder: (context, provider, _) {
+                                  return InkWell(
+                                    onTap: () async {
+                                      FocusScope.of(context).unfocus();
+                                      DateTime? eventDate = await showDatePicker(
+                                          context: context,
+                                          firstDate: DateTime.now(),
+                                          lastDate: DateTime(2026));
+                                      provider.setEventDate(date: eventDate);
+                                    },
+                                    child: Container(
+                                        width: double.infinity,
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 3.w, vertical: 1.3.h),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(10),
+                                          color: Colors.grey.withOpacity(0.25),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              child: Builder(builder: (context) {
+                                                if (provider.eventDate != null)
+                                                  formattedDate = DateFormat(
+                                                          'dd-MM-yyyy')
+                                                      .format(
+                                                          provider.eventDate!);
+                                                return Txt(
+                                                    provider.eventDate != null
+                                                        ? formattedDate
+                                                        : "Choose Date");
+                                              }),
+                                            ),
+                                            Icon(Icons.date_range_outlined)
+                                          ],
+                                        )),
+                                  );
+                                }),
+                              ],
+                            ),
                           ),
-                        )),
-                    VGap(1.5.h),
-                    Txt("Description",
-                        textColor: Colors.black,
-                        fontsize: 2.t,
-                        fontweight: FontWeight.w500),
-                    CustomTextField(
-                        ctr: _descCtr!,
-                        hintText: "Enter a description",
-                        lines: 5),
-                    VGap(3.h),
-                    Row(
-                      children: [
-                        Expanded(
-                            child: ElevatedButton.icon(
+                          HGap(3.w),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Txt("Time",
+                                    textColor: Colors.black,
+                                    fontsize: 2.t,
+                                    fontweight: FontWeight.w500),
+                                Consumer<HomeProvider>(
+                                    builder: (context, provider, _) {
+                                  return InkWell(
+                                    onTap: () async {
+                                      FocusScope.of(context).unfocus();
+                                      TimeOfDay? eventTime = await showTimePicker(
+                                          context: context,
+                                          initialTime: TimeOfDay.now());
+                                      final localizations =
+                                          MaterialLocalizations.of(context);
+                                      formattedTimeOfDay = localizations
+                                          .formatTimeOfDay(eventTime!);
+                                      provider.setEventTime(
+                                          time: formattedTimeOfDay);
+                                    },
+                                    child: Container(
+                                        width: double.infinity,
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 3.w, vertical: 1.3.h),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(10),
+                                          color: Colors.grey.withOpacity(0.25),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              child: Txt(
+                                                  provider.eventTime != null
+                                                      ? provider.eventTime!
+                                                      : "Choose Time"),
+                                            ),
+                                            Icon(Icons.watch_later_outlined)
+                                          ],
+                                        )),
+                                  );
+                                }),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      VGap(1.5.h),
+                      Txt("Location",
+                          textColor: Colors.black,
+                          fontsize: 2.t,
+                          fontweight: FontWeight.w500),
+                      CustomTextField(
+                          ctr: _locationCtr!,
+                          hintText: "Enter a location",
+                          capitalization: TextCapitalization.words),
+                      VGap(1.5.h),
+                      Txt("Type",
+                          textColor: Colors.black,
+                          fontsize: 2.t,
+                          fontweight: FontWeight.w500),
+      
+                      ///
+                      /// type search field
+                      ///
+                      InkWell(
+                          onTap: () {
+                            print(" --- show dialog");
+                            _selectTypeDialog(context);
+                          },
+                          borderRadius: BorderRadius.circular(10),
+                          overlayColor: MaterialStateProperty.resolveWith(
+                              (states) => Colors.transparent),
+                          child: Container(
+                            alignment: Alignment.centerLeft,
+                            height: 6.h,
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 3.w, vertical: 1.3.h),
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: Colors.grey.withOpacity(0.25),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Consumer<HomeProvider>(
+                                    builder: (context, provider, _) {
+                                  return Txt(
+                                    provider.selectedType,
+                                    fontsize: 2.t,
+                                  );
+                                }),
+                                Icon(Icons.arrow_drop_down)
+                              ],
+                            ),
+                          )),
+                      VGap(1.5.h),
+                      Txt("Description",
+                          textColor: Colors.black,
+                          fontsize: 2.t,
+                          fontweight: FontWeight.w500),
+                      CustomTextField(
+                          ctr: _descCtr!,
+                          hintText: "Enter a description",
+                          lines: 5),
+                      VGap(3.h),
+                      Row(
+                        children: [
+                          Expanded(
+                              child: ElevatedButton.icon(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        Color.fromARGB(255, 155, 155, 155),
+                                  ),
+                                  onPressed: () {},
+                                  icon: Icon(Icons.close, color: Colors.white),
+                                  label:
+                                      Txt("Discard", textColor: Colors.white))),
+                          HGap(2.w),
+                          Expanded(child: Consumer<HomeProvider>(
+                              builder: (context, provider, _) {
+                            return ElevatedButton.icon(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      Color.fromARGB(255, 155, 155, 155),
-                                ),
-                                onPressed: () {},
-                                icon: Icon(Icons.close, color: Colors.white),
-                                label:
-                                    Txt("Discard", textColor: Colors.white))),
-                        HGap(2.w),
-                        Expanded(child: Consumer<HomeProvider>(
-                            builder: (context, provider, _) {
-                          return ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColor.theme),
-                              onPressed: () async {
-                                if (!provider.eventLoading) {
-                                  final bool isValid =
-                                      validateEventTextFields();
-                                  if (!isValid) return;
-                                  if (widget.updateEvent == null) {
-                                    final bool res = await provider.addNewEvent(
-                                        eventName: _eventNameCtr!.text
-                                            .toString()
-                                            .trim(),
-                                        date: formattedDate,
-                                        time: formattedTimeOfDay,
-                                        location: _locationCtr!.text
-                                            .toString()
-                                            .trim(),
-                                        desc: _descCtr!.text.toString().trim());
-
-                                    if (res) {
-                                      Navigator.pop(context);
-                                      showFlushbar(context,
-                                          "Event published successfully..!");
-                                    }
-                                  } else {
-                                    final bool res = await provider.editEvent(
-                                        eventId: widget.updateEvent!.eventId!,
-                                        eventName: _eventNameCtr!.text
-                                            .toString()
-                                            .trim(),
-                                        date: formattedDate,
-                                        time: formattedTimeOfDay,
-                                        location: _locationCtr!.text
-                                            .toString()
-                                            .trim(),
-                                        desc: _descCtr!.text.toString().trim());
-                                    if (res) {
-                                      Navigator.pop(context);
-                                      showFlushbar(
-                                          context, "Saved successfully..!");
+                                    backgroundColor: AppColor.theme),
+                                onPressed: () async {
+                                  if (!provider.eventLoading) {
+                                    final bool isValid =
+                                        validateEventTextFields();
+                                    if (!isValid) return;
+                                    if (widget.updateEvent == null) {
+                                      final bool res = await provider.addNewEvent(
+                                          eventName: _eventNameCtr!.text
+                                              .toString()
+                                              .trim(),
+                                          date: formattedDate,
+                                          time: formattedTimeOfDay,
+                                          location: _locationCtr!.text
+                                              .toString()
+                                              .trim(),
+                                          desc: _descCtr!.text.toString().trim());
+      
+                                      if (res) {
+                                        Navigator.pop(context);
+                                        showFlushbar(context,
+                                            "Event published successfully..!");
+                                      }
+                                    } else {
+                                      final bool res = await provider.editEvent(
+                                          eventId: widget.updateEvent!.eventId!,
+                                          eventName: _eventNameCtr!.text
+                                              .toString()
+                                              .trim(),
+                                          date: formattedDate,
+                                          time: formattedTimeOfDay,
+                                          location: _locationCtr!.text
+                                              .toString()
+                                              .trim(),
+                                          desc: _descCtr!.text.toString().trim());
+                                      if (res) {
+                                        Navigator.pop(context);
+                                        showFlushbar(
+                                            context, "Saved successfully..!");
+                                      }
                                     }
                                   }
-                                }
-                              },
-                              icon: provider.eventLoading
-                                  ? SizedBox()
-                                  : Icon(Icons.check_circle,
-                                      color: Colors.white),
-                              label: provider.eventLoading
-                                  ? CircularProgressIndicator(
-                                      color: Colors.white)
-                                  : Txt(
-                                      widget.updateEvent == null
-                                          ? "Publish"
-                                          : "Save",
-                                      textColor: Colors.white));
-                        })),
-                      ],
-                    ),
-                    VGap(3.h),
-                  ],
+                                },
+                                icon: provider.eventLoading
+                                    ? SizedBox()
+                                    : Icon(Icons.check_circle,
+                                        color: Colors.white),
+                                label: provider.eventLoading
+                                    ? CircularProgressIndicator(
+                                        color: Colors.white)
+                                    : Txt(
+                                        widget.updateEvent == null
+                                            ? "Publish"
+                                            : "Save",
+                                        textColor: Colors.white));
+                          })),
+                        ],
+                      ),
+                      VGap(3.h),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 2.w),
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Icon(Icons.arrow_back_ios_new_rounded),
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white, shape: CircleBorder()),
-              ),
-            )
-          ],
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 2.w),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Icon(Icons.arrow_back_ios_new_rounded),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white, shape: CircleBorder()),
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );

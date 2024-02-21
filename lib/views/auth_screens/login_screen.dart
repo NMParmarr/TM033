@@ -1,4 +1,4 @@
-import 'package:eventflow/data/datasource/services/firebase_services.dart';
+import 'package:eventflow/data/datasource/services/firebase/firebase_services.dart';
 import 'package:eventflow/data/models/organizer_model.dart';
 import 'package:eventflow/resources/routes/routes.dart';
 import 'package:eventflow/utils/common_toast.dart';
@@ -13,6 +13,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
+import '../../data/datasource/services/connection/network_checker_widget.dart';
 import '../../utils/common_utils.dart';
 import '../../utils/constants/color_constants.dart';
 import '../../utils/text.dart';
@@ -137,32 +138,34 @@ class _LoginScreenState extends State<LoginScreen> {
       canPop: false,
       onPopInvoked: (_) =>
           SystemChannels.platform.invokeMethod('SystemNavigator.pop'),
-      child: Scaffold(
-        backgroundColor: AppColor.theme,
-        body: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                VGap(2.h),
-                Container(
-                    alignment: Alignment.center,
-                    height: 25.h,
-                    child: Hero(
-                        tag: "AppLogo",
-                        child: Image.asset(Images.applogoWithoutBg))),
-                Container(
-                  height: 9.h,
-                  child: Txt(
-                    "Event Flow",
-                    fontsize: 4.t,
-                    textColor: Colors.white,
+      child: NetworkCheckerWidget(
+        child: Scaffold(
+          backgroundColor: AppColor.theme,
+          body: SingleChildScrollView(
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  VGap(2.h),
+                  Container(
+                      alignment: Alignment.center,
+                      height: 25.h,
+                      child: Hero(
+                          tag: "AppLogo",
+                          child: Image.asset(Images.applogoWithoutBg))),
+                  Container(
+                    height: 9.h,
+                    child: Txt(
+                      "Event Flow",
+                      fontsize: 4.t,
+                      textColor: Colors.white,
+                    ),
                   ),
-                ),
-                // VGap(5.h),
-                _authContainer(),
-              ],
+                  // VGap(5.h),
+                  _authContainer(),
+                ],
+              ),
             ),
           ),
         ),

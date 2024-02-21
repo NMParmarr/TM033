@@ -1,4 +1,4 @@
-import 'package:eventflow/data/datasource/services/firebase_services.dart';
+import 'package:eventflow/data/datasource/services/firebase/firebase_services.dart';
 import 'package:eventflow/data/models/event_type.dart';
 import 'package:eventflow/resources/helper/shared_preferences.dart';
 import 'package:eventflow/resources/routes/routes.dart';
@@ -12,6 +12,7 @@ import 'package:eventflow/utils/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../data/datasource/services/connection/network_checker_widget.dart';
 import '../../data/models/event_model.dart';
 import '../../utils/text.dart';
 import 'events_org_list.dart';
@@ -40,39 +41,41 @@ class _HomeOrgScreenState extends State<HomeOrgScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pushNamed(context, Routes.addEvent);
-        },
-        child: Icon(Icons.post_add_rounded),
+    return NetworkCheckerWidget(
+      child: Scaffold(
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.pushNamed(context, Routes.addEvent);
+          },
+          child: Icon(Icons.post_add_rounded),
+        ),
+        body: FutureBuilder<String?>(
+            future: Shared_Preferences.prefGetString(App.id, ""),
+            builder: (context, orgId) {
+              if (orgId.hasData) {
+                return StreamBuilder<List<EventType>>(
+                    stream: FireServices.instance
+                        .fetchEventTypeByOrg(orgId: orgId.data!),
+                    builder: (context, typeSnap) {
+                      if (typeSnap.hasData) {
+                        return _contentWidget(
+                            eventTypes: typeSnap.data!, orgId: orgId.data!);
+                      } else if (orgId.hasError) {
+                        print(" --- err event type snap -- ${orgId.error}");
+                        return Center(
+                            child: Icon(Icons.error, color: AppColor.theme));
+                      } else {
+                        return Center(child: Image.asset(Images.loadingGif));
+                      }
+                    });
+              } else if (orgId.hasError) {
+                print(" --- err org id snap -- ${orgId.error}");
+                return Center(child: Icon(Icons.error, color: AppColor.theme));
+              } else {
+                return Center(child: Image.asset(Images.loadingGif));
+              }
+            }),
       ),
-      body: FutureBuilder<String?>(
-          future: Shared_Preferences.prefGetString(App.id, ""),
-          builder: (context, orgId) {
-            if (orgId.hasData) {
-              return StreamBuilder<List<EventType>>(
-                  stream: FireServices.instance
-                      .fetchEventTypeByOrg(orgId: orgId.data!),
-                  builder: (context, typeSnap) {
-                    if (typeSnap.hasData) {
-                      return _contentWidget(
-                          eventTypes: typeSnap.data!, orgId: orgId.data!);
-                    } else if (orgId.hasError) {
-                      print(" --- err event type snap -- ${orgId.error}");
-                      return Center(
-                          child: Icon(Icons.error, color: AppColor.theme));
-                    } else {
-                      return Center(child: Image.asset(Images.loadingGif));
-                    }
-                  });
-            } else if (orgId.hasError) {
-              print(" --- err org id snap -- ${orgId.error}");
-              return Center(child: Icon(Icons.error, color: AppColor.theme));
-            } else {
-              return Center(child: Image.asset(Images.loadingGif));
-            }
-          }),
     );
   }
 

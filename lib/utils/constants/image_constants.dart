@@ -11,6 +11,7 @@ class Images {
   static const String noItemsFound = "assets/images/noItemsFound.png";
   static const String sampleImage = "assets/images/sampleImage.png";
   static const String sampleEvent = "assets/images/sample_event.png";
+  static const String noInternetConnection = "assets/images/noInternetConnection.png";
 
   /// SVG IMAGES
 

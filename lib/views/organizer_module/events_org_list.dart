@@ -1,4 +1,4 @@
-import 'package:eventflow/data/datasource/services/firebase_services.dart';
+import 'package:eventflow/data/datasource/services/firebase/firebase_services.dart';
 import 'package:eventflow/data/models/participant.dart';
 import 'package:eventflow/resources/routes/routes.dart';
 import 'package:eventflow/utils/common_utils.dart';

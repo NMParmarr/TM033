@@ -7,7 +7,8 @@ import 'package:eventflow/views/user_module/event_list.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../data/datasource/services/firebase_services.dart';
+import '../../data/datasource/services/connection/network_checker_widget.dart';
+import '../../data/datasource/services/firebase/firebase_services.dart';
 import '../../data/models/event_model.dart';
 import '../../data/models/event_type.dart';
 import '../../resources/helper/shared_preferences.dart';
@@ -48,8 +49,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       .fetchEventTypeByOrg(orgId: orgId.data!),
                   builder: (context, typeSnap) {
                     if (typeSnap.hasData) {
-                      return _contentWidget(
-                          eventTypes: typeSnap.data!, orgId: orgId.data!);
+                      return NetworkCheckerWidget(
+                        child: _contentWidget(
+                            eventTypes: typeSnap.data!, orgId: orgId.data!),
+                      );
                     } else if (orgId.hasError) {
                       print(" --- err event type snap -- ${orgId.error}");
                       return Center(

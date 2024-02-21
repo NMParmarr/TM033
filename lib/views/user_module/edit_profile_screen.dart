@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../data/datasource/services/connection/network_checker_widget.dart';
 import '../../data/models/user_model.dart';
 import '../../utils/common_toast.dart';
 import '../../utils/common_utils.dart';
@@ -103,250 +104,252 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      // backgroundColor: Color.fromARGB(255, 240, 240, 240),
-      body: SafeArea(
-        child: Stack(
-          children: [
-            SingleChildScrollView(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 4.w),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    VGap(1.5.h),
-                    Center(
-                      child: Txt("Edit Profile",
+    return NetworkCheckerWidget(
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        // backgroundColor: Color.fromARGB(255, 240, 240, 240),
+        body: SafeArea(
+          child: Stack(
+            children: [
+              SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 4.w),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      VGap(1.5.h),
+                      Center(
+                        child: Txt("Edit Profile",
+                            textColor: Colors.black,
+                            fontsize: 3.t,
+                            fontweight: FontWeight.bold),
+                      ),
+                      VGap(1.h),
+                      Center(
+                        child: Hero(
+                          tag: "userprofile",
+                          child: CircleAvatar(
+                            radius: 14.w,
+                            backgroundImage: AssetImage(Images.sampleImage),
+                          ),
+                        ),
+                      ),
+                      VGap(2.h),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 2.w),
+                        child: Row(
+                          children: [
+                            Expanded(
+                                child: ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColor.primary,
+                                    ),
+                                    onPressed: () {},
+                                    icon: Icon(Icons.edit, color: Colors.white),
+                                    label:
+                                        Txt("Change", textColor: Colors.white))),
+                            HGap(2.w),
+                            Expanded(
+                                child: ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColor.orange,
+                                    ),
+                                    onPressed: () {},
+                                    icon: Icon(Icons.delete_outlined,
+                                        color: Colors.white),
+                                    label:
+                                        Txt("Remove", textColor: Colors.white)))
+                          ],
+                        ),
+                      ),
+                      VGap(2.h),
+                      Txt("Basic Information",
                           textColor: Colors.black,
                           fontsize: 3.t,
                           fontweight: FontWeight.bold),
-                    ),
-                    VGap(1.h),
-                    Center(
-                      child: Hero(
-                        tag: "userprofile",
-                        child: CircleAvatar(
-                          radius: 14.w,
-                          backgroundImage: AssetImage(Images.sampleImage),
+                      VGap(1.5.h),
+                      Txt("Full Name",
+                          textColor: Colors.black,
+                          fontsize: 2.t,
+                          fontweight: FontWeight.w500),
+                      CustomTextField(
+                        ctr: _userFullnameCtr!,
+                        hintText: "Enter full name",
+                      ),
+                      VGap(1.5.h),
+                      Txt("Email",
+                          textColor: Colors.black,
+                          fontsize: 2.t,
+                          fontweight: FontWeight.w500),
+                      CustomTextField(
+                        ctr: _userEmailCtr!,
+                        hintText: "Enter email",
+                      ),
+                      VGap(1.5.h),
+                      Txt("Mobile",
+                          textColor: Colors.black,
+                          fontsize: 2.t,
+                          fontweight: FontWeight.w500),
+                      InkWell(
+                        borderRadius: BorderRadius.circular(10),
+                        onTap: () {
+                          showToast("You can't change Mobile.!");
+                        },
+                        child: IgnorePointer(
+                          child: CustomTextField(
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly
+                            ],
+                            readOnly: true,
+                            ctr: _userMobileCtr!,
+                            hintText: "Enter mobile ",
+                          ),
                         ),
                       ),
-                    ),
-                    VGap(2.h),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 2.w),
-                      child: Row(
+                      VGap(1.5.h),
+                      Txt("Birth Date",
+                          textColor: Colors.black,
+                          fontsize: 2.t,
+                          fontweight: FontWeight.w500),
+                      Consumer<ProfileProvider>(builder: (context, provider, _) {
+                        return InkWell(
+                          onTap: () async {
+                            DateTime? dob = await showDatePicker(
+                                context: context,
+                                firstDate: DateTime(1980),
+                                lastDate: DateTime.now());
+                            provider.setUserDOB(dob: dob);
+                          },
+                          child: Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 3.w, vertical: 1.3.h),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                color: Colors.grey.withOpacity(0.25),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Txt(provider.dob != null
+                                      ? DateFormat('dd-MM-yyyy')
+                                          .format(provider.dob!)
+                                      : "Select Birth Date"),
+                                  Icon(Icons.date_range_outlined)
+                                ],
+                              )),
+                        );
+                      }),
+                      VGap(1.5.h),
+                      Txt("Field",
+                          textColor: Colors.black,
+                          fontsize: 2.t,
+                          fontweight: FontWeight.w500),
+                      CustomTextField(
+                        ctr: _userFieldCtr!,
+                        hintText: "Enter your field",
+                      ),
+                      VGap(1.5.h),
+                      Txt("About",
+                          textColor: Colors.black,
+                          fontsize: 2.t,
+                          fontweight: FontWeight.w500),
+                      CustomTextField(
+                          ctr: _userAboutCtr!,
+                          lines: 5,
+                          hintText: "Enter description about yourself.."),
+                      VGap(3.h),
+                      Row(
                         children: [
                           Expanded(
                               child: ElevatedButton.icon(
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColor.primary,
+                                    backgroundColor:
+                                        Color.fromARGB(255, 155, 155, 155),
                                   ),
                                   onPressed: () {},
-                                  icon: Icon(Icons.edit, color: Colors.white),
+                                  icon: Icon(Icons.close, color: Colors.white),
                                   label:
-                                      Txt("Change", textColor: Colors.white))),
+                                      Txt("Discard", textColor: Colors.white))),
                           HGap(2.w),
-                          Expanded(
-                              child: ElevatedButton.icon(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColor.orange,
-                                  ),
-                                  onPressed: () {},
-                                  icon: Icon(Icons.delete_outlined,
-                                      color: Colors.white),
-                                  label:
-                                      Txt("Remove", textColor: Colors.white)))
+                          Expanded(child: Consumer<ProfileProvider>(
+                              builder: (context, provider, _) {
+                            return ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColor.theme,
+                                ),
+                                onPressed: () async {
+                                  bool isValid = validateUserTextFields();
+                                  if (!isValid) return;
+                                  if (!provider.saveUserLoading) {
+                                    bool res = await provider
+                                        .updateUserDetails(updatedJsonData: {
+                                      "fullName": _userFullnameCtr?.text
+                                          .toString()
+                                          .trim(),
+                                      "email":
+                                          _userEmailCtr?.text.toString().trim(),
+                                      "dob": provider.dob.toString(),
+                                      "field":
+                                          _userFieldCtr?.text.toString().trim(),
+                                      "about":
+                                          _userAboutCtr?.text.toString().trim(),
+                                      "image": provider.imagePath,
+                                      "isProfileCompleted": true,
+                                    });
+                                    if (res) {
+                                      Navigator.pop(context);
+                                      showFlushbar(
+                                          context, "Saved successfully..!");
+                                      provider.clearUserDOB();
+                                    }
+                                  }
+                                },
+                                icon: provider.saveUserLoading
+                                    ? SizedBox()
+                                    : Icon(Icons.check_circle,
+                                        color: Colors.white),
+                                label: provider.saveUserLoading
+                                    ? CircularProgressIndicator(
+                                        color: Colors.white)
+                                    : Txt("Save", textColor: Colors.white));
+                          })),
                         ],
                       ),
-                    ),
-                    VGap(2.h),
-                    Txt("Basic Information",
-                        textColor: Colors.black,
-                        fontsize: 3.t,
-                        fontweight: FontWeight.bold),
-                    VGap(1.5.h),
-                    Txt("Full Name",
-                        textColor: Colors.black,
-                        fontsize: 2.t,
-                        fontweight: FontWeight.w500),
-                    CustomTextField(
-                      ctr: _userFullnameCtr!,
-                      hintText: "Enter full name",
-                    ),
-                    VGap(1.5.h),
-                    Txt("Email",
-                        textColor: Colors.black,
-                        fontsize: 2.t,
-                        fontweight: FontWeight.w500),
-                    CustomTextField(
-                      ctr: _userEmailCtr!,
-                      hintText: "Enter email",
-                    ),
-                    VGap(1.5.h),
-                    Txt("Mobile",
-                        textColor: Colors.black,
-                        fontsize: 2.t,
-                        fontweight: FontWeight.w500),
-                    InkWell(
-                      borderRadius: BorderRadius.circular(10),
-                      onTap: () {
-                        showToast("You can't change Mobile.!");
-                      },
-                      child: IgnorePointer(
-                        child: CustomTextField(
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly
-                          ],
-                          readOnly: true,
-                          ctr: _userMobileCtr!,
-                          hintText: "Enter mobile ",
+                      VGap(3.h),
+                      ListTile(
+                        onTap: () {
+                          Navigator.popAndPushNamed(
+                              context, Routes.changePassword,
+                              arguments: {'isUser': true});
+                        },
+                        leading: Icon(
+                          Icons.lock,
+                          color: AppColor.theme,
+                        ),
+                        title: Txt(
+                          "Change Password",
+                          textColor: AppColor.theme,
                         ),
                       ),
-                    ),
-                    VGap(1.5.h),
-                    Txt("Birth Date",
-                        textColor: Colors.black,
-                        fontsize: 2.t,
-                        fontweight: FontWeight.w500),
-                    Consumer<ProfileProvider>(builder: (context, provider, _) {
-                      return InkWell(
-                        onTap: () async {
-                          DateTime? dob = await showDatePicker(
-                              context: context,
-                              firstDate: DateTime(1980),
-                              lastDate: DateTime.now());
-                          provider.setUserDOB(dob: dob);
-                        },
-                        child: Container(
-                            width: double.infinity,
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 3.w, vertical: 1.3.h),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              color: Colors.grey.withOpacity(0.25),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Txt(provider.dob != null
-                                    ? DateFormat('dd-MM-yyyy')
-                                        .format(provider.dob!)
-                                    : "Select Birth Date"),
-                                Icon(Icons.date_range_outlined)
-                              ],
-                            )),
-                      );
-                    }),
-                    VGap(1.5.h),
-                    Txt("Field",
-                        textColor: Colors.black,
-                        fontsize: 2.t,
-                        fontweight: FontWeight.w500),
-                    CustomTextField(
-                      ctr: _userFieldCtr!,
-                      hintText: "Enter your field",
-                    ),
-                    VGap(1.5.h),
-                    Txt("About",
-                        textColor: Colors.black,
-                        fontsize: 2.t,
-                        fontweight: FontWeight.w500),
-                    CustomTextField(
-                        ctr: _userAboutCtr!,
-                        lines: 5,
-                        hintText: "Enter description about yourself.."),
-                    VGap(3.h),
-                    Row(
-                      children: [
-                        Expanded(
-                            child: ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      Color.fromARGB(255, 155, 155, 155),
-                                ),
-                                onPressed: () {},
-                                icon: Icon(Icons.close, color: Colors.white),
-                                label:
-                                    Txt("Discard", textColor: Colors.white))),
-                        HGap(2.w),
-                        Expanded(child: Consumer<ProfileProvider>(
-                            builder: (context, provider, _) {
-                          return ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColor.theme,
-                              ),
-                              onPressed: () async {
-                                bool isValid = validateUserTextFields();
-                                if (!isValid) return;
-                                if (!provider.saveUserLoading) {
-                                  bool res = await provider
-                                      .updateUserDetails(updatedJsonData: {
-                                    "fullName": _userFullnameCtr?.text
-                                        .toString()
-                                        .trim(),
-                                    "email":
-                                        _userEmailCtr?.text.toString().trim(),
-                                    "dob": provider.dob.toString(),
-                                    "field":
-                                        _userFieldCtr?.text.toString().trim(),
-                                    "about":
-                                        _userAboutCtr?.text.toString().trim(),
-                                    "image": provider.imagePath,
-                                    "isProfileCompleted": true,
-                                  });
-                                  if (res) {
-                                    Navigator.pop(context);
-                                    showFlushbar(
-                                        context, "Saved successfully..!");
-                                    provider.clearUserDOB();
-                                  }
-                                }
-                              },
-                              icon: provider.saveUserLoading
-                                  ? SizedBox()
-                                  : Icon(Icons.check_circle,
-                                      color: Colors.white),
-                              label: provider.saveUserLoading
-                                  ? CircularProgressIndicator(
-                                      color: Colors.white)
-                                  : Txt("Save", textColor: Colors.white));
-                        })),
-                      ],
-                    ),
-                    VGap(3.h),
-                    ListTile(
-                      onTap: () {
-                        Navigator.popAndPushNamed(
-                            context, Routes.changePassword,
-                            arguments: {'isUser': true});
-                      },
-                      leading: Icon(
-                        Icons.lock,
-                        color: AppColor.theme,
-                      ),
-                      title: Txt(
-                        "Change Password",
-                        textColor: AppColor.theme,
-                      ),
-                    ),
-                    VGap(3.h),
-                  ],
+                      VGap(3.h),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 2.w),
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Icon(Icons.arrow_back_ios_new_rounded),
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white, shape: CircleBorder()),
-              ),
-            )
-          ],
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 2.w),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Icon(Icons.arrow_back_ios_new_rounded),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white, shape: CircleBorder()),
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );

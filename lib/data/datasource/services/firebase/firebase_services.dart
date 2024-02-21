@@ -4,9 +4,10 @@ import 'package:eventflow/data/models/participant.dart';
 import 'package:eventflow/data/models/user_model.dart';
 import 'package:eventflow/resources/helper/shared_preferences.dart';
 import 'package:eventflow/utils/constants/app_constants.dart';
+import 'package:intl/intl.dart';
 
-import '../../models/event_model.dart';
-import '../../models/event_type.dart';
+import '../../../models/event_model.dart';
+import '../../../models/event_type.dart';
 
 class FireServices {
   FireServices._();
@@ -351,10 +352,11 @@ class FireServices {
   /// --- JOIN EVENT PARICIPANTS
   ///
 
-  Future<void> joinEventParticipant(
-      {required String orgId,
-      required String eventId,
-      required String userId}) async {
+  Future<void> joinEventParticipant({
+    required String orgId,
+    required String eventId,
+    required String userId,
+  }) async {
     final participant = Participant(
         orgId: orgId,
         eventId: eventId,
@@ -367,12 +369,18 @@ class FireServices {
         .collection(App.participants)
         .doc(userId)
         .set(participant.toJson());
+    await _users
+        .doc(userId)
+        .collection(App.joinedEvents)
+        .doc(eventId)
+        .set(participant.toJson());
   }
 
-  Future<void> leaveEventParticipant(
-      {required String orgId,
-      required String eventId,
-      required String userId}) async {
+  Future<void> leaveEventParticipant({
+    required String orgId,
+    required String eventId,
+    required String userId,
+  }) async {
     await _organizers
         .doc(orgId)
         .collection(App.events)
@@ -380,6 +388,7 @@ class FireServices {
         .collection(App.participants)
         .doc(userId)
         .delete();
+    await _users.doc(userId).collection(App.joinedEvents).doc(eventId).delete();
   }
 
   Stream<bool> isUserJoinedEvent(
@@ -401,6 +410,25 @@ class FireServices {
             0);
   }
 
+  Future<bool> getIsUserJoinedEvent(
+      {required String userId,
+      required String eventId,
+      required String orgId}) {
+    return _organizers
+        .doc(orgId)
+        .collection(App.events)
+        .doc(eventId)
+        .collection(App.participants)
+        .where('userId', isEqualTo: userId)
+        .get()
+        .then((event) =>
+            event.docs
+                .map((e) => Participant.fromJson(e.data()))
+                .toList()
+                .length !=
+            0);
+  }
+
   Stream<List<Participant>> fetchJoinedParticipants(
       {required String orgId, required String eventId}) {
     return _organizers
@@ -412,6 +440,79 @@ class FireServices {
         .snapshots()
         .map((event) =>
             event.docs.map((e) => Participant.fromJson(e.data())).toList());
+  }
+
+  /// --- fetch user joined upcoming and past events
+  ///
+
+  Future<List<EventModel>> fetchJoinedAllEvents(
+      {required String userId}) async {
+    List<EventModel> events = [];
+    final participants = await _users
+        .doc(userId)
+        .collection(App.joinedEvents)
+        .get()
+        .then((event) =>
+            event.docs.map((e) => Participant.fromJson(e.data())).toList());
+    print(" --- parti leng : ${participants.length}");
+    for (Participant p in participants) {
+      final event =
+          await getEventByEventId(orgId: p.orgId!, eventId: p.eventId!);
+
+      events.add(event);
+    }
+    return events;
+  }
+
+  Future<List<EventModel>> fetchJoinedUpcomingEvents(
+      {required String userId, required String todayDate}) async {
+    List<EventModel> events = [];
+    final participants = await _users
+        .doc(userId)
+        .collection(App.joinedEvents)
+        .get()
+        .then((event) =>
+            event.docs.map((e) => Participant.fromJson(e.data())).toList());
+    print(" --- parti leng : ${participants.length}");
+    for (Participant p in participants) {
+      final event =
+          await getEventByEventId(orgId: p.orgId!, eventId: p.eventId!);
+
+      if (isAfterOrToday(event.eventDate!, todayDate)) events.add(event);
+    }
+    return events;
+  }
+
+  Future<List<EventModel>> fetchJoinedPastEvents(
+      {required String userId, required String todayDate}) async {
+    List<EventModel> events = [];
+    final participants = await _users
+        .doc(userId)
+        .collection(App.joinedEvents)
+        .get()
+        .then((event) =>
+            event.docs.map((e) => Participant.fromJson(e.data())).toList());
+    print(" --- parti leng past : ${participants.length}");
+    for (Participant p in participants) {
+      final event =
+          await getEventByEventId(orgId: p.orgId!, eventId: p.eventId!);
+      if (!isAfterOrToday(event.eventDate!, todayDate)) events.add(event);
+    }
+    return events;
+  }
+
+  bool isAfterOrToday(String dateString1, String dateString2) {
+    DateFormat format = DateFormat('dd-MM-yyyy');
+    // Parse strings into DateTime objects
+    DateTime date1 = format.parse(dateString1);
+    DateTime date2 = format.parse(dateString2);
+
+    // Compare dates
+    if (!date1.isBefore(date2)) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   ///----------------

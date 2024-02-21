@@ -5,6 +5,7 @@ import 'package:eventflow/viewmodels/providers/profile_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'data/datasource/services/connection/network_service.dart';
 import 'di_container.dart' as di;
 import 'resources/routes/routes.dart';
 import 'utils/constants/app_constants.dart';
@@ -23,10 +24,15 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  await NetworkService.instance.startConnectionStreaming();
+
   await di.init();
 
   runApp(MultiProvider(
     providers: [
+      StreamProvider(
+          create: (context) => NetworkService.instance.controller.stream,
+          initialData: NetworkStatus.offline),
       ChangeNotifierProvider(create: (context) => di.sl<ThemeProvider>()),
       ChangeNotifierProvider(create: (context) => di.sl<AuthProvider>()),
       ChangeNotifierProvider(create: (context) => di.sl<HomeProvider>()),
@@ -62,7 +68,7 @@ class _MyAppState extends State<MyApp> {
           color: AppColor.theme,
           title: App.appName,
           theme: ThemeData(
-            scaffoldBackgroundColor: Colors.white,
+              scaffoldBackgroundColor: Colors.white,
               elevatedButtonTheme: ElevatedButtonThemeData(
                   style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.resolveWith(

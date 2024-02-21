@@ -1,3 +1,4 @@
+import 'package:eventflow/data/datasource/services/connection/network_checker_widget.dart';
 import 'package:eventflow/resources/helper/shared_preferences.dart';
 import 'package:eventflow/utils/common_flushbar.dart';
 import 'package:eventflow/utils/common_toast.dart';
@@ -45,9 +46,11 @@ class _AuthStreamState extends State<AuthStream> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(child: Image.asset(Images.loadingGif)),
+    return NetworkCheckerWidget(
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(child: Image.asset(Images.loadingGif)),
+      ),
     );
   }
 }

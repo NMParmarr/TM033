@@ -13,7 +13,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import '../../data/datasource/services/firebase_services.dart';
+import '../../data/datasource/services/connection/network_checker_widget.dart';
+import '../../data/datasource/services/firebase/firebase_services.dart';
+import '../../data/models/event_model.dart';
 import '../../data/models/user_model.dart';
 import '../../utils/common_utils.dart';
 import '../../utils/constants/app_constants.dart';
@@ -29,51 +31,53 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: FutureBuilder(
-        future: Shared_Preferences.prefGetString(App.id, ""),
-        builder: (context, userId) {
-          if (userId.hasData) {
-            return StreamBuilder<UserModel>(
-                stream: FireServices.instance.fetchSingleUser(id: userId.data!),
-                builder: (context, currentUserSnap) {
-                  if (currentUserSnap.hasData) {
-                    return _contentWidget(context,
-                        user: currentUserSnap.data, userId: userId.data!);
-                  } else if (currentUserSnap.hasError) {
-                    print(
-                        " --- err currentusersnap : ${currentUserSnap.error}");
-                    return Center(
-                      child: Padding(
-                          padding: EdgeInsets.symmetric(vertical: 30.h),
-                          child: Column(
-                            children: [
-                              Icon(Icons.error),
-                              Txt("Something went wrong..!",
-                                  textColor: AppColor.theme)
-                            ],
-                          )),
-                    );
-                  } else {
-                    return Center(child: Image.asset(Images.loadingGif));
-                  }
-                });
-          } else if (userId.hasError) {
-            return Center(
-              child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 30.h),
-                  child: Column(
-                    children: [
-                      Icon(Icons.error),
-                      Txt("Something went wrong..!", textColor: AppColor.theme)
-                    ],
-                  )),
-            );
-          } else {
-            return Center(child: Image.asset(Images.loadingGif));
-          }
-        },
+    return NetworkCheckerWidget(
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: FutureBuilder(
+          future: Shared_Preferences.prefGetString(App.id, ""),
+          builder: (context, userId) {
+            if (userId.hasData) {
+              return StreamBuilder<UserModel>(
+                  stream: FireServices.instance.fetchSingleUser(id: userId.data!),
+                  builder: (context, currentUserSnap) {
+                    if (currentUserSnap.hasData) {
+                      return _contentWidget(context,
+                          user: currentUserSnap.data, userId: userId.data!);
+                    } else if (currentUserSnap.hasError) {
+                      print(
+                          " --- err currentusersnap : ${currentUserSnap.error}");
+                      return Center(
+                        child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 30.h),
+                            child: Column(
+                              children: [
+                                Icon(Icons.error),
+                                Txt("Something went wrong..!",
+                                    textColor: AppColor.theme)
+                              ],
+                            )),
+                      );
+                    } else {
+                      return Center(child: Image.asset(Images.loadingGif));
+                    }
+                  });
+            } else if (userId.hasError) {
+              return Center(
+                child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 30.h),
+                    child: Column(
+                      children: [
+                        Icon(Icons.error),
+                        Txt("Something went wrong..!", textColor: AppColor.theme)
+                      ],
+                    )),
+              );
+            } else {
+              return Center(child: Image.asset(Images.loadingGif));
+            }
+          },
+        ),
       ),
     );
   }
@@ -166,7 +170,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Expanded(
             child: TabBarView(
           children: [
-            EventsList(events: []),
+            FutureBuilder<List<EventModel>>(
+                future: FireServices.instance.fetchJoinedAllEvents(
+                    userId: user!.id!),
+                builder: (context, upcomingEvents) {
+                  if (upcomingEvents.hasData) {
+                    return EventsList(events: upcomingEvents.data ?? []);
+                  } else if (upcomingEvents.hasError) {
+                    print(" --- err dfdfsdgh : ${upcomingEvents.error}");
+                    return Center(
+                        child: Icon(Icons.error, color: AppColor.theme));
+                  } else {
+                    return Center(child: Image.asset(Images.loadingGif));
+                  }
+                }),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 3.w),
               child: ListView(

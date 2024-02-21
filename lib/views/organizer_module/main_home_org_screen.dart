@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../data/datasource/services/connection/network_checker_widget.dart';
 import 'home_org_screen.dart';
 import 'org_profile_screen.dart';
 
@@ -38,30 +39,32 @@ class _MainHomeOrgScreenState extends State<MainHomeOrgScreen> {
         onPopInvoked: (_) {
           SystemChannels.platform.invokeMethod('SystemNavigator.pop');
         },
-        child: Scaffold(
-          appBar: AppBar(
-            backgroundColor: AppColor.theme,
-            automaticallyImplyLeading: false,
-            title: Txt(
-              "Event Flow",
-              textColor: Colors.white,
-              // textColor: AppColor.theme,
-              fontweight: FontWeight.w600,
+        child: NetworkCheckerWidget(
+          child: Scaffold(
+            appBar: AppBar(
+              backgroundColor: AppColor.theme,
+              automaticallyImplyLeading: false,
+              title: Txt(
+                "Event Flow",
+                textColor: Colors.white,
+                // textColor: AppColor.theme,
+                fontweight: FontWeight.w600,
+              ),
             ),
+            body: screens[provider.currentScreenIndex],
+            bottomNavigationBar: BottomNavigationBar(
+                currentIndex: provider.currentScreenIndex,
+                onTap: (index) => provider.setCurrentScreenIndex(index: index),
+                selectedItemColor: AppColor.theme,
+                items: [
+                  BottomNavigationBarItem(
+                      icon: Icon(Icons.event_note), label: "Events"),
+                  BottomNavigationBarItem(
+                      icon: Icon(Icons.group), label: "Participants"),
+                  BottomNavigationBarItem(
+                      icon: Icon(Icons.settings), label: "Settings"),
+                ]),
           ),
-          body: screens[provider.currentScreenIndex],
-          bottomNavigationBar: BottomNavigationBar(
-              currentIndex: provider.currentScreenIndex,
-              onTap: (index) => provider.setCurrentScreenIndex(index: index),
-              selectedItemColor: AppColor.theme,
-              items: [
-                BottomNavigationBarItem(
-                    icon: Icon(Icons.event_note), label: "Events"),
-                BottomNavigationBarItem(
-                    icon: Icon(Icons.group), label: "Participants"),
-                BottomNavigationBarItem(
-                    icon: Icon(Icons.settings), label: "Settings"),
-              ]),
         ),
       );
     });

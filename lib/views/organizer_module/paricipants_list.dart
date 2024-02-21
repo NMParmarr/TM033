@@ -1,16 +1,11 @@
-import 'package:eventflow/data/datasource/services/firebase_services.dart';
+import 'package:eventflow/data/datasource/services/firebase/firebase_services.dart';
 import 'package:eventflow/data/models/participant.dart';
-import 'package:eventflow/resources/helper/loader.dart';
 import 'package:eventflow/utils/common_toast.dart';
-import 'package:eventflow/utils/common_utils.dart';
 import 'package:eventflow/utils/constants/color_constants.dart';
 import 'package:eventflow/utils/size_config.dart';
 import 'package:eventflow/utils/text.dart';
-import 'package:eventflow/viewmodels/providers/home_provider.dart';
-import 'package:eventflow/viewmodels/providers/profile_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../data/models/user_model.dart';
 import '../../utils/constants/image_constants.dart';

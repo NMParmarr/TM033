@@ -1,4 +1,4 @@
-import 'package:eventflow/data/datasource/services/firebase_services.dart';
+import 'package:eventflow/data/datasource/services/firebase/firebase_services.dart';
 import 'package:eventflow/data/models/event_model.dart';
 import 'package:eventflow/data/models/participant.dart';
 import 'package:eventflow/resources/helper/loader.dart';
@@ -12,6 +12,7 @@ import 'package:eventflow/views/organizer_module/paricipants_list.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../data/datasource/services/connection/network_checker_widget.dart';
 import '../../resources/routes/routes.dart';
 import '../../utils/constants/string_constants.dart';
 import '../../utils/gap.dart';
@@ -36,7 +37,7 @@ class _EventDetailsOrgScreenState extends State<EventDetailsOrgScreen> {
             .fetchEventByEventId(orgId: widget.orgId, eventId: widget.eventId),
         builder: (context, event) {
           if (event.hasData) {
-            return _contentWidget(context, event: event.data!);
+            return NetworkCheckerWidget(child: _contentWidget(context, event: event.data!));
           } else if (event.hasError) {
             print(" --- err eventhiuh snap -- ${event.error}");
             return Container(

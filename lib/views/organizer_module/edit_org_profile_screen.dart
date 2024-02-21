@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:eventflow/data/datasource/services/firebase_services.dart';
+import 'package:eventflow/data/datasource/services/firebase/firebase_services.dart';
 import 'package:eventflow/data/models/organizer_model.dart';
 import 'package:eventflow/resources/routes/routes.dart';
 import 'package:eventflow/utils/common_flushbar.dart';
@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../data/datasource/services/connection/network_checker_widget.dart';
 import '../../utils/common_toast.dart';
 import '../../utils/common_utils.dart';
 import '../../utils/constants/color_constants.dart';
@@ -114,31 +115,33 @@ class _EditOrgProfileScreenState extends State<EditOrgProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Stack(
-          children: [
-            RefreshIndicator(
-              onRefresh: () async {
-                setState(() {});
-                return Future.delayed(Duration(milliseconds: 700));
-              },
-              child: SingleChildScrollView(
-                  child: _contentWidget(context, org: widget.org)),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 2.w),
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
+    return NetworkCheckerWidget(
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: SafeArea(
+          child: Stack(
+            children: [
+              RefreshIndicator(
+                onRefresh: () async {
+                  setState(() {});
+                  return Future.delayed(Duration(milliseconds: 700));
                 },
-                child: Icon(Icons.arrow_back_ios_new_rounded),
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white, shape: CircleBorder()),
+                child: SingleChildScrollView(
+                    child: _contentWidget(context, org: widget.org)),
               ),
-            )
-          ],
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 2.w),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Icon(Icons.arrow_back_ios_new_rounded),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white, shape: CircleBorder()),
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );
