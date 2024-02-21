@@ -14,6 +14,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../data/datasource/services/connection/network_checker_widget.dart';
+import '../../data/datasource/services/firebase/firebase_messaging.dart';
 import '../../utils/common_utils.dart';
 import '../../utils/constants/color_constants.dart';
 import '../../utils/text.dart';
@@ -41,12 +42,19 @@ class _LoginScreenState extends State<LoginScreen> {
     clearTextControllers();
 
     initAuthProviderMethods();
+    storeFCMToken();
   }
 
   @override
   void dispose() {
     disposeTextControllers();
     super.dispose();
+  }
+
+  void storeFCMToken() {
+     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+      await FireMessaging.instance.storeFcmToken();
+    });
   }
 
   void initAuthProviderMethods() {

@@ -1,16 +1,23 @@
 import 'package:eventflow/data/datasource/services/firebase/firebase_services.dart';
 import 'package:eventflow/data/models/event_model.dart';
 import 'package:eventflow/data/models/event_type.dart';
+import 'package:eventflow/data/repos/notification_repo.dart';
 import 'package:eventflow/utils/common_toast.dart';
+import 'package:eventflow/utils/constants/api_constants.dart';
 import 'package:eventflow/utils/constants/app_constants.dart';
 import 'package:eventflow/utils/constants/string_constants.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../data/datasource/response/api_response.dart';
+
 class HomeProvider extends ChangeNotifier {
   final SharedPreferences? sharedPreferences;
+  final NotificationRepo? notificationRepo;
 
-  HomeProvider({@required this.sharedPreferences});
+  HomeProvider(
+      {@required this.sharedPreferences, @required this.notificationRepo});
 
   /// --- MAIN HOME SCREEN INDEX
   ///
@@ -40,6 +47,7 @@ class HomeProvider extends ChangeNotifier {
           createdAt: "${DateTime.now()}");
       await FireServices.instance
           .addEventType(orgId: orgId!, typeId: typeId, eventType: eventType);
+
       res = true;
     } catch (e) {
       print(" --- err add event type --- $e");
@@ -121,8 +129,40 @@ class HomeProvider extends ChangeNotifier {
         ///image : null
       );
 
-      await FireServices.instance
+      final result = await FireServices.instance
           .addNewEvent(orgId: orgId, eventId: eventId, eventModel: eventModel);
+
+      //// -- [ NOTIFICAION ] -- ////
+
+      if (result) {
+        List fcmTokens = await FireServices.instance.fetchUserFcmTokens();
+        if (kDebugMode) {
+          print("tokens : $fcmTokens");
+        }
+        final org = await FireServices.instance.getSingleOrganizer(id: orgId);
+        ApiResponse res = await notificationRepo!
+            .sendNotification(apiUrl: Apis.sendNotification, body: {
+          "registration_ids": fcmTokens,
+          "collapse_key": "type_a",
+          "notification": {
+            "body": "${org.organization!} organized new event..join now..!",
+            "title": "New Event..!"
+          }
+        });
+
+        if (res.response?.data != null) {
+          if (kDebugMode) {
+            print("res : ${res.response?.data}");
+          }
+        }
+
+        // if (res.response?.data['success'] >= 1) {
+        //   await firebaseServices!.storeNotification(orderNo: ++orderNo);
+        //   if (kDebugMode) {
+        //     print("success");
+        //   }
+        // }
+      }
       res = true;
     } catch (e) {
       print(" --- err add new event --- $e");

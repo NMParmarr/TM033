@@ -6,6 +6,7 @@ import 'package:eventflow/utils/constants/color_constants.dart';
 import 'package:eventflow/utils/constants/image_constants.dart';
 import 'package:eventflow/utils/size_config.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../../data/datasource/services/connection/network_checker_widget.dart';
 import '../../data/models/user_model.dart';
@@ -33,7 +34,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
             .fetchEventByEventId(orgId: widget.orgId, eventId: widget.eventId),
         builder: (context, event) {
           if (event.hasData) {
-            return NetworkCheckerWidget(child: _contentWidget(context, event: event.data!));
+            return NetworkCheckerWidget(
+                child: _contentWidget(context, event: event.data!));
           } else if (event.hasError) {
             print(" --- err eventhiuh snap -- ${event.error}");
             return Container(
@@ -48,84 +50,91 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
   }
 
   Widget _contentWidget(BuildContext context, {required EventModel event}) {
+    final formattedTodayDate = DateFormat("dd-MM-yyyy").format(DateTime.now());
+
     return Scaffold(
-      bottomNavigationBar: Container(
-          margin:
-              EdgeInsets.only(left: 2.w, right: 2.w, bottom: 0.5.h, top: 0.5.h),
-          child: FutureBuilder<String?>(
-              future: Shared_Preferences.prefGetString(App.id, ""),
-              builder: (context, userId) {
-                if (userId.hasData) {
-                  return StreamBuilder<UserModel>(
-                      stream: FireServices.instance
-                          .fetchSingleUser(id: userId.data!),
-                      builder: (context, user) {
-                        return StreamBuilder<bool>(
-                            stream: FireServices.instance.isUserJoinedEvent(
-                                orgId: widget.orgId,
-                                eventId: widget.eventId,
-                                userId: userId.data!),
-                            builder: (context, isUserJoined) {
-                              return ElevatedButton.icon(
-                                  style: ElevatedButton.styleFrom(
-                                      backgroundColor:
-                                          (isUserJoined.connectionState ==
-                                                  ConnectionState.waiting)
-                                              ? Colors.grey
-                                              : (isUserJoined.hasData &&
-                                                      isUserJoined.data!)
-                                                  ? AppColor.orange
-                                                  : AppColor.primary),
-                                  onPressed: () async {
-                                    if ((isUserJoined.hasData &&
-                                        isUserJoined.data!)) {
-                                      await Utils.leaveConfirmationDialog(
-                                          context,
-                                          orgId: widget.orgId,
-                                          eventId: widget.eventId,
-                                          userId: userId.data!);
-                                    } else {
-                                      if (!user.data!.isProfileCompleted!) {
-                                        showFlushbar(context,
-                                            "Complete your profile to join the event..!");
-                                        return;
+      bottomNavigationBar: Visibility(
+        visible: FireServices.instance
+            .isAfterOrToday(event.eventDate!, formattedTodayDate),
+        child: Container(
+            margin: EdgeInsets.only(
+                left: 2.w, right: 2.w, bottom: 0.5.h, top: 0.5.h),
+            child: FutureBuilder<String?>(
+                future: Shared_Preferences.prefGetString(App.id, ""),
+                builder: (context, userId) {
+                  if (userId.hasData) {
+                    return StreamBuilder<UserModel>(
+                        stream: FireServices.instance
+                            .fetchSingleUser(id: userId.data!),
+                        builder: (context, user) {
+                          return StreamBuilder<bool>(
+                              stream: FireServices.instance.isUserJoinedEvent(
+                                  orgId: widget.orgId,
+                                  eventId: widget.eventId,
+                                  userId: userId.data!),
+                              builder: (context, isUserJoined) {
+                                return ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            (isUserJoined.connectionState ==
+                                                    ConnectionState.waiting)
+                                                ? Colors.grey
+                                                : (isUserJoined.hasData &&
+                                                        isUserJoined.data!)
+                                                    ? AppColor.orange
+                                                    : AppColor.primary),
+                                    onPressed: () async {
+                                      if ((isUserJoined.hasData &&
+                                          isUserJoined.data!)) {
+                                        await Utils.leaveConfirmationDialog(
+                                            context,
+                                            orgId: widget.orgId,
+                                            eventId: widget.eventId,
+                                            userId: userId.data!);
+                                      } else {
+                                        if (!user.data!.isProfileCompleted!) {
+                                          showFlushbar(context,
+                                              "Complete your profile to join the event..!");
+                                          return;
+                                        }
+                                        await Utils.joinConfirmationDialog(
+                                            context,
+                                            orgId: widget.orgId,
+                                            eventId: widget.eventId,
+                                            userId: userId.data!);
                                       }
-                                      await Utils.joinConfirmationDialog(
-                                          context,
-                                          orgId: widget.orgId,
-                                          eventId: widget.eventId,
-                                          userId: userId.data!);
-                                    }
-                                  },
-                                  icon: (isUserJoined.connectionState ==
-                                          ConnectionState.waiting)
-                                      ? SizedBox()
-                                      : Icon(
-                                          (isUserJoined.hasData &&
-                                                  isUserJoined.data!)
-                                              ? Icons.arrow_circle_left_outlined
-                                              : Icons.login,
-                                          color: Colors.white,
-                                        ),
-                                  label: (isUserJoined.connectionState ==
-                                          ConnectionState.waiting)
-                                      ? CircularProgressIndicator(
-                                          color: Colors.white)
-                                      : Txt(
-                                          isUserJoined.hasData &&
-                                                  (isUserJoined.data!)
-                                              ? "Leave"
-                                              : "Join",
-                                          textColor: Colors.white));
-                            });
-                      });
-                } else if (userId.hasError) {
-                  return Center(
-                      child: Icon(Icons.error, color: AppColor.theme));
-                } else {
-                  return Center(child: Image.asset(Images.loadingGif));
-                }
-              })),
+                                    },
+                                    icon: (isUserJoined.connectionState ==
+                                            ConnectionState.waiting)
+                                        ? SizedBox()
+                                        : Icon(
+                                            (isUserJoined.hasData &&
+                                                    isUserJoined.data!)
+                                                ? Icons
+                                                    .arrow_circle_left_outlined
+                                                : Icons.login,
+                                            color: Colors.white,
+                                          ),
+                                    label: (isUserJoined.connectionState ==
+                                            ConnectionState.waiting)
+                                        ? CircularProgressIndicator(
+                                            color: Colors.white)
+                                        : Txt(
+                                            isUserJoined.hasData &&
+                                                    (isUserJoined.data!)
+                                                ? "Leave"
+                                                : "Join",
+                                            textColor: Colors.white));
+                              });
+                        });
+                  } else if (userId.hasError) {
+                    return Center(
+                        child: Icon(Icons.error, color: AppColor.theme));
+                  } else {
+                    return Center(child: Image.asset(Images.loadingGif));
+                  }
+                })),
+      ),
       body: SafeArea(
         child: Stack(
           children: [

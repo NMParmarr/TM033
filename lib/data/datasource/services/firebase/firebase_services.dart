@@ -22,6 +22,14 @@ class FireServices {
   CollectionReference get users => _users;
   final _users = FirebaseFirestore.instance.collection("users");
 
+  CollectionReference get serverKey => _serverKey;
+  final _serverKey = FirebaseFirestore.instance.collection("serverKey");
+
+  CollectionReference get userTokens => _userTokens;
+  final _userTokens = FirebaseFirestore.instance.collection("tokens");
+
+  CollectionReference get orgTokens => _orgTokens;
+  final _orgTokens = FirebaseFirestore.instance.collection("tokens");
   /////////////////////[ ORGANIZERS ]///////////////////////
 
   /// --- ORGANIZER SIGNUP - UPDATE
@@ -162,7 +170,7 @@ class FireServices {
   /// --- ORG EVENT TYPE
   ///
 
-  Future<void> addEventType(
+  Future<bool> addEventType(
       {required String orgId,
       required String typeId,
       required EventType eventType}) async {
@@ -171,6 +179,7 @@ class FireServices {
         .collection(App.eventTypes)
         .doc(typeId)
         .set(eventType.toJson());
+    return true;
   }
 
   Stream<List<EventType>> fetchEventTypeByOrg({required String orgId}) {
@@ -198,7 +207,7 @@ class FireServices {
   /// --- ORG EVENT
   ///
 
-  Future<void> addNewEvent({
+  Future<bool> addNewEvent({
     required String orgId,
     required String eventId,
     required EventModel eventModel,
@@ -208,6 +217,7 @@ class FireServices {
         .collection(App.events)
         .doc(eventId)
         .set(eventModel.toJson());
+        return true;
   }
 
   Stream<List<EventModel>> fetchEventsByTypeId(
@@ -410,24 +420,24 @@ class FireServices {
             0);
   }
 
-  Future<bool> getIsUserJoinedEvent(
-      {required String userId,
-      required String eventId,
-      required String orgId}) {
-    return _organizers
-        .doc(orgId)
-        .collection(App.events)
-        .doc(eventId)
-        .collection(App.participants)
-        .where('userId', isEqualTo: userId)
-        .get()
-        .then((event) =>
-            event.docs
-                .map((e) => Participant.fromJson(e.data()))
-                .toList()
-                .length !=
-            0);
-  }
+  // Future<bool> getIsUserJoinedEvent(
+  //     {required String userId,
+  //     required String eventId,
+  //     required String orgId}) {
+  //   return _organizers
+  //       .doc(orgId)
+  //       .collection(App.events)
+  //       .doc(eventId)
+  //       .collection(App.participants)
+  //       .where('userId', isEqualTo: userId)
+  //       .get()
+  //       .then((event) =>
+  //           event.docs
+  //               .map((e) => Participant.fromJson(e.data()))
+  //               .toList()
+  //               .length !=
+  //           0);
+  // }
 
   Stream<List<Participant>> fetchJoinedParticipants(
       {required String orgId, required String eventId}) {
@@ -513,6 +523,31 @@ class FireServices {
     } else {
       return false;
     }
+  }
+
+  /// --- NOTIFICATIONS
+  ///
+
+  Future<String> fetchServerKey() => _serverKey
+      .doc('serverkey')
+      .get()
+      .then((value) => value.data()?['serverkey']);
+
+  Future<List> fetchUserFcmTokens() => _userTokens
+      .get()
+      .then((value) => value.docs.map((e) => e.data()['fcmToken']).toList());
+  Future<List> fetchOrgFcmTokens() => _orgTokens
+      .get()
+      .then((value) => value.docs.map((e) => e.data()['fcmToken']).toList());
+
+  Future<void> storeUserToken(
+      {required String deviceId, required String token}) async {
+    _userTokens.doc(deviceId).set({"fcmToken": token});
+  }
+
+  Future<void> storeOrgToken(
+      {required String deviceId, required String token}) async {
+    _orgTokens.doc(deviceId).set({"fcmToken": token});
   }
 
   ///----------------

@@ -1,5 +1,6 @@
 import 'package:eventflow/data/datasource/services/firebase/firebase_services.dart';
 import 'package:eventflow/data/models/user_model.dart';
+import 'package:eventflow/globles.dart';
 import 'package:eventflow/resources/helper/shared_preferences.dart';
 import 'package:eventflow/utils/common_toast.dart';
 import 'package:eventflow/utils/constants/string_constants.dart';
@@ -174,6 +175,10 @@ class AuthProvider extends ChangeNotifier {
               App.token, Strings.userLoggedIn);
           await Shared_Preferences.prefSetString(App.id, users![0].id!);
           await Shared_Preferences.prefSetString(App.orgId, users[0].orgId!);
+          String? deviceId = await getDeviceId();
+      String? fcmToken = await Shared_Preferences.prefGetString("FCMTOKEN", "");
+      await FireServices.instance.storeUserToken(deviceId: deviceId!, token: fcmToken!) ;
+      await Shared_Preferences.clearPref("FCMTOKEN");
         }
       }
       if (!res) {

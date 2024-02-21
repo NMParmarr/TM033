@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'data/datasource/services/connection/network_service.dart';
+import 'data/datasource/services/firebase/firebase_messaging.dart';
 import 'di_container.dart' as di;
 import 'resources/routes/routes.dart';
 import 'utils/constants/app_constants.dart';
@@ -24,10 +25,11 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  await NetworkService.instance.startConnectionStreaming();
+  await FireMessaging.instance.initMessaging();
 
   await di.init();
 
+  await NetworkService.instance.startConnectionStreaming();
   runApp(MultiProvider(
     providers: [
       StreamProvider(

@@ -590,6 +590,7 @@ class _NewTypeDialogState extends State<NewTypeDialog> {
                       }
                       final bool res = await provider.addEventType(
                           typeName: _newTypeCtr!.text.toString().trim());
+                          
                       if (res) {
                         Navigator.pop(context);
                         provider.setSelectedType(
