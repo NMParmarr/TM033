@@ -33,6 +33,7 @@ dependencies:
   cloud_firestore: ^4.15.4
   flutter_local_notifications:
   device_info:
+  eraser:
 
 dev_dependencies:
   flutter_test:

@@ -43,11 +43,11 @@ class FireMessaging {
     ///
     /// DISPLAY MESSAGE WHEN APP IS ACTIVATE..LOCAL NOTIFICATION
     ///
-    await FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    await FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
       if (message.notification != null) {
         if (Platform.isAndroid) {
-          initLocalNotifications(context, message);
-          showNotification(message);
+          await initLocalNotifications(context, message);
+          await showNotification(message);
         }
         if (Platform.isIOS) {
           forgroundMessage();
@@ -85,6 +85,9 @@ class FireMessaging {
 
   Future<void> initLocalNotifications(
       BuildContext? context, RemoteMessage? message) async {
+    if (kDebugMode) {
+      print(" --> Local Notification initilized <-- ");
+    }
     var androidInitialization = const AndroidInitializationSettings(
       "@mipmap/ic_launcher",
     );
@@ -106,14 +109,14 @@ class FireMessaging {
     //
     AndroidNotificationChannel channel = AndroidNotificationChannel(
       "${DateTime.now().millisecondsSinceEpoch / ~1000}",
-      "Neon Notificatrion",
+      "Eventflow Notificatrion",
     );
 
     AndroidNotificationDetails androidNotificationDetails =
         AndroidNotificationDetails(
       channel.id.toString(),
       channel.name.toString(),
-      channelDescription: "Channel desctiption",
+      channelDescription: "EventFlow - Flow of Events",
       importance: Importance.high,
       priority: Priority.high,
       ticker: 'ticker',

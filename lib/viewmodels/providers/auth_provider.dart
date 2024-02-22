@@ -176,9 +176,11 @@ class AuthProvider extends ChangeNotifier {
           await Shared_Preferences.prefSetString(App.id, users![0].id!);
           await Shared_Preferences.prefSetString(App.orgId, users[0].orgId!);
           String? deviceId = await getDeviceId();
-      String? fcmToken = await Shared_Preferences.prefGetString("FCMTOKEN", "");
-      await FireServices.instance.storeUserToken(deviceId: deviceId!, token: fcmToken!) ;
-      await Shared_Preferences.clearPref("FCMTOKEN");
+          String? fcmToken =
+              await Shared_Preferences.prefGetString("FCMTOKEN", "");
+          await FireServices.instance.storeUserToken(
+              orgId: users[0].orgId!, deviceId: deviceId!, token: fcmToken!);
+          await Shared_Preferences.clearPref("FCMTOKEN");
         }
       }
       if (!res) {

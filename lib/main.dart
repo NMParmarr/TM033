@@ -30,6 +30,7 @@ Future<void> main() async {
   await di.init();
 
   await NetworkService.instance.startConnectionStreaming();
+  
   runApp(MultiProvider(
     providers: [
       StreamProvider(

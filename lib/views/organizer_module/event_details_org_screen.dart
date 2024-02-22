@@ -3,6 +3,8 @@ import 'package:eventflow/data/models/event_model.dart';
 import 'package:eventflow/data/models/participant.dart';
 import 'package:eventflow/resources/helper/loader.dart';
 import 'package:eventflow/resources/helper/shared_preferences.dart';
+import 'package:eventflow/utils/common_flushbar.dart';
+import 'package:eventflow/utils/common_toast.dart';
 import 'package:eventflow/utils/common_utils.dart';
 import 'package:eventflow/utils/constants/app_constants.dart';
 import 'package:eventflow/utils/constants/color_constants.dart';
@@ -37,7 +39,8 @@ class _EventDetailsOrgScreenState extends State<EventDetailsOrgScreen> {
             .fetchEventByEventId(orgId: widget.orgId, eventId: widget.eventId),
         builder: (context, event) {
           if (event.hasData) {
-            return NetworkCheckerWidget(child: _contentWidget(context, event: event.data!));
+            return NetworkCheckerWidget(
+                child: _contentWidget(context, event: event.data!));
           } else if (event.hasError) {
             print(" --- err eventhiuh snap -- ${event.error}");
             return Container(
@@ -60,7 +63,7 @@ class _EventDetailsOrgScreenState extends State<EventDetailsOrgScreen> {
             Expanded(
               child: Consumer<HomeProvider>(builder: (context, provider, _) {
                 return ElevatedButton.icon(
-                    onPressed: () async {                     
+                    onPressed: () async {
                       Navigator.pushNamed(context, Routes.addEvent,
                           arguments: {'updateEvent': event});
                     },
@@ -82,7 +85,20 @@ class _EventDetailsOrgScreenState extends State<EventDetailsOrgScreen> {
                   style: ElevatedButton.styleFrom(
                       backgroundColor: AppColor.orange),
                   onPressed: () {
-                    Utils.deleteConfirmationDialoag(context);
+                    Utils.deleteConfirmationDialoag(context,
+                        eventName: event.eventName!, onDeleteEvent: () async {
+                      showLoader(context);
+                      try {
+                        await FireServices.instance.deleteEvent(
+                            orgId: event.orgId!, eventId: event.eventId!);
+                        showFlushbar(
+                            context, "'${event.eventName!}' event has been deleted.!");
+                      } catch (e) {
+                        showToastSnackbarError(
+                            context, "Some error occured..try again later.!");
+                      }
+                      hideLoader();
+                    });
                   },
                   icon: Icon(
                     Icons.delete,

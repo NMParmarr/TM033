@@ -25,11 +25,11 @@ class FireServices {
   CollectionReference get serverKey => _serverKey;
   final _serverKey = FirebaseFirestore.instance.collection("serverKey");
 
-  CollectionReference get userTokens => _userTokens;
-  final _userTokens = FirebaseFirestore.instance.collection("tokens");
+  // CollectionReference get userTokens => _userTokens;
+  // final _userTokens = FirebaseFirestore.instance.collection("tokens");
 
-  CollectionReference get orgTokens => _orgTokens;
-  final _orgTokens = FirebaseFirestore.instance.collection("tokens");
+  // CollectionReference get orgTokens => _orgTokens;
+  // final _orgTokens = FirebaseFirestore.instance.collection("tokens");
   /////////////////////[ ORGANIZERS ]///////////////////////
 
   /// --- ORGANIZER SIGNUP - UPDATE
@@ -217,7 +217,7 @@ class FireServices {
         .collection(App.events)
         .doc(eventId)
         .set(eventModel.toJson());
-        return true;
+    return true;
   }
 
   Stream<List<EventModel>> fetchEventsByTypeId(
@@ -529,25 +529,38 @@ class FireServices {
   ///
 
   Future<String> fetchServerKey() => _serverKey
-      .doc('serverkey')
+      .doc('serverKey')
       .get()
-      .then((value) => value.data()?['serverkey']);
+      .then((value) => value.data()?['serverKey']);
 
-  Future<List> fetchUserFcmTokens() => _userTokens
-      .get()
-      .then((value) => value.docs.map((e) => e.data()['fcmToken']).toList());
-  Future<List> fetchOrgFcmTokens() => _orgTokens
-      .get()
-      .then((value) => value.docs.map((e) => e.data()['fcmToken']).toList());
+  Future<List<String>> getUserFcmTokens({required String orgId}) =>
+      _organizers.doc(orgId).collection(App.userTokens).get().then((value) =>
+          value.docs.map((e) => e.data()['fcmToken'] as String).toList());
+
+  Future<List<String>> getOrgFcmTokens({required String userId}) =>
+      _users.doc(userId).collection(App.orgTokens).get().then((value) =>
+          value.docs.map((e) => e.data()['fcmToken'] as String).toList());
 
   Future<void> storeUserToken(
-      {required String deviceId, required String token}) async {
-    _userTokens.doc(deviceId).set({"fcmToken": token});
+      {required String orgId,
+      required String deviceId,
+      required String token}) async {
+    _organizers
+        .doc(orgId)
+        .collection(App.userTokens)
+        .doc(deviceId)
+        .set({"fcmToken": token});
   }
 
   Future<void> storeOrgToken(
-      {required String deviceId, required String token}) async {
-    _orgTokens.doc(deviceId).set({"fcmToken": token});
+      {required String userId,
+      required String deviceId,
+      required String token}) async {
+    _users
+        .doc(userId)
+        .collection(App.orgTokens)
+        .doc(deviceId)
+        .set({"fcmToken": token});
   }
 
   ///----------------

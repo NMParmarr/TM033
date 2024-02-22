@@ -135,7 +135,8 @@ class HomeProvider extends ChangeNotifier {
       //// -- [ NOTIFICAION ] -- ////
 
       if (result) {
-        List fcmTokens = await FireServices.instance.fetchUserFcmTokens();
+        List fcmTokens =
+            await FireServices.instance.getUserFcmTokens(orgId: orgId);
         if (kDebugMode) {
           print("tokens : $fcmTokens");
         }
@@ -145,8 +146,8 @@ class HomeProvider extends ChangeNotifier {
           "registration_ids": fcmTokens,
           "collapse_key": "type_a",
           "notification": {
-            "body": "${org.organization!} organized new event..join now..!",
-            "title": "New Event..!"
+            "title": "New Event..!",
+            "body": "${org.organization!} organize new event..join now..!"
           }
         });
 

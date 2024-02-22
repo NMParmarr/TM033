@@ -31,12 +31,12 @@ static TimeOfDay stringToTimeOfDay(String tod) {
   final format = DateFormat.jm(); //"6:00 AM"
   return TimeOfDay.fromDateTime(format.parse(tod));
 }
-  static Future<dynamic> deleteConfirmationDialoag(BuildContext context) {
+  static Future<dynamic> deleteConfirmationDialoag(BuildContext context, {required String eventName, required Function onDeleteEvent}) {
     return showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Txt("Are you sure to delete ?"),
+          title: Txt("Are you sure to delete '${eventName}'?"),
           actions: [
             ElevatedButton(
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
@@ -49,7 +49,7 @@ static TimeOfDay stringToTimeOfDay(String tod) {
                     ElevatedButton.styleFrom(backgroundColor: AppColor.orange),
                 onPressed: () {
                   Navigator.pop(context);
-                  showFlushbar(context, "Event Deleted Successfully");
+                  onDeleteEvent();
                 },
                 child: Txt("Delete", textColor: Colors.white))
           ],

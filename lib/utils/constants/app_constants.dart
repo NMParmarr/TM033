@@ -10,9 +10,11 @@ class App {
   static const String eventTypes = "eventTypes";
   static const String participants = "participants";
   static const String joinedEvents = "joinedEvents";
+  static const String userTokens = "userTokens";
+  static const String orgTokens = "orgTokens";
 
 
-  static const String authorization = 'Bearer firoUOZ4N\$JUUsNvEFyUkaNcMgypM-RcS@Zi6icWPsQic';
+  // static const String authorization = 'Bearer firoUOZ4N\$JUUsNvEFyUkaNcMgypM-RcS@Zi6icWPsQic';
 
   
 }
