@@ -1,11 +1,9 @@
 import 'dart:io';
 
-import 'package:eventflow/data/datasource/services/firebase/firebase_services.dart';
 import 'package:eventflow/data/models/organizer_model.dart';
 import 'package:eventflow/resources/routes/routes.dart';
 import 'package:eventflow/utils/common_flushbar.dart';
 import 'package:eventflow/utils/size_config.dart';
-import 'package:eventflow/viewmodels/providers/home_provider.dart';
 import 'package:eventflow/viewmodels/providers/profile_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

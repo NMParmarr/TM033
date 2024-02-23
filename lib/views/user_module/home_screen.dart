@@ -6,6 +6,7 @@ import 'package:eventflow/utils/widgets/custom_text_field.dart';
 import 'package:eventflow/views/user_module/event_list.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 
 import '../../data/datasource/services/connection/network_checker_widget.dart';
 import '../../data/datasource/services/firebase/firebase_services.dart';
@@ -23,6 +24,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final formattedTodayDate = DateFormat("dd-MM-yyyy").format(DateTime.now());
   TextEditingController? _searchCtr;
 
   @override
@@ -160,11 +162,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         eventTypes.length,
                         (index) => StreamBuilder<List<EventModel>>(
                             stream: index == 0
-                                ? FireServices.instance
-                                    .fetchAllEventsByOrgId(orgId: orgId)
+                                ? FireServices.instance.fetchAllEventsByOrgId(
+                                    orgId: orgId, todayDate: formattedTodayDate)
                                 : FireServices.instance.fetchEventsByTypeId(
                                     orgId: eventTypes[index].orgId!,
-                                    typeId: eventTypes[index].typeId!),
+                                    typeId: eventTypes[index].typeId!,
+                                    todayDate: formattedTodayDate),
                             builder: (context, eventSnap) {
                               if (eventSnap.hasData) {
                                 return EventsList(events: eventSnap.data!);

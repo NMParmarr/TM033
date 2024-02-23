@@ -1,5 +1,6 @@
 import 'package:eventflow/data/datasource/services/firebase/firebase_services.dart';
 import 'package:eventflow/data/models/user_model.dart';
+import 'package:eventflow/globles.dart';
 import 'package:eventflow/resources/helper/shared_preferences.dart';
 import 'package:eventflow/resources/routes/routes.dart';
 import 'package:eventflow/utils/common_flushbar.dart';
@@ -13,7 +14,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../data/models/event_model.dart';
-import '../../utils/common_toast.dart';
 import '../../utils/common_utils.dart';
 
 class EventsList extends StatelessWidget {
@@ -75,7 +75,7 @@ class EventsList extends StatelessWidget {
                                       size: 2.h, color: Colors.white),
                                   HGap(2.w),
                                   Txt(
-                                    "${events[index].eventDate ?? "--"} ${events[index].eventTime ?? "--"}",
+                                    "${events[index].eventDate ?? "--"}  ${events[index].eventTime != null ? get12HrsTime(context, time: events[index].eventTime!) : "--"}",
                                     fontsize: 1.6.t,
                                     textColor: Colors.white,
                                   )

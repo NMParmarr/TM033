@@ -1,10 +1,9 @@
 import 'package:eventflow/data/datasource/services/firebase/firebase_services.dart';
 import 'package:eventflow/data/models/event_type.dart';
-import 'package:eventflow/resources/helper/loader.dart';
+import 'package:eventflow/globles.dart';
 import 'package:eventflow/resources/helper/shared_preferences.dart';
 import 'package:eventflow/utils/common_flushbar.dart';
 import 'package:eventflow/utils/common_toast.dart';
-import 'package:eventflow/utils/common_utils.dart';
 import 'package:eventflow/utils/constants/app_constants.dart';
 import 'package:eventflow/utils/constants/color_constants.dart';
 import 'package:eventflow/utils/constants/image_constants.dart';
@@ -167,7 +166,8 @@ class _AddEventScrenState extends State<AddEventScren> {
                               image: 1 == 1
                                   ? null
                                   : DecorationImage(
-                                      image: AssetImage(Images.imagePlaceholder),
+                                      image:
+                                          AssetImage(Images.imagePlaceholder),
                                       fit: BoxFit.cover)),
                           child: Visibility(
                               child: Column(
@@ -215,10 +215,11 @@ class _AddEventScrenState extends State<AddEventScren> {
                                   return InkWell(
                                     onTap: () async {
                                       FocusScope.of(context).unfocus();
-                                      DateTime? eventDate = await showDatePicker(
-                                          context: context,
-                                          firstDate: DateTime.now(),
-                                          lastDate: DateTime(2026));
+                                      DateTime? eventDate =
+                                          await showDatePicker(
+                                              context: context,
+                                              firstDate: DateTime.now(),
+                                              lastDate: DateTime(2026));
                                       provider.setEventDate(date: eventDate);
                                     },
                                     child: Container(
@@ -226,13 +227,15 @@ class _AddEventScrenState extends State<AddEventScren> {
                                         padding: EdgeInsets.symmetric(
                                             horizontal: 3.w, vertical: 1.3.h),
                                         decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(10),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
                                           color: Colors.grey.withOpacity(0.25),
                                         ),
                                         child: Row(
                                           children: [
                                             Expanded(
-                                              child: Builder(builder: (context) {
+                                              child:
+                                                  Builder(builder: (context) {
                                                 if (provider.eventDate != null)
                                                   formattedDate = DateFormat(
                                                           'dd-MM-yyyy')
@@ -267,31 +270,44 @@ class _AddEventScrenState extends State<AddEventScren> {
                                   return InkWell(
                                     onTap: () async {
                                       FocusScope.of(context).unfocus();
-                                      TimeOfDay? eventTime = await showTimePicker(
-                                          context: context,
-                                          initialTime: TimeOfDay.now());
-                                      final localizations =
-                                          MaterialLocalizations.of(context);
-                                      formattedTimeOfDay = localizations
-                                          .formatTimeOfDay(eventTime!);
+                                      TimeOfDay? eventTime =
+                                          await showTimePicker(
+                                              context: context,
+                                              initialTime: TimeOfDay.now());
+                                      formattedTimeOfDay = formattedTime(
+                                          context,
+                                          time: eventTime!,
+                                          hrs24: true);
+
                                       provider.setEventTime(
-                                          time: formattedTimeOfDay);
+                                          time: formattedTimeOfDay.toString());
                                     },
                                     child: Container(
                                         width: double.infinity,
                                         padding: EdgeInsets.symmetric(
                                             horizontal: 3.w, vertical: 1.3.h),
                                         decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(10),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
                                           color: Colors.grey.withOpacity(0.25),
                                         ),
                                         child: Row(
                                           children: [
                                             Expanded(
-                                              child: Txt(
-                                                  provider.eventTime != null
-                                                      ? provider.eventTime!
-                                                      : "Choose Time"),
+                                              child:
+                                                  Builder(builder: (context) {
+                                                TimeOfDay? time;
+                                                if (provider.eventTime !=
+                                                    null) {
+                                                  time = timeOfDayFromString(
+                                                      provider.eventTime!);
+                                                }
+
+                                                return Txt(time != null
+                                                    ? formattedTime(context,
+                                                        time: time)
+                                                    : "Choose Time");
+                                              }),
                                             ),
                                             Icon(Icons.watch_later_outlined)
                                           ],
@@ -317,7 +333,7 @@ class _AddEventScrenState extends State<AddEventScren> {
                           textColor: Colors.black,
                           fontsize: 2.t,
                           fontweight: FontWeight.w500),
-      
+
                       ///
                       /// type search field
                       ///
@@ -387,17 +403,20 @@ class _AddEventScrenState extends State<AddEventScren> {
                                         validateEventTextFields();
                                     if (!isValid) return;
                                     if (widget.updateEvent == null) {
-                                      final bool res = await provider.addNewEvent(
-                                          eventName: _eventNameCtr!.text
-                                              .toString()
-                                              .trim(),
-                                          date: formattedDate,
-                                          time: formattedTimeOfDay,
-                                          location: _locationCtr!.text
-                                              .toString()
-                                              .trim(),
-                                          desc: _descCtr!.text.toString().trim());
-      
+                                      final bool res =
+                                          await provider.addNewEvent(
+                                              eventName: _eventNameCtr!.text
+                                                  .toString()
+                                                  .trim(),
+                                              date: formattedDate,
+                                              time: formattedTimeOfDay,
+                                              location: _locationCtr!.text
+                                                  .toString()
+                                                  .trim(),
+                                              desc: _descCtr!.text
+                                                  .toString()
+                                                  .trim());
+
                                       if (res) {
                                         Navigator.pop(context);
                                         showFlushbar(context,
@@ -414,7 +433,8 @@ class _AddEventScrenState extends State<AddEventScren> {
                                           location: _locationCtr!.text
                                               .toString()
                                               .trim(),
-                                          desc: _descCtr!.text.toString().trim());
+                                          desc:
+                                              _descCtr!.text.toString().trim());
                                       if (res) {
                                         Navigator.pop(context);
                                         showFlushbar(
@@ -590,7 +610,7 @@ class _NewTypeDialogState extends State<NewTypeDialog> {
                       }
                       final bool res = await provider.addEventType(
                           typeName: _newTypeCtr!.text.toString().trim());
-                          
+
                       if (res) {
                         Navigator.pop(context);
                         provider.setSelectedType(

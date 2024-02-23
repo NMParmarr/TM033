@@ -5,15 +5,13 @@ import 'package:eventflow/resources/helper/shared_preferences.dart';
 import 'package:eventflow/utils/common_toast.dart';
 import 'package:eventflow/utils/constants/string_constants.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../data/models/organizer_model.dart';
 import '../../utils/constants/app_constants.dart';
 
 class AuthProvider extends ChangeNotifier {
-  final SharedPreferences? sharedPreferences;
 
-  AuthProvider({@required this.sharedPreferences});
+  AuthProvider();
 
   // // TEXT CONTROLER --- ORGANIZERS
   // TextEditingController? _orgTionCtr;
@@ -133,6 +131,16 @@ class AuthProvider extends ChangeNotifier {
           await Shared_Preferences.prefSetString(
               App.token, Strings.orgLoggedIn);
           await Shared_Preferences.prefSetString(App.id, org.id!);
+
+          String? deviceId = await getDeviceId();
+          String? fcmToken =
+              await Shared_Preferences.prefGetString("FCMTOKEN", "");
+          await FireServices.instance.storeFcmToken(
+              id: org.id!,
+              isUser: false,
+              deviceId: deviceId!,
+              token: fcmToken!);
+          await Shared_Preferences.clearPref("FCMTOKEN");
         } else {
           res = false;
           showToast("Invalid password");
@@ -178,8 +186,11 @@ class AuthProvider extends ChangeNotifier {
           String? deviceId = await getDeviceId();
           String? fcmToken =
               await Shared_Preferences.prefGetString("FCMTOKEN", "");
-          await FireServices.instance.storeUserToken(
-              orgId: users[0].orgId!, deviceId: deviceId!, token: fcmToken!);
+          await FireServices.instance.storeFcmToken(
+              id: users[0].orgId!,
+              isUser: true,
+              deviceId: deviceId!,
+              token: fcmToken!);
           await Shared_Preferences.clearPref("FCMTOKEN");
         }
       }
@@ -201,10 +212,11 @@ class AuthProvider extends ChangeNotifier {
     return s1 == s2;
   }
 
-  /// --- LOGOUT ORG
+  /// --- LOGOUT - org - user
   ///
   bool get logoutLoading => _logoutLoading;
   bool _logoutLoading = false;
+
   Future<bool> logout() async {
     _logoutLoading = true;
     notifyListeners();
@@ -212,6 +224,8 @@ class AuthProvider extends ChangeNotifier {
     try {
       // await sharedPreferences!.clear();
       await Shared_Preferences.clearAllPref();
+      final deviceId = await getDeviceId();
+      await FireServices.instance.removeFcmToken(deviceId: deviceId!);
       res = true;
     } catch (e) {
       print(" --- err logout : $e");

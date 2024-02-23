@@ -1,7 +1,6 @@
 import 'package:eventflow/data/datasource/services/connection/network_checker_widget.dart';
 import 'package:eventflow/resources/helper/shared_preferences.dart';
 import 'package:eventflow/utils/common_flushbar.dart';
-import 'package:eventflow/utils/common_toast.dart';
 import 'package:eventflow/utils/constants/app_constants.dart';
 import 'package:eventflow/utils/constants/image_constants.dart';
 import 'package:eventflow/utils/constants/string_constants.dart';

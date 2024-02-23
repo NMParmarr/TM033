@@ -2,7 +2,6 @@ import 'package:eventflow/data/datasource/services/firebase/firebase_services.da
 import 'package:eventflow/data/models/event_type.dart';
 import 'package:eventflow/resources/helper/shared_preferences.dart';
 import 'package:eventflow/resources/routes/routes.dart';
-import 'package:eventflow/utils/common_utils.dart';
 import 'package:eventflow/utils/constants/app_constants.dart';
 import 'package:eventflow/utils/constants/color_constants.dart';
 import 'package:eventflow/utils/constants/image_constants.dart';
@@ -11,6 +10,7 @@ import 'package:eventflow/utils/size_config.dart';
 import 'package:eventflow/utils/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 
 import '../../data/datasource/services/connection/network_checker_widget.dart';
 import '../../data/models/event_model.dart';
@@ -25,6 +25,7 @@ class HomeOrgScreen extends StatefulWidget {
 }
 
 class _HomeOrgScreenState extends State<HomeOrgScreen> {
+  final formattedTodayDate = DateFormat("dd-MM-yyyy").format(DateTime.now());
   TextEditingController? _searchCtr;
 
   @override
@@ -119,6 +120,7 @@ class _HomeOrgScreenState extends State<HomeOrgScreen> {
 
   Widget _contentWidget(
       {required List<EventType> eventTypes, required String orgId}) {
+        
     eventTypes.insert(0, EventType(name: "All"));
     return eventTypes.length <= 0
         ? welcomeScreen()
@@ -172,10 +174,12 @@ class _HomeOrgScreenState extends State<HomeOrgScreen> {
                         (index) => StreamBuilder<List<EventModel>>(
                             stream: index == 0
                                 ? FireServices.instance
-                                    .fetchAllEventsByOrgId(orgId: orgId)
+                                    .fetchAllEventsByOrgId(orgId: orgId,todayDate: formattedTodayDate )
                                 : FireServices.instance.fetchEventsByTypeId(
                                     orgId: eventTypes[index].orgId!,
-                                    typeId: eventTypes[index].typeId!),
+                                    typeId: eventTypes[index].typeId!,
+                                    todayDate: formattedTodayDate,
+                                    ),
                             builder: (context, eventSnap) {
                               if (eventSnap.hasData) {
                                 return EventsOrgList(events: eventSnap.data!);

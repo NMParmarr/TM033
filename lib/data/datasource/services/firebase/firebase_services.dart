@@ -25,6 +25,9 @@ class FireServices {
   CollectionReference get serverKey => _serverKey;
   final _serverKey = FirebaseFirestore.instance.collection("serverKey");
 
+  CollectionReference get fcmTokens => _fcmTokens;
+  final _fcmTokens = FirebaseFirestore.instance.collection("fcmTokens");
+
   // CollectionReference get userTokens => _userTokens;
   // final _userTokens = FirebaseFirestore.instance.collection("tokens");
 
@@ -221,24 +224,29 @@ class FireServices {
   }
 
   Stream<List<EventModel>> fetchEventsByTypeId(
-      {required String orgId, required String typeId}) {
+      {required String orgId,
+      required String typeId,
+      required String todayDate}) {
     return _organizers
         .doc(orgId)
         .collection(App.events)
         .where('typeId', isEqualTo: typeId)
-        .orderBy('eventDate', descending: true)
-        .orderBy('eventTime', descending: true)
+        .where('eventDate', isGreaterThanOrEqualTo: todayDate)
+        .orderBy('eventDate', descending: false)
+        .orderBy('eventTime', descending: false)
         .snapshots()
         .map((event) =>
             event.docs.map((e) => EventModel.fromJson(e.data())).toList());
   }
 
-  Stream<List<EventModel>> fetchAllEventsByOrgId({required String orgId}) {
+  Stream<List<EventModel>> fetchAllEventsByOrgId(
+      {required String orgId, required String todayDate}) {
     return _organizers
         .doc(orgId)
         .collection(App.events)
-        .orderBy('eventDate', descending: true)
-        .orderBy('eventTime', descending: true)
+        .where('eventDate', isGreaterThanOrEqualTo: todayDate)
+        .orderBy('eventDate', descending: false)
+        .orderBy('eventTime', descending: false)
         .snapshots()
         .map((event) =>
             event.docs.map((e) => EventModel.fromJson(e.data())).toList());
@@ -287,8 +295,8 @@ class FireServices {
         .doc(orgId)
         .collection(App.events)
         .where('eventDate', isGreaterThanOrEqualTo: todayDate)
-        .orderBy('eventDate', descending: true)
-        .orderBy('eventTime', descending: true)
+        .orderBy('eventDate', descending: false)
+        .orderBy('eventTime', descending: false)
         .snapshots()
         .map((event) =>
             event.docs.map((e) => EventModel.fromJson(e.data())).toList());
@@ -300,8 +308,8 @@ class FireServices {
         .doc(orgId)
         .collection(App.events)
         .where('eventDate', isGreaterThanOrEqualTo: todayDate)
-        .orderBy('eventDate', descending: true)
-        .orderBy('eventTime', descending: true)
+        .orderBy('eventDate', descending: false)
+        .orderBy('eventTime', descending: false)
         .get()
         .then((event) =>
             event.docs.map((e) => EventModel.fromJson(e.data())).toList());
@@ -338,7 +346,7 @@ class FireServices {
 
   /// --- edit event
 
-  Future<void> editEvent({
+  Future<bool> editEvent({
     required String orgId,
     required String eventId,
     required Map<String, dynamic> updatedJson,
@@ -348,6 +356,7 @@ class FireServices {
         .collection(App.events)
         .doc(eventId)
         .update(updatedJson);
+    return true;
   }
 
   /// --- delete event
@@ -367,10 +376,13 @@ class FireServices {
     required String eventId,
     required String userId,
   }) async {
+    final event = await getEventByEventId(orgId: orgId, eventId: eventId);
     final participant = Participant(
         orgId: orgId,
         eventId: eventId,
         userId: userId,
+        eventDate: event.eventDate,
+        eventTime: event.eventTime,
         joinedDate: DateTime.now().toString());
     await _organizers
         .doc(orgId)
@@ -461,6 +473,8 @@ class FireServices {
     final participants = await _users
         .doc(userId)
         .collection(App.joinedEvents)
+        .orderBy('eventDate')
+        .orderBy('eventTime')
         .get()
         .then((event) =>
             event.docs.map((e) => Participant.fromJson(e.data())).toList());
@@ -525,7 +539,7 @@ class FireServices {
     }
   }
 
-  /// --- NOTIFICATIONS
+  /// --- NOTIFICATIONS - FCM TOKENS
   ///
 
   Future<String> fetchServerKey() => _serverKey
@@ -533,35 +547,37 @@ class FireServices {
       .get()
       .then((value) => value.data()?['serverKey']);
 
+  Future<void> storeFcmToken(
+      {required String id,
+      required String deviceId,
+      required bool isUser,
+      required String token}) async {
+    _fcmTokens.doc(deviceId).set(
+        {"id": id, "devideId": deviceId, "isUser": isUser, "fcmToken": token});
+  }
+
+  Future<void> removeFcmToken({required String deviceId}) async {
+    _fcmTokens.doc(deviceId).delete();
+  }
+
   Future<List<String>> getUserFcmTokens({required String orgId}) =>
-      _organizers.doc(orgId).collection(App.userTokens).get().then((value) =>
+      _fcmTokens.where('isUser', isEqualTo: true).get().then((value) =>
           value.docs.map((e) => e.data()['fcmToken'] as String).toList());
 
   Future<List<String>> getOrgFcmTokens({required String userId}) =>
-      _users.doc(userId).collection(App.orgTokens).get().then((value) =>
+      _fcmTokens.where('isUser', isEqualTo: false).get().then((value) =>
           value.docs.map((e) => e.data()['fcmToken'] as String).toList());
 
-  Future<void> storeUserToken(
-      {required String orgId,
-      required String deviceId,
-      required String token}) async {
-    _organizers
-        .doc(orgId)
-        .collection(App.userTokens)
-        .doc(deviceId)
-        .set({"fcmToken": token});
-  }
-
-  Future<void> storeOrgToken(
-      {required String userId,
-      required String deviceId,
-      required String token}) async {
-    _users
-        .doc(userId)
-        .collection(App.orgTokens)
-        .doc(deviceId)
-        .set({"fcmToken": token});
-  }
+  // Future<void> storeUserToken(
+  //     {required String orgId,
+  //     required String deviceId,
+  //     required String token}) async {
+  //   _organizers
+  //       .doc(orgId)
+  //       .collection(App.userTokens)
+  //       .doc(deviceId)
+  //       .set({"fcmToken": token});
+  // }
 
   ///----------------
   ///--------------------------------

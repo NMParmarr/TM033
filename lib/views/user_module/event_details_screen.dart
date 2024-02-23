@@ -1,6 +1,7 @@
 import 'package:eventflow/data/datasource/services/firebase/firebase_services.dart';
 import 'package:eventflow/data/models/event_model.dart';
 import 'package:eventflow/data/models/organizer_model.dart';
+import 'package:eventflow/globles.dart';
 import 'package:eventflow/utils/common_utils.dart';
 import 'package:eventflow/utils/constants/color_constants.dart';
 import 'package:eventflow/utils/constants/image_constants.dart';
@@ -101,7 +102,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                                             context,
                                             orgId: widget.orgId,
                                             eventId: widget.eventId,
-                                            userId: userId.data!);
+                                            userId: userId.data!,);
                                       }
                                     },
                                     icon: (isUserJoined.connectionState ==
@@ -223,7 +224,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                                   color: AppColor.primary),
                               HGap(3.w),
                               Txt(
-                                "${event.eventDate ?? "--"} ${event.eventTime ?? "--"}",
+                                "${event.eventDate ?? "--"}  ${event.eventTime != null ? get12HrsTime(context, time: event.eventTime!) : "--"}",
                                 fontsize: 2.t,
                                 textColor: Colors.black,
                               )

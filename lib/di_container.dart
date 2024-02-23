@@ -25,7 +25,7 @@ Future<void> init() async {
 
   // Provider
   sl.registerFactory(() => ThemeProvider(sharedPreferences: sl()));
-  sl.registerFactory(() => AuthProvider(sharedPreferences: sl()));
+  sl.registerFactory(() => AuthProvider());
   sl.registerFactory(
       () => HomeProvider(sharedPreferences: sl(), notificationRepo: sl()));
   sl.registerFactory(() => ProfileProvider(sharedPreferences: sl()));

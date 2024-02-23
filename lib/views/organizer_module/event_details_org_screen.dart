@@ -1,12 +1,11 @@
 import 'package:eventflow/data/datasource/services/firebase/firebase_services.dart';
 import 'package:eventflow/data/models/event_model.dart';
 import 'package:eventflow/data/models/participant.dart';
+import 'package:eventflow/globles.dart';
 import 'package:eventflow/resources/helper/loader.dart';
-import 'package:eventflow/resources/helper/shared_preferences.dart';
 import 'package:eventflow/utils/common_flushbar.dart';
 import 'package:eventflow/utils/common_toast.dart';
 import 'package:eventflow/utils/common_utils.dart';
-import 'package:eventflow/utils/constants/app_constants.dart';
 import 'package:eventflow/utils/constants/color_constants.dart';
 import 'package:eventflow/utils/constants/image_constants.dart';
 import 'package:eventflow/utils/size_config.dart';
@@ -16,7 +15,6 @@ import 'package:provider/provider.dart';
 
 import '../../data/datasource/services/connection/network_checker_widget.dart';
 import '../../resources/routes/routes.dart';
-import '../../utils/constants/string_constants.dart';
 import '../../utils/gap.dart';
 import '../../utils/text.dart';
 import '../../viewmodels/providers/home_provider.dart';
@@ -91,13 +89,16 @@ class _EventDetailsOrgScreenState extends State<EventDetailsOrgScreen> {
                       try {
                         await FireServices.instance.deleteEvent(
                             orgId: event.orgId!, eventId: event.eventId!);
-                        showFlushbar(
-                            context, "'${event.eventName!}' event has been deleted.!");
+                        hideLoader();
+                        Navigator.pop(context);
+                        await showFlushbar(context,
+                            "'${event.eventName!}' event has been deleted.!",
+                            duration: Duration(milliseconds: 1500));
                       } catch (e) {
+                        hideLoader();
                         showToastSnackbarError(
                             context, "Some error occured..try again later.!");
                       }
-                      hideLoader();
                     });
                   },
                   icon: Icon(
@@ -203,7 +204,7 @@ class _EventDetailsOrgScreenState extends State<EventDetailsOrgScreen> {
                                   color: AppColor.primary),
                               HGap(3.w),
                               Txt(
-                                "${event.eventDate ?? "--"} ${event.eventTime ?? "--"}",
+                                "${event.eventDate ?? "--"} ${event.eventTime != null ? get12HrsTime(context, time: event.eventTime!) : "--"}",
                                 fontsize: 2.t,
                                 textColor: Colors.black,
                               )

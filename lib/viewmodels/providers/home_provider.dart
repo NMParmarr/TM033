@@ -7,7 +7,7 @@ import 'package:eventflow/utils/constants/api_constants.dart';
 import 'package:eventflow/utils/constants/app_constants.dart';
 import 'package:eventflow/utils/constants/string_constants.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../data/datasource/response/api_response.dart';
@@ -84,7 +84,11 @@ class HomeProvider extends ChangeNotifier {
   }
 
   void setEventTime({required String? time, bool listen = true}) {
+    if (time?.length == 7) {
+      time = "0${time}";
+    }
     _eventTime = time;
+    print(" --> time = $_eventTime");
     if (listen) notifyListeners();
   }
 
@@ -147,7 +151,8 @@ class HomeProvider extends ChangeNotifier {
           "collapse_key": "type_a",
           "notification": {
             "title": "New Event..!",
-            "body": "${org.organization!} organize new event..join now..!"
+            "body":
+                "${org.organization!} has been organized '${eventName}' event..join now..!"
           }
         });
 
@@ -156,13 +161,6 @@ class HomeProvider extends ChangeNotifier {
             print("res : ${res.response?.data}");
           }
         }
-
-        // if (res.response?.data['success'] >= 1) {
-        //   await firebaseServices!.storeNotification(orderNo: ++orderNo);
-        //   if (kDebugMode) {
-        //     print("success");
-        //   }
-        // }
       }
       res = true;
     } catch (e) {
@@ -199,16 +197,41 @@ class HomeProvider extends ChangeNotifier {
 
       final updatedEvent = {
         "eventName": eventName,
-        "eventDate": eventDate,
-        "eventTime": eventTime,
+        "eventDate": date,
+        "eventTime": time,
         "location": location,
         "typeId": typeId,
         "about": desc,
         // "image": image,
       };
 
-      await FireServices.instance
+      final bool result = await FireServices.instance
           .editEvent(orgId: orgId, eventId: eventId, updatedJson: updatedEvent);
+
+      if (result) {
+        List fcmTokens =
+            await FireServices.instance.getUserFcmTokens(orgId: orgId);
+        if (kDebugMode) {
+          print("tokens : $fcmTokens");
+        }
+        final org = await FireServices.instance.getSingleOrganizer(id: orgId);
+        ApiResponse res = await notificationRepo!
+            .sendNotification(apiUrl: Apis.sendNotification, body: {
+          "registration_ids": fcmTokens,
+          "collapse_key": "type_a",
+          "notification": {
+            "title": "${eventName} updates..!",
+            "body":
+                "${org.organization!} has been modified ${eventName} event..see now..!"
+          }
+        });
+
+        if (res.response?.data != null) {
+          if (kDebugMode) {
+            print("res : ${res.response?.data}");
+          }
+        }
+      }
       res = true;
     } catch (e) {
       print(" --- err edit event --- $e");

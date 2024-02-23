@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:eventflow/data/datasource/services/firebase/firebase_services.dart';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../datasource/dio/dio_clint.dart';
 import '../datasource/response/api_error_handler.dart';

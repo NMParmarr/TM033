@@ -1,5 +1,4 @@
 import 'package:eventflow/data/models/organizer_model.dart';
-import 'package:eventflow/resources/helper/loader.dart';
 import 'package:eventflow/resources/helper/shared_preferences.dart';
 import 'package:eventflow/resources/routes/routes.dart';
 import 'package:eventflow/utils/constants/color_constants.dart';
@@ -198,7 +197,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   VGap(0.3.h),
                   StreamBuilder<OrganizerModel>(
                       stream: FireServices.instance
-                          .fetchSingleOrganizer(id: user!.orgId!),
+                          .fetchSingleOrganizer(id: user.orgId!),
                       builder: (context, orgDataSnap) {
                         return Txt(
                           orgDataSnap.data?.organization ?? "---",

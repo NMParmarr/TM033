@@ -13,7 +13,6 @@ import '../../resources/helper/shared_preferences.dart';
 import '../../utils/constants/app_constants.dart';
 import '../../utils/constants/color_constants.dart';
 import '../../utils/constants/image_constants.dart';
-import '../organizer_module/events_org_list.dart';
 
 class JoinedEventsScreen extends StatefulWidget {
   const JoinedEventsScreen({super.key});
