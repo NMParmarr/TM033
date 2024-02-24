@@ -191,6 +191,9 @@ class _HomeOrgScreenState extends State<HomeOrgScreen> {
                                 return Consumer<HomeProvider>(
                                     builder: (context, provider, _) {
                                   return EventsOrgList(
+                                    onRefresh: () async {
+                                      provider.refresh();
+                                    },
                                       events: provider.searchQueryString == ""
                                           ? eventSnap.data!
                                           : eventSnap.data!

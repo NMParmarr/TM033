@@ -14,51 +14,65 @@ import '../../data/models/event_model.dart';
 
 class EventsOrgList extends StatelessWidget {
   final List<EventModel> events;
-  const EventsOrgList({super.key, required this.events});
+  final bool? shrinkWrap;
+  final ScrollPhysics? physics;
+  final Future<void> Function() onRefresh;
+  const EventsOrgList(
+      {super.key,
+      required this.events,
+      this.shrinkWrap,
+      this.physics,
+      required this.onRefresh});
 
   @override
   Widget build(BuildContext context) {
     return events.length <= 0
         ? SingleChildScrollView(
             child: Utils.noDataFoundWidget(msg: "No Events Found..!"))
-        : ListView.builder(
-            itemCount: events.length,
-            itemBuilder: (context, index) {
-              return InkWell(
-                onTap: () {
-                  Navigator.pushNamed(context, Routes.eventDetailsOrg,
-                      arguments: {
-                        'orgId': events[index].orgId!,
-                        'eventId': events[index].eventId!
-                      });
-                },
-                child: Card(
-                  elevation: 3,
-                  margin:
-                      EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.8.h),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15)),
-                  child: (events[index].image == null ||
-                          events[index].image?.trim() == "")
-                      ? Container(
-                          alignment: Alignment.bottomCenter,
-                          height: 23.h,
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(15),
-                              // boxShadow: [BoxShadow(blurRadius: 6, color: Colors.grey)],
-                              image: DecorationImage(
-                                  image: AssetImage(Images.imagePlaceholder),
-                                  fit: BoxFit.fill)),
-                          child: _eventDetailContainer(index))
-                      : CustomNetworkImage(
-                          alignment: Alignment.bottomCenter,
-                          height: 23.h,
-                          url: events[index].image!,
-                          child: _eventDetailContainer(index),
-                        ),
-                ),
-              );
-            },
+        : RefreshIndicator(
+            onRefresh: onRefresh,
+            child: ListView.builder(
+              shrinkWrap: shrinkWrap ?? false,
+              physics: physics,
+              itemCount: events.length,
+              itemBuilder: (context, index) {
+                return InkWell(
+                  onTap: () {
+                    Navigator.pushNamed(context, Routes.eventDetailsOrg,
+                        arguments: {
+                          'orgId': events[index].orgId!,
+                          'eventId': events[index].eventId!
+                        });
+                  },
+                  child: Card(
+                    elevation: 3,
+                    margin:
+                        EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.8.h),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15)),
+                    child: (events[index].image == null ||
+                            events[index].image?.trim() == "")
+                        ? Container(
+                            alignment: Alignment.bottomCenter,
+                            height: 23.h,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                                // boxShadow: [BoxShadow(blurRadius: 6, color: Colors.grey)],
+                                image: DecorationImage(
+                                    image: AssetImage(Images.imagePlaceholder),
+                                    fit: BoxFit.fill)),
+                            child: _eventDetailContainer(index))
+                        : CustomNetworkImage(
+                            alignment: Alignment.bottomCenter,
+                            borderRadius: 15,
+                            height: 23.h,
+                            url: events[index].image!,
+                            child: _eventDetailContainer(index),
+                          ),
+                  ),
+                );
+              },
+            ),
           );
   }
 

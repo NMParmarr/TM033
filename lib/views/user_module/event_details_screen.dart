@@ -7,8 +7,6 @@ import 'package:eventflow/utils/constants/color_constants.dart';
 import 'package:eventflow/utils/constants/image_constants.dart';
 import 'package:eventflow/utils/size_config.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-
 import '../../data/datasource/services/connection/network_checker_widget.dart';
 import '../../data/models/user_model.dart';
 import '../../resources/helper/shared_preferences.dart';
@@ -16,6 +14,7 @@ import '../../utils/common_flushbar.dart';
 import '../../utils/constants/app_constants.dart';
 import '../../utils/gap.dart';
 import '../../utils/text.dart';
+import '../../utils/widgets/custom_network_image.dart';
 
 class EventDetailsScreen extends StatefulWidget {
   final String eventId;
@@ -169,19 +168,36 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                                   ),
                                   Expanded(
                                     child: InteractiveViewer(
-                                        child: Image.asset(Images.sampleEvent)),
+                                        child: (event.image == null ||
+                                                event.image?.trim() == "")
+                                            ? Container(
+                                                child: Image.asset(
+                                                Images.imagePlaceholder,
+                                                fit: BoxFit.contain,
+                                              ))
+                                            : CustomNetworkImage(
+                                                url: event.image!,
+                                                borderRadius: 0,
+                                                fit: BoxFit.contain,
+                                              )),
                                   ),
                                   SizedBox(height: 5.h)
                                 ],
                               );
                             });
                       },
-                      child: Container(
-                          width: double.infinity,
-                          child: Image.asset(
-                            Images.sampleEvent,
-                            fit: BoxFit.cover,
-                          )),
+                      child: (event.image == null || event.image?.trim() == "")
+                          ? Container(
+                              width: double.infinity,
+                              child: Image.asset(
+                                Images.imagePlaceholder,
+                                fit: BoxFit.cover,
+                              ))
+                          : CustomNetworkImage(
+                              url: event.image!,
+                              width: double.infinity,
+                              borderRadius: 0,
+                            ),
                     ),
                   ),
                   // Container(

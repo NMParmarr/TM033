@@ -6,9 +6,11 @@ import 'package:eventflow/utils/constants/color_constants.dart';
 import 'package:eventflow/utils/constants/image_constants.dart';
 import 'package:eventflow/utils/gap.dart';
 import 'package:eventflow/utils/size_config.dart';
+import 'package:eventflow/viewmodels/providers/home_provider.dart';
 import 'package:eventflow/views/organizer_module/events_org_list.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 import '../../data/datasource/services/connection/network_checker_widget.dart';
 
@@ -66,6 +68,11 @@ class _ParticipantsOrgScreenState extends State<ParticipantsOrgScreen> {
                                 builder: (context, upcomingEvents) {
                                   if (upcomingEvents.hasData) {
                                     return EventsOrgList(
+                                        onRefresh: () async {
+                                          await context
+                                              .read<HomeProvider>()
+                                              .refresh();
+                                        },
                                         events: upcomingEvents.data!);
                                   } else if (upcomingEvents.hasError) {
                                     print(
@@ -84,6 +91,11 @@ class _ParticipantsOrgScreenState extends State<ParticipantsOrgScreen> {
                                 builder: (context, pastEvents) {
                                   if (pastEvents.hasData) {
                                     return EventsOrgList(
+                                        onRefresh: () async {
+                                          await context
+                                              .read<HomeProvider>()
+                                              .refresh();
+                                        },
                                         events: pastEvents.data ?? []);
                                   } else if (pastEvents.hasError) {
                                     print(

@@ -27,6 +27,7 @@ class CustomNetworkImage extends StatelessWidget {
   Widget build(BuildContext context) {
     return CachedNetworkImage(
       imageUrl: url,
+      height: height,
       color: Colors.grey.withOpacity(0.25),
       errorWidget: (context, url, error) {
         print(" --> --> err in chached network image : $error");
@@ -34,12 +35,14 @@ class CustomNetworkImage extends StatelessWidget {
             height: height, width: width, child: const Icon(Icons.error));
       },
       placeholder: (context, url) => Container(
+        alignment: alignment,
         height: height,
         width: width,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(borderRadius),
           color: Colors.grey.withOpacity(0.25),
         ),
+        child: child,
       ),
       imageBuilder: (context, image) => Container(
         height: height,
