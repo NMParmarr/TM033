@@ -7,7 +7,6 @@ import 'package:eventflow/utils/constants/api_constants.dart';
 import 'package:eventflow/utils/constants/app_constants.dart';
 import 'package:eventflow/utils/constants/string_constants.dart';
 import 'package:flutter/foundation.dart';
-import 'package:provider/provider.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 

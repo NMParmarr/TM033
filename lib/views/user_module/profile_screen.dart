@@ -18,6 +18,7 @@ import '../../data/models/event_model.dart';
 import '../../data/models/user_model.dart';
 import '../../utils/common_utils.dart';
 import '../../utils/constants/app_constants.dart';
+import '../../utils/widgets/custom_network_image.dart';
 import '../../viewmodels/providers/auth_provider.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -38,24 +39,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
           builder: (context, userId) {
             if (userId.hasData) {
               return StreamBuilder<UserModel>(
-                  stream:
-                      FireServices.instance.fetchSingleUser(id: userId.data!),
+                  stream: FireServices.instance.fetchSingleUser(id: userId.data!),
                   builder: (context, currentUserSnap) {
                     if (currentUserSnap.hasData) {
-                      return _contentWidget(context,
-                          user: currentUserSnap.data, userId: userId.data!);
+                      return _contentWidget(context, user: currentUserSnap.data, userId: userId.data!);
                     } else if (currentUserSnap.hasError) {
-                      print(
-                          " --- err currentusersnap : ${currentUserSnap.error}");
+                      print(" --- err currentusersnap : ${currentUserSnap.error}");
                       return Center(
                         child: Padding(
                             padding: EdgeInsets.symmetric(vertical: 30.h),
                             child: Column(
-                              children: [
-                                Icon(Icons.error),
-                                Txt("Something went wrong..!",
-                                    textColor: AppColor.theme)
-                              ],
+                              children: [Icon(Icons.error), Txt("Something went wrong..!", textColor: AppColor.theme)],
                             )),
                       );
                     } else {
@@ -67,11 +61,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: Padding(
                     padding: EdgeInsets.symmetric(vertical: 30.h),
                     child: Column(
-                      children: [
-                        Icon(Icons.error),
-                        Txt("Something went wrong..!",
-                            textColor: AppColor.theme)
-                      ],
+                      children: [Icon(Icons.error), Txt("Something went wrong..!", textColor: AppColor.theme)],
                     )),
               );
             } else {
@@ -83,8 +73,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  DefaultTabController _contentWidget(BuildContext context,
-      {required UserModel? user, required String userId}) {
+  DefaultTabController _contentWidget(BuildContext context, {required UserModel? user, required String userId}) {
     return DefaultTabController(
       length: 2,
       child: Column(children: [
@@ -94,22 +83,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Row(
             children: [
               Hero(
-                tag: "userprofile",
-                child: CircleAvatar(
-                  radius: 9.w,
-                  backgroundImage: AssetImage(Images.sampleImage),
-                ),
-              ),
+                  tag: "userprofile",
+                  child: (user != null && user.image != null && user.image?.trim() != "")
+                      ? user.image!.startsWith('http')
+                          ? ClipOval(
+                              child: CustomNetworkImage(
+                                borderRadius: 15,
+                                height: 12.h,
+                                width: 12.h,
+                                url: user.image!,
+                              ),
+                            )
+                          : ClipOval(
+                              child: Container(
+                                height: 12.h,
+                                width: 12.h,
+                                decoration: BoxDecoration(borderRadius: BorderRadius.circular(15), image: DecorationImage(image: AssetImage(Images.userPlaceholder), fit: BoxFit.cover)),
+                              ),
+                            )
+                      : ClipOval(
+                          child: Container(
+                            height: 12.h,
+                            width: 12.h,
+                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(15), image: DecorationImage(image: AssetImage(Images.userPlaceholder), fit: BoxFit.cover)),
+                          ),
+                        )),
               HGap(5.w),
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Txt(user?.name ?? "--",
-                      textColor: Colors.black, fontsize: 2.4.t),
-                  Txt(user?.mobile != null ? "+91 ${user?.mobile}" : "--",
-                      textColor: Colors.black, fontsize: 1.7.t)
-                ],
+                children: [Txt(user?.name ?? "--", textColor: Colors.black, fontsize: 2.4.t), Txt(user?.mobile != null ? "+91 ${user?.mobile}" : "--", textColor: Colors.black, fontsize: 1.7.t)],
               )
             ],
           ),
@@ -125,56 +128,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         backgroundColor: AppColor.primary,
                       ),
                       onPressed: () {
-                        Navigator.pushNamed(context, Routes.editProfile,
-                            arguments: {'user': user});
+                        Navigator.pushNamed(context, Routes.editProfile, arguments: {'user': user});
                       },
                       icon: Icon(Icons.edit, color: Colors.white),
                       label: Txt("Edit Profile", textColor: Colors.white))),
               HGap(2.w),
-              Expanded(child:
-                  Consumer<AuthProvider>(builder: (context, provider, _) {
+              Expanded(child: Consumer<AuthProvider>(builder: (context, provider, _) {
                 return Builder(builder: (context) {
                   return ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColor.orange,
                       ),
                       onPressed: () async {
-                        Utils.logoutConfirmationDialoag(context,
-                            onYes: () async {
+                        Utils.logoutConfirmationDialoag(context, onYes: () async {
                           if (!provider.logoutLoading) {
                             // showLoader(context);
                             final res = await provider.logout();
                             // hideLoader();
                             if (res) {
-                              Navigator.pushNamedAndRemoveUntil(
-                                  context, Routes.auth, (route) => false);
+                              Navigator.pushNamedAndRemoveUntil(context, Routes.auth, (route) => false);
                             }
                           }
                         });
                       },
-                      icon: Icon(Icons.arrow_circle_left_outlined,
-                          color: Colors.white),
+                      icon: Icon(Icons.arrow_circle_left_outlined, color: Colors.white),
                       label: Txt("Logout", textColor: Colors.white));
                 });
               }))
             ],
           ),
         ),
-        TabBar(
-            labelStyle: GoogleFonts.philosopher(),
-            indicatorSize: TabBarIndicatorSize.tab,
-            tabs: [
-              Tab(text: "Events"),
-              Tab(text: "About"),
-            ]),
+        TabBar(labelStyle: GoogleFonts.philosopher(), indicatorSize: TabBarIndicatorSize.tab, tabs: [
+          Tab(text: "Events"),
+          Tab(text: "About"),
+        ]),
         // VGap(1.h),
         Expanded(
             child: TabBarView(
           children: [
-            StreamBuilder<List<EventModel>>(
-                stream: FireServices.instance
-                    .fetchJoinedAllEvents(userId: user!.id!)
-                    .asStream(),
+            FutureBuilder<List<EventModel>>(
+                future: FireServices.instance.fetchJoinedAllEvents(userId: user!.id!),
                 builder: (context, upcomingEvents) {
                   if (upcomingEvents.hasData) {
                     return EventsList(
@@ -187,8 +180,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     );
                   } else if (upcomingEvents.hasError) {
                     print(" --- err dfdfsdgh : ${upcomingEvents.error}");
-                    return Center(
-                        child: Icon(Icons.error, color: AppColor.theme));
+                    return Center(child: Icon(Icons.error, color: AppColor.theme));
                   } else {
                     return Center(child: Image.asset(Images.loadingGif));
                   }
@@ -206,8 +198,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   VGap(0.3.h),
                   StreamBuilder<OrganizerModel>(
-                      stream: FireServices.instance
-                          .fetchSingleOrganizer(id: user.orgId!),
+                      stream: FireServices.instance.fetchSingleOrganizer(id: user.orgId!),
                       builder: (context, orgDataSnap) {
                         return Txt(
                           orgDataSnap.data?.organization ?? "---",
@@ -225,9 +216,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   VGap(0.3.h),
                   Builder(builder: (context) {
                     String? formattedBirthDate;
-                    if (user.dob != null)
-                      formattedBirthDate = DateFormat('dd MMM yyyy')
-                          .format(DateTime.parse(user.dob!));
+                    if (user.dob != null) formattedBirthDate = DateFormat('dd MMM yyyy').format(DateTime.parse(user.dob!));
                     return Txt(
                       formattedBirthDate ?? "-- --- ----",
                       fontsize: 2.t,
@@ -269,9 +258,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   VGap(0.3.h),
                   Builder(builder: (context) {
-                    String? formattedJoinedDate = DateFormat('dd MMM yyyy')
-                        .format(DateTime.parse(
-                            user.joinDate ?? DateTime.now().toString()));
+                    String? formattedJoinedDate = DateFormat('dd MMM yyyy').format(DateTime.parse(user.joinDate ?? DateTime.now().toString()));
                     return Txt(
                       formattedJoinedDate,
                       fontsize: 2.t,

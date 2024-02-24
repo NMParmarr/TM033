@@ -36,6 +36,9 @@ dependencies:
   eraser:
   http_parser:
   mime_type:
+  image_cropper:
+  permission_handler:
+  device_info_plus:
 
 dev_dependencies:
   flutter_test:

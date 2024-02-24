@@ -31,29 +31,18 @@ class _ParticipantsOrgScreenState extends State<ParticipantsOrgScreen> {
         body: DefaultTabController(
           length: 2,
           child: Column(children: [
-            TabBar(
-                labelStyle: GoogleFonts.philosopher(),
-                indicatorSize: TabBarIndicatorSize.tab,
-                tabs: [
-                  Tab(
-                      child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.calendar_month_sharp),
-                      HGap(1.w),
-                      Text("Upcoming")
-                    ],
-                  )),
-                  Tab(
-                      child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.watch_later_outlined),
-                      HGap(1.w),
-                      Text("Past")
-                    ],
-                  ))
-                ]),
+            TabBar(labelStyle: GoogleFonts.philosopher(), indicatorSize: TabBarIndicatorSize.tab, tabs: [
+              Tab(
+                  child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [Icon(Icons.calendar_month_sharp), HGap(1.w), Text("Upcoming")],
+              )),
+              Tab(
+                  child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [Icon(Icons.watch_later_outlined), HGap(1.w), Text("Past")],
+              ))
+            ]),
             VGap(1.h),
             Expanded(
                 child: FutureBuilder<String?>(
@@ -63,57 +52,42 @@ class _ParticipantsOrgScreenState extends State<ParticipantsOrgScreen> {
                         return TabBarView(
                           children: [
                             StreamBuilder<List<EventModel>>(
-                                stream: FireServices.instance
-                                    .fetchUpcomingEvents(orgId: orgId.data!),
+                                stream: FireServices.instance.fetchUpcomingEvents(orgId: orgId.data!),
                                 builder: (context, upcomingEvents) {
                                   if (upcomingEvents.hasData) {
                                     return EventsOrgList(
                                         onRefresh: () async {
-                                          await context
-                                              .read<HomeProvider>()
-                                              .refresh();
+                                          setState(() {});
                                         },
                                         events: upcomingEvents.data!);
                                   } else if (upcomingEvents.hasError) {
-                                    print(
-                                        " --- err dfdfsdgh : ${upcomingEvents.error}");
-                                    return Center(
-                                        child: Icon(Icons.error,
-                                            color: AppColor.theme));
+                                    print(" --- err dfdfsdgh : ${upcomingEvents.error}");
+                                    return Center(child: Icon(Icons.error, color: AppColor.theme));
                                   } else {
-                                    return Center(
-                                        child: Image.asset(Images.loadingGif));
+                                    return Center(child: Image.asset(Images.loadingGif));
                                   }
                                 }),
                             StreamBuilder<List<EventModel>>(
-                                stream: FireServices.instance
-                                    .fetchPastEvents(orgId: orgId.data!),
+                                stream: FireServices.instance.fetchPastEvents(orgId: orgId.data!),
                                 builder: (context, pastEvents) {
                                   if (pastEvents.hasData) {
                                     return EventsOrgList(
                                         onRefresh: () async {
-                                          await context
-                                              .read<HomeProvider>()
-                                              .refresh();
+                                          await context.read<HomeProvider>().refresh();
                                         },
                                         events: pastEvents.data ?? []);
                                   } else if (pastEvents.hasError) {
-                                    print(
-                                        " --- err df5adfs : ${pastEvents.error}");
-                                    return Center(
-                                        child: Icon(Icons.error,
-                                            color: AppColor.theme));
+                                    print(" --- err df5adfs : ${pastEvents.error}");
+                                    return Center(child: Icon(Icons.error, color: AppColor.theme));
                                   } else {
-                                    return Center(
-                                        child: Image.asset(Images.loadingGif));
+                                    return Center(child: Image.asset(Images.loadingGif));
                                   }
                                 }),
                           ],
                         );
                       } else if (orgId.hasError) {
                         print(" --- err dfkjlaiejlkf : ${orgId.error}");
-                        return Center(
-                            child: Icon(Icons.error, color: AppColor.theme));
+                        return Center(child: Icon(Icons.error, color: AppColor.theme));
                       } else {
                         return Center(child: Image.asset(Images.loadingGif));
                       }

@@ -18,7 +18,7 @@ import 'package:eventflow/utils/widgets/custom_text_field.dart';
 import 'package:eventflow/viewmodels/providers/home_provider.dart';
 import 'package:eventflow/viewmodels/providers/media_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:provider/provider.dart';
 
 import '../../data/datasource/services/connection/network_checker_widget.dart';
@@ -55,14 +55,10 @@ class _AddEventScrenState extends State<AddEventScren> {
   }
 
   void initHomeProvider() {
-    Provider.of<HomeProvider>(context, listen: false)
-        .setSelectedType(newType: Strings.selectType, listen: false);
-    Provider.of<HomeProvider>(context, listen: false)
-        .setEventDate(date: null, listen: false);
-    Provider.of<HomeProvider>(context, listen: false)
-        .setEventTime(time: null, listen: false);
-    Provider.of<MediaProvider>(context, listen: false)
-        .setImagePath(newPath: "", listen: false);
+    Provider.of<HomeProvider>(context, listen: false).setSelectedType(newType: Strings.selectType, listen: false);
+    Provider.of<HomeProvider>(context, listen: false).setEventDate(date: null, listen: false);
+    Provider.of<HomeProvider>(context, listen: false).setEventTime(time: null, listen: false);
+    Provider.of<MediaProvider>(context, listen: false).setImagePath(newPath: "", listen: false);
   }
 
   void initTextControllers() {
@@ -74,23 +70,15 @@ class _AddEventScrenState extends State<AddEventScren> {
   void assignValues() {
     if (widget.updateEvent != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
-        final eventType = await FireServices.instance.getEventTypeByTypeId(
-            orgId: widget.updateEvent!.orgId!,
-            typeId: widget.updateEvent!.typeId!);
-        Provider.of<HomeProvider>(context, listen: false)
-            .setSelectedType(newType: eventType.name ?? Strings.selectType);
+        final eventType = await FireServices.instance.getEventTypeByTypeId(orgId: widget.updateEvent!.orgId!, typeId: widget.updateEvent!.typeId!);
+        Provider.of<HomeProvider>(context, listen: false).setSelectedType(newType: eventType.name ?? Strings.selectType);
       });
       // DateFormat format = DateFormat('dd-MM-yyyy');
-      DateTime? date = widget.updateEvent?.eventDate == null
-          ? null
-          : dateTimeFromString(widget.updateEvent!.eventDate!);
+      DateTime? date = widget.updateEvent?.eventDate == null ? null : dateTimeFromString(widget.updateEvent!.eventDate!);
 
-      Provider.of<MediaProvider>(context, listen: false).setImagePath(
-          newPath: widget.updateEvent?.image ?? "", listen: false);
-      Provider.of<HomeProvider>(context, listen: false)
-          .setEventDate(date: date, listen: false);
-      Provider.of<HomeProvider>(context, listen: false).setEventTime(
-          time: widget.updateEvent?.eventTime.toString(), listen: false);
+      Provider.of<MediaProvider>(context, listen: false).setImagePath(newPath: widget.updateEvent?.image ?? "", listen: false);
+      Provider.of<HomeProvider>(context, listen: false).setEventDate(date: date, listen: false);
+      Provider.of<HomeProvider>(context, listen: false).setEventTime(time: widget.updateEvent?.eventTime.toString(), listen: false);
       _eventNameCtr?.text = widget.updateEvent?.eventName ?? "";
       _locationCtr?.text = widget.updateEvent?.location ?? "";
       _descCtr?.text = widget.updateEvent?.about ?? "";
@@ -114,20 +102,17 @@ class _AddEventScrenState extends State<AddEventScren> {
       showToast("Enter Event Name");
       return false;
       //
-    } else if (Provider.of<HomeProvider>(context, listen: false).eventDate ==
-        null) {
+    } else if (Provider.of<HomeProvider>(context, listen: false).eventDate == null) {
       showToast("Please select event date");
       return false;
-    } else if (Provider.of<HomeProvider>(context, listen: false).eventTime ==
-        null) {
+    } else if (Provider.of<HomeProvider>(context, listen: false).eventTime == null) {
       showToast("Please select event time");
       return false;
     } else if (_locationCtr?.text.toString().trim() == "") {
       showToast("Enter Location");
       return false;
       //
-    } else if (Provider.of<HomeProvider>(context, listen: false).selectedType ==
-        Strings.selectType) {
+    } else if (Provider.of<HomeProvider>(context, listen: false).selectedType == Strings.selectType) {
       showToast("Please select event type");
       return false;
     } else if (_descCtr?.text.toString().trim() == "") {
@@ -137,43 +122,6 @@ class _AddEventScrenState extends State<AddEventScren> {
     } else {
       return true;
     }
-  }
-
-  Future _showImagePickOptionDialog() async {
-    await showDialog(
-        context: context,
-        builder: (context) {
-          return Consumer<MediaProvider>(builder: (context, provider, _) {
-            return SimpleDialog(
-              children: [
-                SimpleDialogOption(
-                    onPressed: () async {
-                      Navigator.pop(context);
-                      String imagePath =
-                          await Utils.pickImage(source: ImageSource.camera);
-                      provider.setImagePath(newPath: imagePath);
-                    },
-                    child: Row(children: [
-                      Icon(Icons.camera_alt_outlined),
-                      HGap(3.w),
-                      Txt("Choose from camera")
-                    ])),
-                SimpleDialogOption(
-                    onPressed: () async {
-                      Navigator.pop(context);
-                      String imagePath =
-                          await Utils.pickImage(source: ImageSource.gallery);
-                      provider.setImagePath(newPath: imagePath);
-                    },
-                    child: Row(children: [
-                      Icon(Icons.image_outlined),
-                      HGap(3.w),
-                      Txt("Choose from gallery")
-                    ])),
-              ],
-            );
-          });
-        });
   }
 
   @override
@@ -193,43 +141,34 @@ class _AddEventScrenState extends State<AddEventScren> {
                     children: [
                       VGap(1.5.h),
                       Center(
-                        child: Txt("Add New Event",
-                            textColor: Colors.black,
-                            fontsize: 3.t,
-                            fontweight: FontWeight.bold),
+                        child: Txt("Add New Event", textColor: Colors.black, fontsize: 3.t, fontweight: FontWeight.bold),
                       ),
                       VGap(1.h),
                       AspectRatio(
                         aspectRatio: 16 / 9,
                         child: InkWell(
                           borderRadius: BorderRadius.circular(10),
-                          onTap: _showImagePickOptionDialog,
-                          child: Consumer<MediaProvider>(
-                              builder: (context, provider, _) {
+                          onTap: () async {
+                            
+                            await Utils.showImagePickOptionDialog(context, aspectRatioPresets: [CropAspectRatioPreset.ratio16x9]);
+                          },
+                          child: Consumer<MediaProvider>(builder: (context, provider, _) {
                             return Container(
                               width: double.infinity,
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 3.w, vertical: 1.3.h),
+                              padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.3.h),
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(10),
                                   color: Colors.grey.withOpacity(0.25),
                                   image: provider.imagePath.trim() == ""
                                       ? null
                                       : provider.imagePath.startsWith('http')
-                                          ? DecorationImage(
-                                              image: NetworkImage(
-                                                  provider.imagePath),
-                                              fit: BoxFit.cover)
-                                          : DecorationImage(
-                                              image: FileImage(
-                                                  File(provider.imagePath)),
-                                              fit: BoxFit.cover)),
+                                          ? DecorationImage(image: NetworkImage(provider.imagePath), fit: BoxFit.cover)
+                                          : DecorationImage(image: FileImage(File(provider.imagePath)), fit: BoxFit.cover)),
                               child: Visibility(
                                   visible: provider.imagePath.trim() == "",
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
                                     children: [
                                       Icon(
                                         Icons.image_outlined,
@@ -248,14 +187,8 @@ class _AddEventScrenState extends State<AddEventScren> {
                         ),
                       ),
                       VGap(2.h),
-                      Txt("Event Name",
-                          textColor: Colors.black,
-                          fontsize: 2.t,
-                          fontweight: FontWeight.w500),
-                      CustomTextField(
-                          ctr: _eventNameCtr!,
-                          hintText: "Enter an event name",
-                          capitalization: TextCapitalization.words),
+                      Txt("Event Name", textColor: Colors.black, fontsize: 2.t, fontweight: FontWeight.w500),
+                      CustomTextField(ctr: _eventNameCtr!, hintText: "Enter an event name", capitalization: TextCapitalization.words),
                       VGap(1.5.h),
                       Row(
                         mainAxisSize: MainAxisSize.min,
@@ -265,42 +198,26 @@ class _AddEventScrenState extends State<AddEventScren> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Txt("Date",
-                                    textColor: Colors.black,
-                                    fontsize: 2.t,
-                                    fontweight: FontWeight.w500),
-                                Consumer<HomeProvider>(
-                                    builder: (context, provider, _) {
+                                Txt("Date", textColor: Colors.black, fontsize: 2.t, fontweight: FontWeight.w500),
+                                Consumer<HomeProvider>(builder: (context, provider, _) {
                                   return InkWell(
                                     onTap: () async {
                                       FocusScope.of(context).unfocus();
-                                      DateTime? eventDate =
-                                          await showDatePicker(
-                                              context: context,
-                                              firstDate: DateTime.now(),
-                                              lastDate: DateTime(2026));
+                                      DateTime? eventDate = await showDatePicker(context: context, firstDate: DateTime.now(), lastDate: DateTime(2026));
                                       provider.setEventDate(date: eventDate);
                                     },
                                     child: Container(
                                         width: double.infinity,
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 3.w, vertical: 1.3.h),
+                                        padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.3.h),
                                         decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
+                                          borderRadius: BorderRadius.circular(10),
                                           color: Colors.grey.withOpacity(0.25),
                                         ),
                                         child: Row(
                                           children: [
                                             Expanded(
-                                              child:
-                                                  Builder(builder: (context) {
-                                                return Txt(provider.eventDate !=
-                                                        null
-                                                    ? getFormattedDate(
-                                                        date: provider.eventDate
-                                                            .toString())
-                                                    : "Choose Date");
+                                              child: Builder(builder: (context) {
+                                                return Txt(provider.eventDate != null ? getFormattedDate(date: provider.eventDate.toString()) : "Choose Date");
                                               }),
                                             ),
                                             Icon(Icons.date_range_outlined)
@@ -317,47 +234,28 @@ class _AddEventScrenState extends State<AddEventScren> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Txt("Time",
-                                    textColor: Colors.black,
-                                    fontsize: 2.t,
-                                    fontweight: FontWeight.w500),
-                                Consumer<HomeProvider>(
-                                    builder: (context, provider, _) {
+                                Txt("Time", textColor: Colors.black, fontsize: 2.t, fontweight: FontWeight.w500),
+                                Consumer<HomeProvider>(builder: (context, provider, _) {
                                   return InkWell(
                                     onTap: () async {
                                       FocusScope.of(context).unfocus();
-                                      TimeOfDay? eventTime =
-                                          await showTimePicker(
-                                              context: context,
-                                              initialTime: TimeOfDay.now());
-                                      formattedTimeOfDay = formattedTime(
-                                          context,
-                                          time: eventTime!,
-                                          hrs24: true);
+                                      TimeOfDay? eventTime = await showTimePicker(context: context, initialTime: TimeOfDay.now());
+                                      formattedTimeOfDay = formattedTime(context, time: eventTime!, hrs24: true);
 
-                                      provider.setEventTime(
-                                          time: formattedTimeOfDay.toString());
+                                      provider.setEventTime(time: formattedTimeOfDay.toString());
                                     },
                                     child: Container(
                                         width: double.infinity,
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 3.w, vertical: 1.3.h),
+                                        padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.3.h),
                                         decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
+                                          borderRadius: BorderRadius.circular(10),
                                           color: Colors.grey.withOpacity(0.25),
                                         ),
                                         child: Row(
                                           children: [
                                             Expanded(
-                                              child:
-                                                  Builder(builder: (context) {
-                                                return Txt(provider.eventTime !=
-                                                        null
-                                                    ? get12HrsTime(context,
-                                                        time:
-                                                            provider.eventTime!)
-                                                    : "Choose Time");
+                                              child: Builder(builder: (context) {
+                                                return Txt(provider.eventTime != null ? get12HrsTime(context, time: provider.eventTime!) : "Choose Time");
                                               }),
                                             ),
                                             Icon(Icons.watch_later_outlined)
@@ -371,19 +269,10 @@ class _AddEventScrenState extends State<AddEventScren> {
                         ],
                       ),
                       VGap(1.5.h),
-                      Txt("Location",
-                          textColor: Colors.black,
-                          fontsize: 2.t,
-                          fontweight: FontWeight.w500),
-                      CustomTextField(
-                          ctr: _locationCtr!,
-                          hintText: "Enter a location",
-                          capitalization: TextCapitalization.words),
+                      Txt("Location", textColor: Colors.black, fontsize: 2.t, fontweight: FontWeight.w500),
+                      CustomTextField(ctr: _locationCtr!, hintText: "Enter a location", capitalization: TextCapitalization.words),
                       VGap(1.5.h),
-                      Txt("Type",
-                          textColor: Colors.black,
-                          fontsize: 2.t,
-                          fontweight: FontWeight.w500),
+                      Txt("Type", textColor: Colors.black, fontsize: 2.t, fontweight: FontWeight.w500),
 
                       ///
                       /// type search field
@@ -394,13 +283,11 @@ class _AddEventScrenState extends State<AddEventScren> {
                             _selectTypeDialog(context);
                           },
                           borderRadius: BorderRadius.circular(10),
-                          overlayColor: MaterialStateProperty.resolveWith(
-                              (states) => Colors.transparent),
+                          overlayColor: MaterialStateProperty.resolveWith((states) => Colors.transparent),
                           child: Container(
                             alignment: Alignment.centerLeft,
                             height: 6.h,
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 3.w, vertical: 1.3.h),
+                            padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.3.h),
                             width: double.infinity,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
@@ -409,8 +296,7 @@ class _AddEventScrenState extends State<AddEventScren> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Consumer<HomeProvider>(
-                                    builder: (context, provider, _) {
+                                Consumer<HomeProvider>(builder: (context, provider, _) {
                                   return Txt(
                                     provider.selectedType,
                                     fontsize: 2.t,
@@ -421,105 +307,62 @@ class _AddEventScrenState extends State<AddEventScren> {
                             ),
                           )),
                       VGap(1.5.h),
-                      Txt("Description",
-                          textColor: Colors.black,
-                          fontsize: 2.t,
-                          fontweight: FontWeight.w500),
-                      CustomTextField(
-                          ctr: _descCtr!,
-                          hintText: "Enter a description",
-                          lines: 5),
+                      Txt("Description", textColor: Colors.black, fontsize: 2.t, fontweight: FontWeight.w500),
+                      CustomTextField(ctr: _descCtr!, hintText: "Enter a description", lines: 5),
                       VGap(3.h),
                       Row(
                         children: [
                           Expanded(
                               child: ElevatedButton.icon(
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        Color.fromARGB(255, 155, 155, 155),
+                                    backgroundColor: Color.fromARGB(255, 155, 155, 155),
                                   ),
                                   onPressed: () {},
                                   icon: Icon(Icons.close, color: Colors.white),
-                                  label:
-                                      Txt("Discard", textColor: Colors.white))),
+                                  label: Txt("Discard", textColor: Colors.white))),
                           HGap(2.w),
-                          Expanded(child: Consumer<HomeProvider>(
-                              builder: (context, provider, _) {
+                          Expanded(child: Consumer<HomeProvider>(builder: (context, provider, _) {
                             return ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColor.theme),
+                                style: ElevatedButton.styleFrom(backgroundColor: AppColor.theme),
                                 onPressed: () async {
                                   if (!provider.eventLoading) {
-                                    final bool isValid =
-                                        validateEventTextFields();
+                                    final bool isValid = validateEventTextFields();
                                     if (!isValid) return;
                                     if (widget.updateEvent == null) {
                                       showLoader(context);
                                       String imageUrl = "";
-                                      if (context
-                                              .read<MediaProvider>()
-                                              .imagePath
-                                              .toString()
-                                              .trim() !=
-                                          "") {
-                                        imageUrl = await context
-                                            .read<MediaProvider>()
-                                            .uploadImage(
-                                                imagePath: context
-                                                    .read<MediaProvider>()
-                                                    .imagePath
-                                                    .toString()
-                                                    .trim());
+                                      if (context.read<MediaProvider>().imagePath.toString().trim() != "") {
+                                        imageUrl = await context.read<MediaProvider>().uploadImage(imagePath: context.read<MediaProvider>().imagePath.toString().trim());
                                       }
-                                      final bool res =
-                                          await provider.addNewEvent(
-                                              eventName: _eventNameCtr!.text
-                                                  .toString()
-                                                  .trim(),
-                                              date: provider.eventDate!
-                                                  .toString(),
-                                              image: imageUrl,
-                                              time: provider.eventTime!,
-                                              location: _locationCtr!.text
-                                                  .toString()
-                                                  .trim(),
-                                              desc: _descCtr!.text
-                                                  .toString()
-                                                  .trim());
+                                      final bool res = await provider.addNewEvent(
+                                          eventName: _eventNameCtr!.text.toString().trim(),
+                                          date: provider.eventDate!.toString(),
+                                          image: imageUrl,
+                                          time: provider.eventTime!,
+                                          location: _locationCtr!.text.toString().trim(),
+                                          desc: _descCtr!.text.toString().trim());
                                       hideLoader();
                                       if (res) {
                                         Navigator.pop(context);
-                                        showFlushbar(context,
-                                            "Event published successfully..!");
+                                        showFlushbar(context, "Event published successfully..!");
                                       }
                                     } else {
                                       final bool res = await provider.editEvent(
                                           eventId: widget.updateEvent!.eventId!,
-                                          eventName: _eventNameCtr!.text
-                                              .toString()
-                                              .trim(),
+                                          eventName: _eventNameCtr!.text.toString().trim(),
                                           date: provider.eventDate!.toString(),
                                           time: provider.eventTime!,
-                                          location: _locationCtr!.text
-                                              .toString()
-                                              .trim(),
-                                          desc:
-                                              _descCtr!.text.toString().trim());
+                                          location: _locationCtr!.text.toString().trim(),
+                                          desc: _descCtr!.text.toString().trim());
                                       if (res) {
                                         Navigator.pop(context);
-                                        showFlushbar(
-                                            context, "Saved successfully..!");
+                                        showFlushbar(context, "Saved successfully..!");
                                       }
                                     }
                                   }
                                 },
-                                icon: Icon(Icons.check_circle,
-                                    color: Colors.white),
-                                label: Txt(
-                                    widget.updateEvent == null
-                                        ? "Publish"
-                                        : "Save",
-                                    textColor: Colors.white));
+                                icon: Icon(Icons.check_circle, color: Colors.white),
+                                label: Txt(widget.updateEvent == null ? "Publish" : "Save", textColor: Colors.white));
                           })),
                         ],
                       ),
@@ -535,8 +378,7 @@ class _AddEventScrenState extends State<AddEventScren> {
                     Navigator.pop(context);
                   },
                   child: Icon(Icons.arrow_back_ios_new_rounded),
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white, shape: CircleBorder()),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.white, shape: CircleBorder()),
                 ),
               )
             ],
@@ -556,8 +398,7 @@ class _AddEventScrenState extends State<AddEventScren> {
               return AlertDialog(
                   title: Txt("Select Type"),
                   scrollable: true,
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 2.w, vertical: 0.5.h),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 0.5.h),
                   actions: [
                     TextButton(
                         onPressed: () {
@@ -576,20 +417,16 @@ class _AddEventScrenState extends State<AddEventScren> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: List.generate(
                             typeSnap.data!.length,
-                            (index) => Consumer<HomeProvider>(
-                                    builder: (context, provider, _) {
+                            (index) => Consumer<HomeProvider>(builder: (context, provider, _) {
                                   return Container(
                                     width: 70.w,
                                     height: 6.h,
                                     child: SimpleDialogOption(
                                       onPressed: () {
-                                        provider.setSelectedType(
-                                            newType:
-                                                typeSnap.data![index].name!);
+                                        provider.setSelectedType(newType: typeSnap.data![index].name!);
                                         Navigator.pop(context);
                                       },
-                                      child: Txt(
-                                          "${typeSnap.data?[index].name ?? "--"}"),
+                                      child: Txt("${typeSnap.data?[index].name ?? "--"}"),
                                     ),
                                   );
                                 })),
@@ -674,13 +511,11 @@ class _NewTypeDialogState extends State<NewTypeDialog> {
                         showToast("Enter type name..!");
                         return;
                       }
-                      final bool res = await provider.addEventType(
-                          typeName: _newTypeCtr!.text.toString().trim());
+                      final bool res = await provider.addEventType(typeName: _newTypeCtr!.text.toString().trim());
 
                       if (res) {
                         Navigator.pop(context);
-                        provider.setSelectedType(
-                            newType: _newTypeCtr!.text.toString().trim());
+                        provider.setSelectedType(newType: _newTypeCtr!.text.toString().trim());
                         await showFlushbar(context, "Type added successfully");
                       }
                     },

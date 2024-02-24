@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:eventflow/utils/constants/image_constants.dart';
 import 'package:flutter/material.dart';
 
 class CustomNetworkImage extends StatelessWidget {
@@ -31,8 +32,7 @@ class CustomNetworkImage extends StatelessWidget {
       color: Colors.grey.withOpacity(0.25),
       errorWidget: (context, url, error) {
         print(" --> --> err in chached network image : $error");
-        return SizedBox(
-            height: height, width: width, child: const Icon(Icons.error));
+        return SizedBox(height: height, width: width, child: const Icon(Icons.error));
       },
       placeholder: (context, url) => Container(
         alignment: alignment,
@@ -41,6 +41,10 @@ class CustomNetworkImage extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(borderRadius),
           color: Colors.grey.withOpacity(0.25),
+          image: DecorationImage(
+            fit: BoxFit.cover,
+            image: AssetImage(Images.loadingShimmer),
+          ),
         ),
         child: child,
       ),

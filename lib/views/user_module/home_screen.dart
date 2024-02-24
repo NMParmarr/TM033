@@ -6,7 +6,6 @@ import 'package:eventflow/utils/widgets/custom_text_field.dart';
 import 'package:eventflow/views/user_module/event_list.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../data/datasource/services/connection/network_checker_widget.dart';

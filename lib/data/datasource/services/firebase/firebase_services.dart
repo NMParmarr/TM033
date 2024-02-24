@@ -5,7 +5,6 @@ import 'package:eventflow/data/models/user_model.dart';
 import 'package:eventflow/globles.dart';
 import 'package:eventflow/resources/helper/shared_preferences.dart';
 import 'package:eventflow/utils/constants/app_constants.dart';
-import 'package:intl/intl.dart';
 
 import '../../../models/event_model.dart';
 import '../../../models/event_type.dart';

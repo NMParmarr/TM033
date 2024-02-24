@@ -23,8 +23,7 @@ import '../../viewmodels/providers/home_provider.dart';
 class EventDetailsOrgScreen extends StatefulWidget {
   final String eventId;
   final String orgId;
-  const EventDetailsOrgScreen(
-      {super.key, required this.eventId, required this.orgId});
+  const EventDetailsOrgScreen({super.key, required this.eventId, required this.orgId});
 
   @override
   State<EventDetailsOrgScreen> createState() => _EventDetailsOrgScreenState();
@@ -34,21 +33,15 @@ class _EventDetailsOrgScreenState extends State<EventDetailsOrgScreen> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<EventModel>(
-        stream: FireServices.instance
-            .fetchEventByEventId(orgId: widget.orgId, eventId: widget.eventId),
+        stream: FireServices.instance.fetchEventByEventId(orgId: widget.orgId, eventId: widget.eventId),
         builder: (context, event) {
           if (event.hasData) {
-            return NetworkCheckerWidget(
-                child: _contentWidget(context, event: event.data!));
+            return NetworkCheckerWidget(child: _contentWidget(context, event: event.data!));
           } else if (event.hasError) {
             print(" --- err eventhiuh snap -- ${event.error}");
-            return Container(
-                color: Colors.white,
-                child: Center(child: Icon(Icons.error, color: AppColor.theme)));
+            return Container(color: Colors.white, child: Center(child: Icon(Icons.error, color: AppColor.theme)));
           } else {
-            return Container(
-                color: Colors.white,
-                child: Center(child: Image.asset(Images.loadingGif)));
+            return Container(color: Colors.white, child: Center(child: Image.asset(Images.loadingGif)));
           }
         });
   }
@@ -64,8 +57,7 @@ class _EventDetailsOrgScreenState extends State<EventDetailsOrgScreen> {
               child: Consumer<HomeProvider>(builder: (context, provider, _) {
                 return ElevatedButton.icon(
                     onPressed: () async {
-                      Navigator.pushNamed(context, Routes.addEvent,
-                          arguments: {'updateEvent': event});
+                      Navigator.pushNamed(context, Routes.addEvent, arguments: {'updateEvent': event});
                     },
                     icon: Icon(
                       Icons.edit,
@@ -82,24 +74,18 @@ class _EventDetailsOrgScreenState extends State<EventDetailsOrgScreen> {
             HGap(2.w),
             Expanded(
               child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColor.orange),
+                  style: ElevatedButton.styleFrom(backgroundColor: AppColor.orange),
                   onPressed: () {
-                    Utils.deleteConfirmationDialoag(context,
-                        eventName: event.eventName!, onDeleteEvent: () async {
+                    Utils.deleteConfirmationDialoag(context, eventName: event.eventName!, onDeleteEvent: () async {
                       showLoader(context);
                       try {
-                        await FireServices.instance.deleteEvent(
-                            orgId: event.orgId!, eventId: event.eventId!);
+                        await FireServices.instance.deleteEvent(orgId: event.orgId!, eventId: event.eventId!);
                         hideLoader();
                         Navigator.pop(context);
-                        await showFlushbar(context,
-                            "'${event.eventName!}' event has been deleted.!",
-                            duration: Duration(milliseconds: 1500));
+                        await showFlushbar(context, "'${event.eventName!}' event has been deleted.!", duration: Duration(milliseconds: 1500));
                       } catch (e) {
                         hideLoader();
-                        showToastSnackbarError(
-                            context, "Some error occured..try again later.!");
+                        showToastSnackbarError(context, "Some error occured..try again later.!");
                       }
                     });
                   },
@@ -127,6 +113,10 @@ class _EventDetailsOrgScreenState extends State<EventDetailsOrgScreen> {
                     aspectRatio: 16 / 9,
                     child: InkWell(
                       onTap: () {
+                        if (event.image == null || event.image?.trim() == "") {
+                          showToast("No Image.!");
+                          return;
+                        }
                         showDialog(
                             context: context,
                             builder: (context) {
@@ -134,23 +124,18 @@ class _EventDetailsOrgScreenState extends State<EventDetailsOrgScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 1.w, vertical: 2.w),
+                                    padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 2.w),
                                     child: ElevatedButton(
                                       onPressed: () {
                                         Navigator.pop(context);
                                       },
-                                      child: Icon(
-                                          Icons.arrow_back_ios_new_rounded),
-                                      style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.white,
-                                          shape: CircleBorder()),
+                                      child: Icon(Icons.arrow_back_ios_new_rounded),
+                                      style: ElevatedButton.styleFrom(backgroundColor: Colors.white, shape: CircleBorder()),
                                     ),
                                   ),
                                   Expanded(
                                     child: InteractiveViewer(
-                                        child: (event.image == null ||
-                                                event.image?.trim() == "")
+                                        child: (event.image == null || event.image?.trim() == "")
                                             ? Container(
                                                 child: Image.asset(
                                                 Images.imagePlaceholder,
@@ -195,15 +180,9 @@ class _EventDetailsOrgScreenState extends State<EventDetailsOrgScreen> {
                       // height: 50.h,
                       padding: EdgeInsets.symmetric(horizontal: 3.w),
                       decoration: BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                              blurRadius: 5,
-                              color: Colors.grey.withOpacity(0.5),
-                              offset: Offset(0, -5))
-                        ],
+                        boxShadow: [BoxShadow(blurRadius: 5, color: Colors.grey.withOpacity(0.5), offset: Offset(0, -5))],
                         color: Colors.white,
-                        borderRadius:
-                            BorderRadius.vertical(top: Radius.circular(15)),
+                        borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
                       ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -219,16 +198,11 @@ class _EventDetailsOrgScreenState extends State<EventDetailsOrgScreen> {
                           VGap(1.3.h),
                           Row(
                             children: [
-                              Icon(Icons.watch_later_outlined,
-                                  color: AppColor.primary),
+                              Icon(Icons.watch_later_outlined, color: AppColor.primary),
                               HGap(3.w),
                               Builder(builder: (context) {
-                                final date =
-                                    getFormattedDate(date: event.eventDate);
-                                final time = event.eventTime != null
-                                    ? get12HrsTime(context,
-                                        time: event.eventTime!)
-                                    : "--:--";
+                                final date = getFormattedDate(date: event.eventDate);
+                                final time = event.eventTime != null ? get12HrsTime(context, time: event.eventTime!) : "--:--";
                                 return Txt(
                                   "$date  $time",
                                   fontsize: 2.t,
@@ -239,8 +213,7 @@ class _EventDetailsOrgScreenState extends State<EventDetailsOrgScreen> {
                           ),
                           Row(
                             children: [
-                              Icon(Icons.location_on_outlined,
-                                  color: AppColor.primary),
+                              Icon(Icons.location_on_outlined, color: AppColor.primary),
                               HGap(3.w),
                               Txt(
                                 event.location ?? "--",
@@ -254,10 +227,7 @@ class _EventDetailsOrgScreenState extends State<EventDetailsOrgScreen> {
                               Icon(Icons.groups_2, color: AppColor.primary),
                               HGap(3.w),
                               StreamBuilder<List<Participant>>(
-                                  stream: FireServices.instance
-                                      .fetchJoinedParticipants(
-                                          orgId: widget.orgId,
-                                          eventId: widget.eventId),
+                                  stream: FireServices.instance.fetchJoinedParticipants(orgId: widget.orgId, eventId: widget.eventId),
                                   builder: (context, participants) {
                                     return Txt(
                                       "${participants.data?.length ?? "--"} ${participants.data != null && participants.data!.length == 1 ? "Participant" : "Participants"}",
@@ -297,23 +267,16 @@ class _EventDetailsOrgScreenState extends State<EventDetailsOrgScreen> {
                             textColor: Colors.black,
                           ),
                           StreamBuilder<List<Participant>>(
-                              stream: FireServices.instance
-                                  .fetchJoinedParticipants(
-                                      orgId: widget.orgId,
-                                      eventId: widget.eventId),
+                              stream: FireServices.instance.fetchJoinedParticipants(orgId: widget.orgId, eventId: widget.eventId),
                               builder: (context, participants) {
                                 if (participants.hasData) {
                                   return ParticipantsList(
                                     participants: participants.data ?? [],
                                   );
                                 } else if (participants.hasError) {
-                                  return Center(
-                                      child: Icon(Icons.error,
-                                          color: AppColor.theme));
+                                  return Center(child: Icon(Icons.error, color: AppColor.theme));
                                 } else {
-                                  return Center(
-                                      child: CircularProgressIndicator(
-                                          color: AppColor.theme));
+                                  return Center(child: CircularProgressIndicator(color: AppColor.theme));
                                 }
                               }),
                           VGap(2.h),
@@ -331,8 +294,7 @@ class _EventDetailsOrgScreenState extends State<EventDetailsOrgScreen> {
                   Navigator.pop(context);
                 },
                 child: Icon(Icons.arrow_back_ios_new_rounded),
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white, shape: CircleBorder()),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.white, shape: CircleBorder()),
               ),
             )
           ],

@@ -11,7 +11,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'data/datasource/dio/dio_clint.dart';
 import 'data/datasource/dio/logging_intercepter.dart';
 import 'resources/helper/network_info.dart';
-import 'utils/constants/api_constants.dart';
 import 'viewmodels/providers/theme_provider.dart';
 
 final sl = GetIt.instance;

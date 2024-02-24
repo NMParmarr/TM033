@@ -11,7 +11,6 @@ import 'package:eventflow/utils/gap.dart';
 import 'package:eventflow/utils/size_config.dart';
 import 'package:eventflow/utils/text.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import '../../data/models/event_model.dart';
 import '../../utils/common_utils.dart';

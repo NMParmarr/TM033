@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../data/models/user_model.dart';
 import '../../utils/constants/image_constants.dart';
+import '../../utils/widgets/custom_network_image.dart';
 
 class ParticipantsList extends StatelessWidget {
   final List<Participant> participants;
@@ -27,36 +28,40 @@ class ParticipantsList extends StatelessWidget {
             physics: NeverScrollableScrollPhysics(),
             itemBuilder: (context, index) {
               return StreamBuilder<UserModel>(
-                  stream: FireServices.instance
-                      .fetchSingleUser(id: participants[index].userId!),
+                  stream: FireServices.instance.fetchSingleUser(id: participants[index].userId!),
                   builder: (context, user) {
                     return ListTile(
                       leading: AspectRatio(
                         aspectRatio: 1,
-                        child: Container(
-                            decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                image: DecorationImage(
-                                    fit: BoxFit.cover,
-                                    image: AssetImage(Images.sampleImage)))),
+                        child: (user.data != null && user.data?.image != null && user.data?.image?.trim() != "")
+                            ? user.data!.image!.startsWith('http')
+                                ? ClipOval(
+                                    child: CustomNetworkImage(
+                                      url: user.data!.image!,
+                                    ),
+                                  )
+                                : ClipOval(
+                                    child: Container(
+                                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(15), image: DecorationImage(image: AssetImage(Images.userPlaceholder), fit: BoxFit.cover)),
+                                    ),
+                                  )
+                            : ClipOval(
+                                child: Container(
+                                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(15), image: DecorationImage(image: AssetImage(Images.userPlaceholder), fit: BoxFit.cover)),
+                                ),
+                              ),
                       ),
-                      title: Txt(user.data?.name ?? "---",
-                          fontsize: 2.t, fontweight: FontWeight.w600),
+                      title: Txt(user.data?.name ?? "---", fontsize: 2.t, fontweight: FontWeight.w600),
                       subtitle: Builder(builder: (context) {
-                        final String? formattedDate = (user.data != null &&
-                                user.data?.joinDate != null)
-                            ? DateFormat('dd-MM-yyyy hh:mm a')
-                                .format(DateTime.parse(user.data!.joinDate!))
-                            : null;
-                        return Txt(
-                            "Join: ${formattedDate ?? "--/--/---- --:--"}");
+                        final String? formattedDate =
+                            (user.data != null && user.data?.joinDate != null) ? DateFormat('dd-MM-yyyy hh:mm a').format(DateTime.parse(participants[index].joinedDate!)) : null;
+                        return Txt("Join: ${formattedDate ?? "--/--/---- --:--"}");
                       }),
                       trailing: IconButton(
                           onPressed: () {
                             if (user.data?.mobile != null) {
                               try {
-                                launchUrl(
-                                    Uri.parse('tel://${user.data?.mobile}'));
+                                launchUrl(Uri.parse('tel://${user.data?.mobile}'));
                               } catch (e) {
                                 showToast("Something went wrong");
                               }

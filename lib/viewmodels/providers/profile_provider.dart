@@ -70,13 +70,6 @@ class ProfileProvider extends ChangeNotifier {
     }
   }
 
-  /// --- PICK PROFILE PICTURE
-  ///
-  String get imagePath => _imagePath;
-  String _imagePath = "";
-
-  // Future<String> pickImage({required ImageS})
-
   /// --- ADD NEW USER
   ///
 
