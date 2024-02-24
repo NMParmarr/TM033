@@ -7,6 +7,7 @@ import 'package:eventflow/views/user_module/event_list.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import '../../data/datasource/services/connection/network_checker_widget.dart';
 import '../../data/datasource/services/firebase/firebase_services.dart';
@@ -15,6 +16,7 @@ import '../../data/models/event_type.dart';
 import '../../resources/helper/shared_preferences.dart';
 import '../../utils/constants/app_constants.dart';
 import '../../utils/constants/image_constants.dart';
+import '../../viewmodels/providers/home_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -24,7 +26,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final formattedTodayDate = DateFormat("dd-MM-yyyy").format(DateTime.now());
+  // final formattedTodayDate = DateFormat("dd-MM-yyyy").format(DateTime.now());
   TextEditingController? _searchCtr;
 
   @override
@@ -122,10 +124,18 @@ class _HomeScreenState extends State<HomeScreen> {
               VGap(1.h),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 3.w),
-                child: CustomTextField(
+                child: Consumer<HomeProvider>(builder: (context, provider, _) {
+                  return CustomTextField(
                     ctr: _searchCtr!,
                     prefixIcon: Icon(Icons.search),
-                    hintText: "Search"),
+                    hintText: "Search",
+                    contentPadding: EdgeInsets.zero,
+                    tapOutsideDismiss: true,
+                    onChanged: (value) {
+                      provider.updateSearchQuery(newQuery: value);
+                    },
+                  );
+                }),
               ),
               VGap(1.h),
               Padding(
@@ -162,15 +172,29 @@ class _HomeScreenState extends State<HomeScreen> {
                         eventTypes.length,
                         (index) => StreamBuilder<List<EventModel>>(
                             stream: index == 0
-                                ? FireServices.instance.fetchAllEventsByOrgId(
-                                    orgId: orgId, todayDate: formattedTodayDate)
+                                ? FireServices.instance
+                                    .fetchAllEventsByOrgId(orgId: orgId)
                                 : FireServices.instance.fetchEventsByTypeId(
                                     orgId: eventTypes[index].orgId!,
-                                    typeId: eventTypes[index].typeId!,
-                                    todayDate: formattedTodayDate),
+                                    typeId: eventTypes[index].typeId!),
                             builder: (context, eventSnap) {
                               if (eventSnap.hasData) {
-                                return EventsList(events: eventSnap.data!);
+                                return Consumer<HomeProvider>(
+                                    builder: (context, provider, _) {
+                                  return EventsList(
+                                      onRefresh: () async {
+                                        await provider.refresh();
+                                      },
+                                      events: provider.searchQueryString == ""
+                                          ? eventSnap.data!
+                                          : eventSnap.data!
+                                              .where((element) => element
+                                                  .eventName!
+                                                  .toLowerCase()
+                                                  .contains(provider
+                                                      .searchQueryString))
+                                              .toList());
+                                });
                               } else if (eventSnap.hasError) {
                                 print(
                                     " --- err events snap -- ${eventSnap.error}");

@@ -51,12 +51,12 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
   }
 
   Widget _contentWidget(BuildContext context, {required EventModel event}) {
-    final formattedTodayDate = DateFormat("dd-MM-yyyy").format(DateTime.now());
+    // final formattedTodayDate = DateFormat("dd-MM-yyyy").format(DateTime.now());
 
     return Scaffold(
       bottomNavigationBar: Visibility(
         visible: FireServices.instance
-            .isAfterOrToday(event.eventDate!, formattedTodayDate),
+            .isAfterOrToday(event.eventDate!, currentDate.toString()),
         child: Container(
             margin: EdgeInsets.only(
                 left: 2.w, right: 2.w, bottom: 0.5.h, top: 0.5.h),
@@ -99,10 +99,11 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                                           return;
                                         }
                                         await Utils.joinConfirmationDialog(
-                                            context,
-                                            orgId: widget.orgId,
-                                            eventId: widget.eventId,
-                                            userId: userId.data!,);
+                                          context,
+                                          orgId: widget.orgId,
+                                          eventId: widget.eventId,
+                                          userId: userId.data!,
+                                        );
                                       }
                                     },
                                     icon: (isUserJoined.connectionState ==
@@ -223,11 +224,19 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                               Icon(Icons.watch_later_outlined,
                                   color: AppColor.primary),
                               HGap(3.w),
-                              Txt(
-                                "${event.eventDate ?? "--"}  ${event.eventTime != null ? get12HrsTime(context, time: event.eventTime!) : "--"}",
-                                fontsize: 2.t,
-                                textColor: Colors.black,
-                              )
+                              Builder(builder: (context) {
+                                final date =
+                                    getFormattedDate(date: event.eventDate);
+                                final time = event.eventTime != null
+                                    ? get12HrsTime(context,
+                                        time: event.eventTime!)
+                                    : "--:--";
+                                return Txt(
+                                  "$date  $time",
+                                  fontsize: 2.t,
+                                  textColor: Colors.black,
+                                );
+                              })
                             ],
                           ),
                           Row(

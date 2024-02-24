@@ -74,15 +74,15 @@ class _AddEventScrenState extends State<AddEventScren> {
         Provider.of<HomeProvider>(context, listen: false)
             .setSelectedType(newType: eventType.name ?? Strings.selectType);
       });
-      DateFormat format = DateFormat('dd-MM-yyyy');
+      // DateFormat format = DateFormat('dd-MM-yyyy');
       DateTime? date = widget.updateEvent?.eventDate == null
           ? null
-          : format.tryParse(widget.updateEvent!.eventDate!);
+          : dateTimeFromString(widget.updateEvent!.eventDate!);
 
       Provider.of<HomeProvider>(context, listen: false)
           .setEventDate(date: date, listen: false);
-      Provider.of<HomeProvider>(context, listen: false)
-          .setEventTime(time: widget.updateEvent?.eventTime, listen: false);
+      Provider.of<HomeProvider>(context, listen: false).setEventTime(
+          time: widget.updateEvent?.eventTime.toString(), listen: false);
       _eventNameCtr?.text = widget.updateEvent?.eventName ?? "";
       _locationCtr?.text = widget.updateEvent?.location ?? "";
       _descCtr?.text = widget.updateEvent?.about ?? "";
@@ -236,15 +236,12 @@ class _AddEventScrenState extends State<AddEventScren> {
                                             Expanded(
                                               child:
                                                   Builder(builder: (context) {
-                                                if (provider.eventDate != null)
-                                                  formattedDate = DateFormat(
-                                                          'dd-MM-yyyy')
-                                                      .format(
-                                                          provider.eventDate!);
-                                                return Txt(
-                                                    provider.eventDate != null
-                                                        ? formattedDate
-                                                        : "Choose Date");
+                                                return Txt(provider.eventDate !=
+                                                        null
+                                                    ? getFormattedDate(
+                                                        date: provider.eventDate
+                                                            .toString())
+                                                    : "Choose Date");
                                               }),
                                             ),
                                             Icon(Icons.date_range_outlined)
@@ -296,16 +293,11 @@ class _AddEventScrenState extends State<AddEventScren> {
                                             Expanded(
                                               child:
                                                   Builder(builder: (context) {
-                                                TimeOfDay? time;
-                                                if (provider.eventTime !=
-                                                    null) {
-                                                  time = timeOfDayFromString(
-                                                      provider.eventTime!);
-                                                }
-
-                                                return Txt(time != null
-                                                    ? formattedTime(context,
-                                                        time: time)
+                                                return Txt(provider.eventTime !=
+                                                        null
+                                                    ? get12HrsTime(context,
+                                                        time:
+                                                            provider.eventTime!)
                                                     : "Choose Time");
                                               }),
                                             ),
@@ -339,7 +331,7 @@ class _AddEventScrenState extends State<AddEventScren> {
                       ///
                       InkWell(
                           onTap: () {
-                            print(" --- show dialog");
+                            FocusScope.of(context).unfocus();
                             _selectTypeDialog(context);
                           },
                           borderRadius: BorderRadius.circular(10),
@@ -408,8 +400,9 @@ class _AddEventScrenState extends State<AddEventScren> {
                                               eventName: _eventNameCtr!.text
                                                   .toString()
                                                   .trim(),
-                                              date: formattedDate,
-                                              time: formattedTimeOfDay,
+                                              date: provider.eventDate!
+                                                  .toString(),
+                                              time: provider.eventTime!,
                                               location: _locationCtr!.text
                                                   .toString()
                                                   .trim(),
@@ -428,8 +421,8 @@ class _AddEventScrenState extends State<AddEventScren> {
                                           eventName: _eventNameCtr!.text
                                               .toString()
                                               .trim(),
-                                          date: formattedDate,
-                                          time: formattedTimeOfDay,
+                                          date: provider.eventDate!.toString(),
+                                          time: provider.eventTime!,
                                           location: _locationCtr!.text
                                               .toString()
                                               .trim(),

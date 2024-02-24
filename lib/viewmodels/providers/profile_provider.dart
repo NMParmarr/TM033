@@ -10,6 +10,12 @@ class ProfileProvider extends ChangeNotifier {
 
   ProfileProvider({@required this.sharedPreferences});
 
+   Future<void> refresh() async {
+    Future.delayed(Duration(milliseconds: 200)).then((value) {
+      notifyListeners();
+    });
+  }
+
   /// --- USER DETAIL UPDATE
   ///
 

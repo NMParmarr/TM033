@@ -38,7 +38,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           builder: (context, userId) {
             if (userId.hasData) {
               return StreamBuilder<UserModel>(
-                  stream: FireServices.instance.fetchSingleUser(id: userId.data!),
+                  stream:
+                      FireServices.instance.fetchSingleUser(id: userId.data!),
                   builder: (context, currentUserSnap) {
                     if (currentUserSnap.hasData) {
                       return _contentWidget(context,
@@ -68,7 +69,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: Column(
                       children: [
                         Icon(Icons.error),
-                        Txt("Something went wrong..!", textColor: AppColor.theme)
+                        Txt("Something went wrong..!",
+                            textColor: AppColor.theme)
                       ],
                     )),
               );
@@ -169,12 +171,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Expanded(
             child: TabBarView(
           children: [
-            FutureBuilder<List<EventModel>>(
-                future: FireServices.instance.fetchJoinedAllEvents(
-                    userId: user!.id!),
+            StreamBuilder<List<EventModel>>(
+                stream: FireServices.instance
+                    .fetchJoinedAllEvents(userId: user!.id!)
+                    .asStream(),
                 builder: (context, upcomingEvents) {
                   if (upcomingEvents.hasData) {
-                    return EventsList(events: upcomingEvents.data ?? []);
+                    return EventsList(
+                      onRefresh: () async {
+                        setState(() {});
+                      },
+                      events: upcomingEvents.data ?? [],
+                      // shrinkWrap: true,
+                      // physics: NeverScrollableScrollPhysics()
+                    );
                   } else if (upcomingEvents.hasError) {
                     print(" --- err dfdfsdgh : ${upcomingEvents.error}");
                     return Center(

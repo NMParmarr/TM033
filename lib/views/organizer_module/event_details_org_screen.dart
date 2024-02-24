@@ -203,11 +203,19 @@ class _EventDetailsOrgScreenState extends State<EventDetailsOrgScreen> {
                               Icon(Icons.watch_later_outlined,
                                   color: AppColor.primary),
                               HGap(3.w),
-                              Txt(
-                                "${event.eventDate ?? "--"} ${event.eventTime != null ? get12HrsTime(context, time: event.eventTime!) : "--"}",
-                                fontsize: 2.t,
-                                textColor: Colors.black,
-                              )
+                              Builder(builder: (context) {
+                                final date =
+                                    getFormattedDate(date: event.eventDate);                               
+                                final time = event.eventTime != null
+                                    ? get12HrsTime(context,
+                                        time: event.eventTime!)
+                                    : "--:--";
+                                return Txt(
+                                  "$date  $time",
+                                  fontsize: 2.t,
+                                  textColor: Colors.black,
+                                );
+                              })
                             ],
                           ),
                           Row(

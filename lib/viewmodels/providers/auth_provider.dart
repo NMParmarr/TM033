@@ -13,51 +13,13 @@ class AuthProvider extends ChangeNotifier {
 
   AuthProvider();
 
-  // // TEXT CONTROLER --- ORGANIZERS
-  // TextEditingController? _orgTionCtr;
-  // TextEditingController? _orgZerCtr;
-  // TextEditingController? _orgEmailCtr;
-  // TextEditingController? _orgMobileCtr;
-  // TextEditingController? _orgPassCtr;
-  // TextEditingController? _orgCpassCtr;
 
-  // TextEditingController get orgTionCtr => _orgTionCtr!;
-  // TextEditingController get orgZerCtr => _orgZerCtr!;
-  // TextEditingController get orgEmailCtr => _orgEmailCtr!;
-  // TextEditingController get orgMobileCtr => _orgMobileCtr!;
-  // TextEditingController get orgPassCtr => _orgPassCtr!;
-  // TextEditingController get orgCpassCtr => _orgCpassCtr!;
-
-  // void initTextControllers({bool listen = false}) {
-  //   _orgTionCtr = TextEditingController();
-  //   _orgZerCtr = TextEditingController();
-  //   _orgEmailCtr = TextEditingController();
-  //   _orgMobileCtr = TextEditingController();
-  //   _orgPassCtr = TextEditingController();
-  //   _orgCpassCtr = TextEditingController();
-  //   if (listen) notifyListeners();
-  // }
-
-  // void clearTextControllers({bool listen = true}) {
-  //   _orgTionCtr?.clear();
-  //   _orgZerCtr?.clear();
-  //   _orgEmailCtr?.clear();
-  //   _orgMobileCtr?.clear();
-  //   _orgPassCtr?.clear();
-  //   _orgCpassCtr?.clear();
-  //   if (listen) notifyListeners();
-  // }
-
-  // void disposeTextControllers({bool listen = false}) {
-  //   _orgTionCtr?.dispose();
-  //   _orgZerCtr?.dispose();
-  //   _orgEmailCtr?.dispose();
-  //   _orgMobileCtr?.dispose();
-  //   _orgPassCtr?.dispose();
-  //   _orgCpassCtr?.dispose();
-  //   if (listen) notifyListeners();
-  // }
-
+ Future<void> refresh() async {
+    Future.delayed(Duration(milliseconds: 200)).then((value) {
+      notifyListeners();
+    });
+  }
+  
   /// --- PASSWORD FOR USER
   ///
   bool get isUserPassVisible => _isUserPassVisible;

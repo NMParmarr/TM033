@@ -1,9 +1,11 @@
 import 'package:eventflow/utils/gap.dart';
 import 'package:eventflow/utils/size_config.dart';
+import 'package:eventflow/viewmodels/providers/home_provider.dart';
 import 'package:eventflow/views/user_module/event_list.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import '../../data/datasource/services/connection/network_checker_widget.dart';
 import '../../data/datasource/services/firebase/firebase_services.dart';
@@ -22,7 +24,7 @@ class JoinedEventsScreen extends StatefulWidget {
 }
 
 class _JoinedEventsScreenState extends State<JoinedEventsScreen> {
-  final formattedTodayDate = DateFormat("dd-MM-yyyy").format(DateTime.now());
+  // final formattedTodayDate = DateFormat("dd-MM-yyyy").format(DateTime.now());
 
   @override
   Widget build(BuildContext context) {
@@ -70,11 +72,16 @@ class _JoinedEventsScreenState extends State<JoinedEventsScreen> {
                                     FutureBuilder<List<EventModel>>(
                                         future: FireServices.instance
                                             .fetchJoinedUpcomingEvents(
-                                                userId: user.data!.id!,
-                                                todayDate: formattedTodayDate),
+                                                userId: user.data!.id!),
                                         builder: (context, upcomingEvents) {
                                           if (upcomingEvents.hasData) {
                                             return EventsList(
+                                                onRefresh: () async {
+                                                  Provider.of<HomeProvider>(
+                                                          context,
+                                                          listen: false)
+                                                      .refresh();
+                                                },
                                                 events:
                                                     upcomingEvents.data ?? []);
                                           } else if (upcomingEvents.hasError) {
@@ -92,11 +99,16 @@ class _JoinedEventsScreenState extends State<JoinedEventsScreen> {
                                     FutureBuilder<List<EventModel>>(
                                         future: FireServices.instance
                                             .fetchJoinedPastEvents(
-                                                userId: user.data!.id!,
-                                                todayDate: formattedTodayDate),
+                                                userId: user.data!.id!),
                                         builder: (context, pastEvents) {
+                                          print(" --> --> ");
                                           if (pastEvents.hasData) {
                                             return EventsList(
+                                                onRefresh: () async {
+                                                  context
+                                                      .read<HomeProvider>()
+                                                      .refresh();
+                                                },
                                                 events: pastEvents.data ?? []);
                                           } else if (pastEvents.hasError) {
                                             print(
@@ -113,10 +125,11 @@ class _JoinedEventsScreenState extends State<JoinedEventsScreen> {
                                   ],
                                 );
                               } else if (userId.hasError) {
-                                print(" --- err dfkjlaiejlkf : ${userId.error}");
+                                print(
+                                    " --- err dfkjlaiejlkf : ${userId.error}");
                                 return Center(
-                                    child:
-                                        Icon(Icons.error, color: AppColor.theme));
+                                    child: Icon(Icons.error,
+                                        color: AppColor.theme));
                               } else {
                                 return Center(
                                     child: Image.asset(Images.loadingGif));

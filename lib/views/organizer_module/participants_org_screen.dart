@@ -9,7 +9,6 @@ import 'package:eventflow/utils/size_config.dart';
 import 'package:eventflow/views/organizer_module/events_org_list.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 
 import '../../data/datasource/services/connection/network_checker_widget.dart';
 
@@ -21,7 +20,7 @@ class ParticipantsOrgScreen extends StatefulWidget {
 }
 
 class _ParticipantsOrgScreenState extends State<ParticipantsOrgScreen> {
-  final formattedTodayDate = DateFormat("dd-MM-yyyy").format(DateTime.now());
+  // final formattedTodayDate = DateFormat("dd-MM-yyyy").format(DateTime.now());
 
   @override
   Widget build(BuildContext context) {
@@ -62,9 +61,8 @@ class _ParticipantsOrgScreenState extends State<ParticipantsOrgScreen> {
                         return TabBarView(
                           children: [
                             StreamBuilder<List<EventModel>>(
-                                stream: FireServices.instance.fetchUpcomingEvents(
-                                    orgId: orgId.data!,
-                                    todayDate: formattedTodayDate),
+                                stream: FireServices.instance
+                                    .fetchUpcomingEvents(orgId: orgId.data!),
                                 builder: (context, upcomingEvents) {
                                   if (upcomingEvents.hasData) {
                                     return EventsOrgList(
@@ -81,9 +79,8 @@ class _ParticipantsOrgScreenState extends State<ParticipantsOrgScreen> {
                                   }
                                 }),
                             StreamBuilder<List<EventModel>>(
-                                stream: FireServices.instance.fetchPastEvents(
-                                    orgId: orgId.data!,
-                                    todayDate: formattedTodayDate),
+                                stream: FireServices.instance
+                                    .fetchPastEvents(orgId: orgId.data!),
                                 builder: (context, pastEvents) {
                                   if (pastEvents.hasData) {
                                     return EventsOrgList(

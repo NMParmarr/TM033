@@ -18,6 +18,7 @@ class CustomTextField extends StatelessWidget {
   final bool tapOutsideDismiss;
   final List<TextInputFormatter>? inputFormatters;
   final EdgeInsetsGeometry? contentPadding;
+  final Function(String)? onChanged;
 
   const CustomTextField({
     required this.ctr,
@@ -33,6 +34,7 @@ class CustomTextField extends StatelessWidget {
     this.tapOutsideDismiss = false,
     this.inputFormatters,
     this.capitalization,
+    this.onChanged,
     super.key,
   });
 
@@ -46,6 +48,7 @@ class CustomTextField extends StatelessWidget {
       maxLength: maxLength,
       readOnly: readOnly ?? false,
       maxLines: lines ?? 1,
+      onChanged: onChanged ,
       style: GoogleFonts.philosopher(),
       textCapitalization: capitalization ?? TextCapitalization.none,
       onTapOutside: (_) {

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:eventflow/data/models/organizer_model.dart';
 import 'package:eventflow/data/models/participant.dart';
 import 'package:eventflow/data/models/user_model.dart';
+import 'package:eventflow/globles.dart';
 import 'package:eventflow/resources/helper/shared_preferences.dart';
 import 'package:eventflow/utils/constants/app_constants.dart';
 import 'package:intl/intl.dart';
@@ -223,15 +224,15 @@ class FireServices {
     return true;
   }
 
-  Stream<List<EventModel>> fetchEventsByTypeId(
-      {required String orgId,
-      required String typeId,
-      required String todayDate}) {
+  Stream<List<EventModel>> fetchEventsByTypeId({
+    required String orgId,
+    required String typeId,
+  }) {
     return _organizers
         .doc(orgId)
         .collection(App.events)
         .where('typeId', isEqualTo: typeId)
-        .where('eventDate', isGreaterThanOrEqualTo: todayDate)
+        .where('eventDate', isGreaterThanOrEqualTo: currentDate.toString())
         .orderBy('eventDate', descending: false)
         .orderBy('eventTime', descending: false)
         .snapshots()
@@ -239,12 +240,11 @@ class FireServices {
             event.docs.map((e) => EventModel.fromJson(e.data())).toList());
   }
 
-  Stream<List<EventModel>> fetchAllEventsByOrgId(
-      {required String orgId, required String todayDate}) {
+  Stream<List<EventModel>> fetchAllEventsByOrgId({required String orgId}) {
     return _organizers
         .doc(orgId)
         .collection(App.events)
-        .where('eventDate', isGreaterThanOrEqualTo: todayDate)
+        .where('eventDate', isGreaterThanOrEqualTo: currentDate.toString())
         .orderBy('eventDate', descending: false)
         .orderBy('eventTime', descending: false)
         .snapshots()
@@ -289,12 +289,11 @@ class FireServices {
   /// --- fetch upcoming events
   ///
 
-  Stream<List<EventModel>> fetchUpcomingEvents(
-      {required String orgId, required String todayDate}) {
+  Stream<List<EventModel>> fetchUpcomingEvents({required String orgId}) {
     return _organizers
         .doc(orgId)
         .collection(App.events)
-        .where('eventDate', isGreaterThanOrEqualTo: todayDate)
+        .where('eventDate', isGreaterThanOrEqualTo: currentDate.toString())
         .orderBy('eventDate', descending: false)
         .orderBy('eventTime', descending: false)
         .snapshots()
@@ -302,12 +301,11 @@ class FireServices {
             event.docs.map((e) => EventModel.fromJson(e.data())).toList());
   }
 
-  Future<List<EventModel>> getUpcomingEvents(
-      {required String orgId, required String todayDate}) async {
+  Future<List<EventModel>> getUpcomingEvents({required String orgId}) async {
     return _organizers
         .doc(orgId)
         .collection(App.events)
-        .where('eventDate', isGreaterThanOrEqualTo: todayDate)
+        .where('eventDate', isGreaterThanOrEqualTo: currentDate.toString())
         .orderBy('eventDate', descending: false)
         .orderBy('eventTime', descending: false)
         .get()
@@ -318,12 +316,11 @@ class FireServices {
   /// --- fetch past events
   ///
 
-  Stream<List<EventModel>> fetchPastEvents(
-      {required String orgId, required String todayDate}) {
+  Stream<List<EventModel>> fetchPastEvents({required String orgId}) {
     return _organizers
         .doc(orgId)
         .collection(App.events)
-        .where('eventDate', isLessThan: todayDate)
+        .where('eventDate', isLessThan: currentDate.toString())
         .orderBy('eventDate', descending: true)
         .orderBy('eventTime', descending: true)
         .snapshots()
@@ -331,12 +328,11 @@ class FireServices {
             event.docs.map((e) => EventModel.fromJson(e.data())).toList());
   }
 
-  Future<List<EventModel>> getPastEvents(
-      {required String orgId, required String todayDate}) async {
+  Future<List<EventModel>> getPastEvents({required String orgId}) async {
     return _organizers
         .doc(orgId)
         .collection(App.events)
-        .where('eventDate', isLessThan: todayDate)
+        .where('eventDate', isLessThan: currentDate.toString())
         .orderBy('eventDate', descending: true)
         .orderBy('eventTime', descending: true)
         .get()
@@ -489,11 +485,13 @@ class FireServices {
   }
 
   Future<List<EventModel>> fetchJoinedUpcomingEvents(
-      {required String userId, required String todayDate}) async {
+      {required String userId}) async {
     List<EventModel> events = [];
     final participants = await _users
         .doc(userId)
         .collection(App.joinedEvents)
+        .orderBy('eventDate')
+        .orderBy('eventTime')
         .get()
         .then((event) =>
             event.docs.map((e) => Participant.fromJson(e.data())).toList());
@@ -502,17 +500,20 @@ class FireServices {
       final event =
           await getEventByEventId(orgId: p.orgId!, eventId: p.eventId!);
 
-      if (isAfterOrToday(event.eventDate!, todayDate)) events.add(event);
+      if (isAfterOrToday(event.eventDate!, currentDate.toString()))
+        events.add(event);
     }
     return events;
   }
 
   Future<List<EventModel>> fetchJoinedPastEvents(
-      {required String userId, required String todayDate}) async {
+      {required String userId}) async {
     List<EventModel> events = [];
     final participants = await _users
         .doc(userId)
         .collection(App.joinedEvents)
+        .orderBy('eventDate')
+        .orderBy('eventTime')
         .get()
         .then((event) =>
             event.docs.map((e) => Participant.fromJson(e.data())).toList());
@@ -520,16 +521,16 @@ class FireServices {
     for (Participant p in participants) {
       final event =
           await getEventByEventId(orgId: p.orgId!, eventId: p.eventId!);
-      if (!isAfterOrToday(event.eventDate!, todayDate)) events.add(event);
+      if (!isAfterOrToday(event.eventDate!, currentDate.toString()))
+        events.add(event);
     }
     return events;
   }
 
   bool isAfterOrToday(String dateString1, String dateString2) {
-    DateFormat format = DateFormat('dd-MM-yyyy');
     // Parse strings into DateTime objects
-    DateTime date1 = format.parse(dateString1);
-    DateTime date2 = format.parse(dateString2);
+    DateTime date1 = DateTime.parse(dateString1);
+    DateTime date2 = DateTime.parse(dateString2);
 
     // Compare dates
     if (!date1.isBefore(date2)) {

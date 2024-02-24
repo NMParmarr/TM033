@@ -18,7 +18,8 @@ class EventsOrgList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return events.length <= 0
-        ? Utils.noDataFoundWidget(msg: "No Events Found..!")
+        ? SingleChildScrollView(
+            child: Utils.noDataFoundWidget(msg: "No Events Found..!"))
         : ListView.builder(
             itemCount: events.length,
             itemBuilder: (context, index) {
@@ -70,11 +71,20 @@ class EventsOrgList extends StatelessWidget {
                                   Icon(Icons.watch_later_outlined,
                                       size: 2.h, color: Colors.white),
                                   HGap(2.w),
-                                  Txt(
-                                    "${events[index].eventDate ?? "--"}  ${events[index].eventTime != null ? get12HrsTime(context, time: events[index].eventTime!) : "--"}",
-                                    fontsize: 1.6.t,
-                                    textColor: Colors.white,
-                                  )
+                                  Builder(builder: (context) {
+                                    final date = getFormattedDate(
+                                        date: events[index].eventDate);
+                                    print("--> date : $date");
+                                    final time = events[index].eventTime != null
+                                        ? get12HrsTime(context,
+                                            time: events[index].eventTime!)
+                                        : "--:--";
+                                    return Txt(
+                                      "$date  $time",
+                                      fontsize: 1.6.t,
+                                      textColor: Colors.white,
+                                    );
+                                  })
                                 ],
                               ),
                               Row(

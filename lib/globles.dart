@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 final GlobalKey<ScaffoldMessengerState> snackbarKey =
     GlobalKey<ScaffoldMessengerState>();
@@ -20,7 +21,8 @@ Future<String?> getDeviceId() async {
   }
 }
 
-String formattedTime(BuildContext context, {required TimeOfDay time, bool hrs24 = false}) {
+String formattedTime(BuildContext context,
+    {required TimeOfDay time, bool hrs24 = false}) {
   final localizations = MaterialLocalizations.of(context);
   return localizations.formatTimeOfDay(time, alwaysUse24HourFormat: hrs24);
 }
@@ -30,12 +32,32 @@ TimeOfDay timeOfDayFromString(String time) {
   if (time.endsWith('PM')) hh = 12;
   time = time.split(' ')[0];
   return TimeOfDay(
-    hour: hh + int.parse(time.split(":")[0]) % 24, // in case of a bad time format entered manually by the user
+    hour: hh +
+        int.parse(time.split(":")[0]) %
+            24, // in case of a bad time format entered manually by the user
     minute: int.parse(time.split(":")[1]) % 60,
   );
 }
 
-String get12HrsTime(BuildContext context, {required String time}){
+String get12HrsTime(BuildContext context, {required String time}) {
   final timeOfDay = timeOfDayFromString(time);
   return formattedTime(context, time: timeOfDay);
+}
+
+String getFormattedDate({required String? date}) {
+  final dt = date != null ? DateTime.tryParse(date) : null;
+  if (dt == null) {
+    return "--/--/----";
+  } else {
+    return DateFormat('dd-MM-yyyy').format(dt);
+  }
+}
+
+DateTime? dateTimeFromString(String date) {
+  return DateTime.tryParse(date);
+}
+
+DateTime get currentDate {
+  final now = DateTime.now();
+  return DateTime(now.year, now.month, now.day);
 }

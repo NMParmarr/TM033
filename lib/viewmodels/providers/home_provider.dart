@@ -19,6 +19,12 @@ class HomeProvider extends ChangeNotifier {
   HomeProvider(
       {@required this.sharedPreferences, @required this.notificationRepo});
 
+  Future<void> refresh() async {
+    Future.delayed(Duration(milliseconds: 200)).then((value) {
+      notifyListeners();
+    });
+  }
+
   /// --- MAIN HOME SCREEN INDEX
   ///
   int get currentScreenIndex => _currentScreenIndex;
@@ -26,6 +32,16 @@ class HomeProvider extends ChangeNotifier {
 
   void setCurrentScreenIndex({required int index, bool listen = true}) {
     _currentScreenIndex = index;
+    if (listen) notifyListeners();
+  }
+
+  /// --- SEARCH FIELD QUERY
+  ///
+  String get searchQueryString => _searchQueryString.toString().trim();
+  String _searchQueryString = "";
+
+  void updateSearchQuery({required String newQuery, bool listen = true}) {
+    _searchQueryString = newQuery;
     if (listen) notifyListeners();
   }
 
@@ -84,9 +100,6 @@ class HomeProvider extends ChangeNotifier {
   }
 
   void setEventTime({required String? time, bool listen = true}) {
-    if (time?.length == 7) {
-      time = "0${time}";
-    }
     _eventTime = time;
     print(" --> time = $_eventTime");
     if (listen) notifyListeners();
