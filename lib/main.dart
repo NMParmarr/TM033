@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:eventflow/utils/constants/color_constants.dart';
 import 'package:eventflow/viewmodels/providers/auth_provider.dart';
 import 'package:eventflow/viewmodels/providers/home_provider.dart';
+import 'package:eventflow/viewmodels/providers/media_provider.dart';
 import 'package:eventflow/viewmodels/providers/profile_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,6 +11,7 @@ import 'package:provider/provider.dart';
 import 'data/datasource/services/connection/network_service.dart';
 import 'data/datasource/services/firebase/firebase_messaging.dart';
 import 'di_container.dart' as di;
+import 'http_overrides.dart';
 import 'resources/routes/routes.dart';
 import 'utils/constants/app_constants.dart';
 import 'utils/size_config.dart';
@@ -30,7 +34,9 @@ Future<void> main() async {
   await di.init();
 
   await NetworkService.instance.startConnectionStreaming();
-  
+
+  HttpOverrides.global = MyHttpOverrides();
+
   runApp(MultiProvider(
     providers: [
       StreamProvider(
@@ -40,6 +46,7 @@ Future<void> main() async {
       ChangeNotifierProvider(create: (context) => di.sl<AuthProvider>()),
       ChangeNotifierProvider(create: (context) => di.sl<HomeProvider>()),
       ChangeNotifierProvider(create: (context) => di.sl<ProfileProvider>()),
+      ChangeNotifierProvider(create: (context) => di.sl<MediaProvider>()),
     ],
     child: const MyApp(),
   ));

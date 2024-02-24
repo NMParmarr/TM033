@@ -7,6 +7,7 @@ import 'package:eventflow/utils/constants/api_constants.dart';
 import 'package:eventflow/utils/constants/app_constants.dart';
 import 'package:eventflow/utils/constants/string_constants.dart';
 import 'package:flutter/foundation.dart';
+import 'package:provider/provider.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -115,6 +116,7 @@ class HomeProvider extends ChangeNotifier {
       {required String eventName,
       required String date,
       required String time,
+      required String image,
       required String location,
       required String desc}) async {
     _eventLoading = true;
@@ -132,11 +134,14 @@ class HomeProvider extends ChangeNotifier {
       final String typeId = eventTypes[
               eventTypes.indexWhere((element) => element.name == selectedType)]
           .typeId!;
+
+          
       final EventModel eventModel = EventModel(
         eventId: eventId,
         orgId: orgId,
         eventName: eventName,
         eventDate: date,
+        image: image,
         eventTime: time,
         location: location,
         typeId: typeId,

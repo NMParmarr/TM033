@@ -52,7 +52,7 @@ class _ParticipantsOrgScreenState extends State<ParticipantsOrgScreen> {
                     ],
                   ))
                 ]),
-            VGap(2.h),
+            VGap(1.h),
             Expanded(
                 child: FutureBuilder<String?>(
                     future: Shared_Preferences.prefGetString(App.id, ""),

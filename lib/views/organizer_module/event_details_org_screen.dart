@@ -9,6 +9,7 @@ import 'package:eventflow/utils/common_utils.dart';
 import 'package:eventflow/utils/constants/color_constants.dart';
 import 'package:eventflow/utils/constants/image_constants.dart';
 import 'package:eventflow/utils/size_config.dart';
+import 'package:eventflow/utils/widgets/custom_network_image.dart';
 import 'package:eventflow/views/organizer_module/paricipants_list.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -54,6 +55,7 @@ class _EventDetailsOrgScreenState extends State<EventDetailsOrgScreen> {
 
   Widget _contentWidget(BuildContext context, {required EventModel event}) {
     return Scaffold(
+      appBar: AppBar(toolbarHeight: 0, automaticallyImplyLeading: false),
       bottomNavigationBar: Padding(
         padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.2.h),
         child: Row(
@@ -147,19 +149,36 @@ class _EventDetailsOrgScreenState extends State<EventDetailsOrgScreen> {
                                   ),
                                   Expanded(
                                     child: InteractiveViewer(
-                                        child: Image.asset(Images.sampleEvent)),
+                                        child: (event.image == null ||
+                                                event.image?.trim() == "")
+                                            ? Container(
+                                                child: Image.asset(
+                                                Images.imagePlaceholder,
+                                                fit: BoxFit.contain,
+                                              ))
+                                            : CustomNetworkImage(
+                                                url: event.image!,
+                                                borderRadius: 0,
+                                                fit: BoxFit.contain,
+                                              )),
                                   ),
                                   SizedBox(height: 5.h)
                                 ],
                               );
                             });
                       },
-                      child: Container(
-                          width: double.infinity,
-                          child: Image.asset(
-                            Images.sampleEvent,
-                            fit: BoxFit.cover,
-                          )),
+                      child: (event.image == null || event.image?.trim() == "")
+                          ? Container(
+                              width: double.infinity,
+                              child: Image.asset(
+                                Images.imagePlaceholder,
+                                fit: BoxFit.cover,
+                              ))
+                          : CustomNetworkImage(
+                              url: event.image!,
+                              width: double.infinity,
+                              borderRadius: 0,
+                            ),
                     ),
                   ),
                   // Transform.flip(
@@ -205,7 +224,7 @@ class _EventDetailsOrgScreenState extends State<EventDetailsOrgScreen> {
                               HGap(3.w),
                               Builder(builder: (context) {
                                 final date =
-                                    getFormattedDate(date: event.eventDate);                               
+                                    getFormattedDate(date: event.eventDate);
                                 final time = event.eventTime != null
                                     ? get12HrsTime(context,
                                         time: event.eventTime!)

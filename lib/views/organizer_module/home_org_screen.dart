@@ -62,7 +62,8 @@ class _HomeOrgScreenState extends State<HomeOrgScreen> {
                     builder: (context, typeSnap) {
                       if (typeSnap.hasData) {
                         return _contentWidget(
-                            eventTypes: typeSnap.data!, orgId: orgId.data!);
+                            eventTypes: typeSnap.data!,
+                            orgId: orgId.data!);
                       } else if (orgId.hasError) {
                         print(" --- err event type snap -- ${orgId.error}");
                         return Center(
@@ -131,21 +132,18 @@ class _HomeOrgScreenState extends State<HomeOrgScreen> {
               VGap(1.h),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 3.w),
-                child: Consumer<HomeProvider>(
-                  builder: (context, provider, _) {
-                    return CustomTextField(
-                      ctr: _searchCtr!,
-                      prefixIcon: Icon(Icons.search),
-                      hintText: "Search",
-                      
-                      contentPadding: EdgeInsets.zero,
-                      tapOutsideDismiss: true,
-                      onChanged: (value){
-                        provider.updateSearchQuery(newQuery: value);
-                      },
-                    );
-                  }
-                ),
+                child: Consumer<HomeProvider>(builder: (context, provider, _) {
+                  return CustomTextField(
+                    ctr: _searchCtr!,
+                    prefixIcon: Icon(Icons.search),
+                    hintText: "Search",
+                    contentPadding: EdgeInsets.zero,
+                    tapOutsideDismiss: true,
+                    onChanged: (value) {
+                      provider.updateSearchQuery(newQuery: value);
+                    },
+                  );
+                }),
               ),
               VGap(1.h),
               Padding(

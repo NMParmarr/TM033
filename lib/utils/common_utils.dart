@@ -3,9 +3,11 @@ import 'package:eventflow/resources/helper/loader.dart';
 import 'package:eventflow/utils/size_config.dart';
 import 'package:eventflow/utils/text.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 import 'common_flushbar.dart';
+import 'common_toast.dart';
 import 'constants/color_constants.dart';
 import 'constants/image_constants.dart';
 
@@ -27,11 +29,13 @@ class Utils {
     return pwdValid;
   }
 
-static TimeOfDay stringToTimeOfDay(String tod) {
-  final format = DateFormat.jm(); //"6:00 AM"
-  return TimeOfDay.fromDateTime(format.parse(tod));
-}
-  static Future<dynamic> deleteConfirmationDialoag(BuildContext context, {required String eventName, required Function onDeleteEvent}) {
+  static TimeOfDay stringToTimeOfDay(String tod) {
+    final format = DateFormat.jm(); //"6:00 AM"
+    return TimeOfDay.fromDateTime(format.parse(tod));
+  }
+
+  static Future<dynamic> deleteConfirmationDialoag(BuildContext context,
+      {required String eventName, required Function onDeleteEvent}) {
     return showDialog(
       context: context,
       builder: (context) {
@@ -206,5 +210,22 @@ static TimeOfDay stringToTimeOfDay(String tod) {
         ],
       ),
     );
+  }
+
+  static Future<String> pickImage(
+      {required ImageSource source, bool listen = true}) async {
+    String imagePath = "";
+    try {
+      final image = await ImagePicker().pickImage(
+          source: source, maxWidth: 1280, maxHeight: 720, imageQuality: 100);
+
+      if (image == null) return "";
+      imagePath = image.path;
+    } catch (e) {
+      print(" --> --> err pick image : $e");
+      showToast("Unexpected error occured..!");
+    } finally {
+      return imagePath;
+    }
   }
 }

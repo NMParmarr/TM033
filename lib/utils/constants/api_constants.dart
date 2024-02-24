@@ -1,7 +1,9 @@
 class Apis {
+  
   //BASE URLS
-  static const String baseUrl = 'https://fcm.googleapis.com/';
+  static const String baseUrl = '';
 
-  //END POINTS
-  static const String sendNotification = 'fcm/send';
+  //FULL APIS URLS
+  static const String sendNotification = 'https://fcm.googleapis.com/fcm/send';
+  static const String uploadImage = 'https://api.imgbb.com/1/upload';
 }

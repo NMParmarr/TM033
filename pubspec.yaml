@@ -34,6 +34,8 @@ dependencies:
   flutter_local_notifications:
   device_info:
   eraser:
+  http_parser:
+  mime_type:
 
 dev_dependencies:
   flutter_test:

@@ -23,8 +23,8 @@ class FireServices {
   CollectionReference get users => _users;
   final _users = FirebaseFirestore.instance.collection("users");
 
-  CollectionReference get serverKey => _serverKey;
-  final _serverKey = FirebaseFirestore.instance.collection("serverKey");
+  CollectionReference get serverKeys => _serverKeys;
+  final _serverKeys = FirebaseFirestore.instance.collection("serverKeys");
 
   CollectionReference get fcmTokens => _fcmTokens;
   final _fcmTokens = FirebaseFirestore.instance.collection("fcmTokens");
@@ -540,10 +540,18 @@ class FireServices {
     }
   }
 
+  /// ---   UPLOAD MEDIA - API KEY
+  ///
+
+  Future<String> fetchApiKey() => _serverKeys
+      .doc('apiKey')
+      .get()
+      .then((value) => value.data()?['apiKey']);
+
   /// --- NOTIFICATIONS - FCM TOKENS
   ///
 
-  Future<String> fetchServerKey() => _serverKey
+  Future<String> fetchServerKey() => _serverKeys
       .doc('serverKey')
       .get()
       .then((value) => value.data()?['serverKey']);

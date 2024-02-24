@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'logging_intercepter.dart';
 
 class DioClient {
-  final String baseUrl;
+  final String? baseUrl;
   final LoggingInterceptor? loggingInterceptor;
   final SharedPreferences? sharedPreferences;
 
@@ -13,14 +13,14 @@ class DioClient {
   String? countryCode;
 
   DioClient(
-    this.baseUrl,
     Dio dioC, {
+    this.baseUrl,
     this.loggingInterceptor,
     this.sharedPreferences,
   }) {
     dio = dioC;
     dio!
-      ..options.baseUrl = baseUrl
+      // ..options.baseUrl = baseUrl
       ..options.connectTimeout = const Duration(minutes: 1)
       ..options.receiveTimeout = const Duration(minutes: 1)
       ..options.headers = {        

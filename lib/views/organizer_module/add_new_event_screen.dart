@@ -1,20 +1,24 @@
+import 'dart:io';
+
 import 'package:eventflow/data/datasource/services/firebase/firebase_services.dart';
 import 'package:eventflow/data/models/event_type.dart';
 import 'package:eventflow/globles.dart';
+import 'package:eventflow/resources/helper/loader.dart';
 import 'package:eventflow/resources/helper/shared_preferences.dart';
 import 'package:eventflow/utils/common_flushbar.dart';
 import 'package:eventflow/utils/common_toast.dart';
+import 'package:eventflow/utils/common_utils.dart';
 import 'package:eventflow/utils/constants/app_constants.dart';
 import 'package:eventflow/utils/constants/color_constants.dart';
-import 'package:eventflow/utils/constants/image_constants.dart';
 import 'package:eventflow/utils/constants/string_constants.dart';
 import 'package:eventflow/utils/gap.dart';
 import 'package:eventflow/utils/size_config.dart';
 import 'package:eventflow/utils/text.dart';
 import 'package:eventflow/utils/widgets/custom_text_field.dart';
 import 'package:eventflow/viewmodels/providers/home_provider.dart';
+import 'package:eventflow/viewmodels/providers/media_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../../data/datasource/services/connection/network_checker_widget.dart';
@@ -57,6 +61,8 @@ class _AddEventScrenState extends State<AddEventScren> {
         .setEventDate(date: null, listen: false);
     Provider.of<HomeProvider>(context, listen: false)
         .setEventTime(time: null, listen: false);
+    Provider.of<MediaProvider>(context, listen: false)
+        .setImagePath(newPath: "", listen: false);
   }
 
   void initTextControllers() {
@@ -79,6 +85,8 @@ class _AddEventScrenState extends State<AddEventScren> {
           ? null
           : dateTimeFromString(widget.updateEvent!.eventDate!);
 
+      Provider.of<MediaProvider>(context, listen: false).setImagePath(
+          newPath: widget.updateEvent?.image ?? "", listen: false);
       Provider.of<HomeProvider>(context, listen: false)
           .setEventDate(date: date, listen: false);
       Provider.of<HomeProvider>(context, listen: false).setEventTime(
@@ -131,6 +139,43 @@ class _AddEventScrenState extends State<AddEventScren> {
     }
   }
 
+  Future _showImagePickOptionDialog() async {
+    await showDialog(
+        context: context,
+        builder: (context) {
+          return Consumer<MediaProvider>(builder: (context, provider, _) {
+            return SimpleDialog(
+              children: [
+                SimpleDialogOption(
+                    onPressed: () async {
+                      Navigator.pop(context);
+                      String imagePath =
+                          await Utils.pickImage(source: ImageSource.camera);
+                      provider.setImagePath(newPath: imagePath);
+                    },
+                    child: Row(children: [
+                      Icon(Icons.camera_alt_outlined),
+                      HGap(3.w),
+                      Txt("Choose from camera")
+                    ])),
+                SimpleDialogOption(
+                    onPressed: () async {
+                      Navigator.pop(context);
+                      String imagePath =
+                          await Utils.pickImage(source: ImageSource.gallery);
+                      provider.setImagePath(newPath: imagePath);
+                    },
+                    child: Row(children: [
+                      Icon(Icons.image_outlined),
+                      HGap(3.w),
+                      Txt("Choose from gallery")
+                    ])),
+              ],
+            );
+          });
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return NetworkCheckerWidget(
@@ -156,36 +201,50 @@ class _AddEventScrenState extends State<AddEventScren> {
                       VGap(1.h),
                       AspectRatio(
                         aspectRatio: 16 / 9,
-                        child: Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 3.w, vertical: 1.3.h),
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              color: Colors.grey.withOpacity(0.25),
-                              image: 1 == 1
-                                  ? null
-                                  : DecorationImage(
-                                      image:
-                                          AssetImage(Images.imagePlaceholder),
-                                      fit: BoxFit.cover)),
-                          child: Visibility(
-                              child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.image_outlined,
-                                size: 20.w,
-                                color: AppColor.secondaryTxt,
-                              ),
-                              Txt(
-                                "Tap to add an image",
-                                fontsize: 3.t,
-                                textColor: AppColor.secondaryTxt,
-                              ),
-                            ],
-                          )),
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(10),
+                          onTap: _showImagePickOptionDialog,
+                          child: Consumer<MediaProvider>(
+                              builder: (context, provider, _) {
+                            return Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 3.w, vertical: 1.3.h),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: Colors.grey.withOpacity(0.25),
+                                  image: provider.imagePath.trim() == ""
+                                      ? null
+                                      : provider.imagePath.startsWith('http')
+                                          ? DecorationImage(
+                                              image: NetworkImage(
+                                                  provider.imagePath),
+                                              fit: BoxFit.cover)
+                                          : DecorationImage(
+                                              image: FileImage(
+                                                  File(provider.imagePath)),
+                                              fit: BoxFit.cover)),
+                              child: Visibility(
+                                  visible: provider.imagePath.trim() == "",
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.image_outlined,
+                                        size: 20.w,
+                                        color: AppColor.secondaryTxt,
+                                      ),
+                                      Txt(
+                                        "Tap to add an image",
+                                        fontsize: 3.t,
+                                        textColor: AppColor.secondaryTxt,
+                                      ),
+                                    ],
+                                  )),
+                            );
+                          }),
                         ),
                       ),
                       VGap(2.h),
@@ -395,6 +454,23 @@ class _AddEventScrenState extends State<AddEventScren> {
                                         validateEventTextFields();
                                     if (!isValid) return;
                                     if (widget.updateEvent == null) {
+                                      showLoader(context);
+                                      String imageUrl = "";
+                                      if (context
+                                              .read<MediaProvider>()
+                                              .imagePath
+                                              .toString()
+                                              .trim() !=
+                                          "") {
+                                        imageUrl = await context
+                                            .read<MediaProvider>()
+                                            .uploadImage(
+                                                imagePath: context
+                                                    .read<MediaProvider>()
+                                                    .imagePath
+                                                    .toString()
+                                                    .trim());
+                                      }
                                       final bool res =
                                           await provider.addNewEvent(
                                               eventName: _eventNameCtr!.text
@@ -402,6 +478,7 @@ class _AddEventScrenState extends State<AddEventScren> {
                                                   .trim(),
                                               date: provider.eventDate!
                                                   .toString(),
+                                              image: imageUrl,
                                               time: provider.eventTime!,
                                               location: _locationCtr!.text
                                                   .toString()
@@ -409,7 +486,7 @@ class _AddEventScrenState extends State<AddEventScren> {
                                               desc: _descCtr!.text
                                                   .toString()
                                                   .trim());
-
+                                      hideLoader();
                                       if (res) {
                                         Navigator.pop(context);
                                         showFlushbar(context,
@@ -436,18 +513,13 @@ class _AddEventScrenState extends State<AddEventScren> {
                                     }
                                   }
                                 },
-                                icon: provider.eventLoading
-                                    ? SizedBox()
-                                    : Icon(Icons.check_circle,
-                                        color: Colors.white),
-                                label: provider.eventLoading
-                                    ? CircularProgressIndicator(
-                                        color: Colors.white)
-                                    : Txt(
-                                        widget.updateEvent == null
-                                            ? "Publish"
-                                            : "Save",
-                                        textColor: Colors.white));
+                                icon: Icon(Icons.check_circle,
+                                    color: Colors.white),
+                                label: Txt(
+                                    widget.updateEvent == null
+                                        ? "Publish"
+                                        : "Save",
+                                    textColor: Colors.white));
                           })),
                         ],
                       ),
@@ -574,12 +646,13 @@ class _NewTypeDialogState extends State<NewTypeDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Txt("Add an item"),
+      title: Txt("Add a type"),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           CustomTextField(
             ctr: _newTypeCtr!,
+            capitalization: TextCapitalization.words,
             hintText: "Enter new type",
           ),
           Row(
