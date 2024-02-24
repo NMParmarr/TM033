@@ -108,8 +108,6 @@ class HomeProvider extends ChangeNotifier {
   /// --- ADD NEW EVENT
   ///
 
-  bool get eventLoading => _eventLoading;
-  bool _eventLoading = false;
 
   Future<bool> addNewEvent(
       {required String eventName,
@@ -118,8 +116,6 @@ class HomeProvider extends ChangeNotifier {
       required String image,
       required String location,
       required String desc}) async {
-    _eventLoading = true;
-    notifyListeners();
     bool res = false;
     try {
       final String? orgId = await sharedPreferences!.getString(App.id);
@@ -185,7 +181,6 @@ class HomeProvider extends ChangeNotifier {
       showToast("Something went wrong.!");
       res = false;
     } finally {
-      _eventLoading = false;
       notifyListeners();
       return res;
     }
@@ -199,10 +194,9 @@ class HomeProvider extends ChangeNotifier {
       required String eventName,
       required String date,
       required String time,
+      required String image,
       required String location,
       required String desc}) async {
-    _eventLoading = true;
-    notifyListeners();
     bool res = false;
     try {
       final String? orgId = await sharedPreferences!.getString(App.id);
@@ -219,7 +213,7 @@ class HomeProvider extends ChangeNotifier {
         "location": location,
         "typeId": typeId,
         "about": desc,
-        // "image": image,
+        "image": image,
       };
 
       final bool result = await FireServices.instance
@@ -255,7 +249,6 @@ class HomeProvider extends ChangeNotifier {
       showToast("Something went wrong.!");
       res = false;
     } finally {
-      _eventLoading = false;
       notifyListeners();
       return res;
     }

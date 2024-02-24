@@ -56,17 +56,13 @@ class _HomeOrgScreenState extends State<HomeOrgScreen> {
             builder: (context, orgId) {
               if (orgId.hasData) {
                 return StreamBuilder<List<EventType>>(
-                    stream: FireServices.instance
-                        .fetchEventTypeByOrg(orgId: orgId.data!),
+                    stream: FireServices.instance.fetchEventTypeByOrg(orgId: orgId.data!),
                     builder: (context, typeSnap) {
                       if (typeSnap.hasData) {
-                        return _contentWidget(
-                            eventTypes: typeSnap.data!,
-                            orgId: orgId.data!);
+                        return _contentWidget(eventTypes: typeSnap.data!, orgId: orgId.data!);
                       } else if (orgId.hasError) {
                         print(" --- err event type snap -- ${orgId.error}");
-                        return Center(
-                            child: Icon(Icons.error, color: AppColor.theme));
+                        return Center(child: Icon(Icons.error, color: AppColor.theme));
                       } else {
                         return Center(child: Image.asset(Images.loadingGif));
                       }
@@ -120,10 +116,9 @@ class _HomeOrgScreenState extends State<HomeOrgScreen> {
     );
   }
 
-  Widget _contentWidget(
-      {required List<EventType> eventTypes, required String orgId}) {
+  Widget _contentWidget({required List<EventType> eventTypes, required String orgId}) {
     eventTypes.insert(0, EventType(name: "All"));
-    return eventTypes.length <= 0
+    return eventTypes.length <= 1
         ? welcomeScreen()
         : DefaultTabController(
             length: eventTypes.length,
@@ -149,9 +144,7 @@ class _HomeOrgScreenState extends State<HomeOrgScreen> {
                 padding: EdgeInsets.symmetric(horizontal: 3.w),
                 child: Container(
                   height: 5.h,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      color: Colors.grey.withOpacity(0.2)
+                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(5), color: Colors.grey.withOpacity(0.2)
                       // color: AppColor.tabbarBg,
                       ),
                   child: TabBar(
@@ -161,15 +154,13 @@ class _HomeOrgScreenState extends State<HomeOrgScreen> {
                       tabAlignment: TabAlignment.start,
                       dividerColor: Colors.white,
                       labelStyle: GoogleFonts.philosopher(color: Colors.white),
-                      indicatorPadding: EdgeInsets.symmetric(
-                          horizontal: 1.w, vertical: 0.5.h),
+                      indicatorPadding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 0.5.h),
                       indicatorSize: TabBarIndicatorSize.tab,
                       indicator: BoxDecoration(
                         color: AppColor.primary,
                         borderRadius: BorderRadius.circular(5),
                       ),
-                      tabs: List.generate(eventTypes.length,
-                          (index) => Tab(text: eventTypes[index].name))),
+                      tabs: List.generate(eventTypes.length, (index) => Tab(text: eventTypes[index].name))),
                 ),
               ),
               VGap(1.h),
@@ -179,39 +170,27 @@ class _HomeOrgScreenState extends State<HomeOrgScreen> {
                         eventTypes.length,
                         (index) => StreamBuilder<List<EventModel>>(
                             stream: index == 0
-                                ? FireServices.instance
-                                    .fetchAllEventsByOrgId(orgId: orgId)
+                                ? FireServices.instance.fetchAllEventsByOrgId(orgId: orgId)
                                 : FireServices.instance.fetchEventsByTypeId(
                                     orgId: eventTypes[index].orgId!,
                                     typeId: eventTypes[index].typeId!,
                                   ),
                             builder: (context, eventSnap) {
                               if (eventSnap.hasData) {
-                                return Consumer<HomeProvider>(
-                                    builder: (context, provider, _) {
+                                return Consumer<HomeProvider>(builder: (context, provider, _) {
                                   return EventsOrgList(
-                                    onRefresh: () async {
-                                      provider.refresh();
-                                    },
+                                      onRefresh: () async {
+                                        provider.refresh();
+                                      },
                                       events: provider.searchQueryString == ""
                                           ? eventSnap.data!
-                                          : eventSnap.data!
-                                              .where((element) => element
-                                                  .eventName!
-                                                  .toLowerCase()
-                                                  .contains(provider
-                                                      .searchQueryString))
-                                              .toList());
+                                          : eventSnap.data!.where((element) => element.eventName!.toLowerCase().contains(provider.searchQueryString)).toList());
                                 });
                               } else if (eventSnap.hasError) {
-                                print(
-                                    " --- err events snap -- ${eventSnap.error}");
-                                return Center(
-                                    child: Icon(Icons.error,
-                                        color: AppColor.theme));
+                                print(" --- err events snap -- ${eventSnap.error}");
+                                return Center(child: Icon(Icons.error, color: AppColor.theme));
                               } else {
-                                return Center(
-                                    child: Image.asset(Images.loadingGif));
+                                return Center(child: Image.asset(Images.loadingGif));
                               }
                             }))),
               )

@@ -149,7 +149,6 @@ class _AddEventScrenState extends State<AddEventScren> {
                         child: InkWell(
                           borderRadius: BorderRadius.circular(10),
                           onTap: () async {
-                            
                             await Utils.showImagePickOptionDialog(context, aspectRatioPresets: [CropAspectRatioPreset.ratio16x9]);
                           },
                           child: Consumer<MediaProvider>(builder: (context, provider, _) {
@@ -160,7 +159,7 @@ class _AddEventScrenState extends State<AddEventScren> {
                                   borderRadius: BorderRadius.circular(10),
                                   color: Colors.grey.withOpacity(0.25),
                                   image: provider.imagePath.trim() == ""
-                                      ? null
+                                      ? DecorationImage(image: NetworkImage(provider.imagePath), fit: BoxFit.cover)
                                       : provider.imagePath.startsWith('http')
                                           ? DecorationImage(image: NetworkImage(provider.imagePath), fit: BoxFit.cover)
                                           : DecorationImage(image: FileImage(File(provider.imagePath)), fit: BoxFit.cover)),
@@ -324,8 +323,7 @@ class _AddEventScrenState extends State<AddEventScren> {
                           Expanded(child: Consumer<HomeProvider>(builder: (context, provider, _) {
                             return ElevatedButton.icon(
                                 style: ElevatedButton.styleFrom(backgroundColor: AppColor.theme),
-                                onPressed: () async {
-                                  if (!provider.eventLoading) {
+                                onPressed: () async {                                                              
                                     final bool isValid = validateEventTextFields();
                                     if (!isValid) return;
                                     if (widget.updateEvent == null) {
@@ -347,19 +345,30 @@ class _AddEventScrenState extends State<AddEventScren> {
                                         showFlushbar(context, "Event published successfully..!");
                                       }
                                     } else {
+                                      showLoader(context);
+                                      String imageUrl = "";
+                                      if (context.read<MediaProvider>().imagePath.toString().trim() != "") {
+                                        if (context.read<MediaProvider>().imagePath.startsWith("http")) {
+                                          imageUrl = context.read<MediaProvider>().imagePath;
+                                        } else {
+                                          imageUrl = await context.read<MediaProvider>().uploadImage(imagePath: context.read<MediaProvider>().imagePath.toString().trim());
+                                        }
+                                      }
                                       final bool res = await provider.editEvent(
                                           eventId: widget.updateEvent!.eventId!,
                                           eventName: _eventNameCtr!.text.toString().trim(),
+                                          image: imageUrl,
                                           date: provider.eventDate!.toString(),
                                           time: provider.eventTime!,
                                           location: _locationCtr!.text.toString().trim(),
                                           desc: _descCtr!.text.toString().trim());
+                                          hideLoader();
                                       if (res) {
                                         Navigator.pop(context);
                                         showFlushbar(context, "Saved successfully..!");
                                       }
                                     }
-                                  }
+                                  
                                 },
                                 icon: Icon(Icons.check_circle, color: Colors.white),
                                 label: Txt(widget.updateEvent == null ? "Publish" : "Save", textColor: Colors.white));

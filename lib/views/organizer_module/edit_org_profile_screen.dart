@@ -288,7 +288,12 @@ class _EditOrgProfileScreenState extends State<EditOrgProfileScreen> {
                       showLoader(context);
                       String imageUrl = "";
                       if (context.read<MediaProvider>().imagePath.toString().trim() != "") {
+                        if(context.read<MediaProvider>().imagePath.startsWith("http")){
+                          imageUrl = context.read<MediaProvider>().imagePath;
+                        } else {
+
                         imageUrl = await context.read<MediaProvider>().uploadImage(imagePath: context.read<MediaProvider>().imagePath.toString().trim());
+                        }
                       }
                       bool res = await provider.updateOrgDetails(updatedJsonData: {
                         "organization": _orgTionCtr?.text.toString().trim(),

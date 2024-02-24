@@ -273,7 +273,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                   showLoader(context);
                                   String imageUrl = "";
                                   if (context.read<MediaProvider>().imagePath.toString().trim() != "") {
-                                    imageUrl = await context.read<MediaProvider>().uploadImage(imagePath: context.read<MediaProvider>().imagePath.toString().trim());
+                                    if (context.read<MediaProvider>().imagePath.startsWith("http")) {
+                                      imageUrl = context.read<MediaProvider>().imagePath;
+                                    } else {
+                                      imageUrl = await context.read<MediaProvider>().uploadImage(imagePath: context.read<MediaProvider>().imagePath.toString().trim());
+                                    }
                                   }
                                   bool res = await provider.updateUserDetails(updatedJsonData: {
                                     "fullName": _userFullnameCtr?.text.toString().trim(),
