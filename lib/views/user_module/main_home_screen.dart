@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:eraser/eraser.dart';
 import '../../data/datasource/services/connection/network_checker_widget.dart';
 import '../../data/datasource/services/firebase/firebase_messaging.dart';
+import '../../utils/common_utils.dart';
 import 'joined_events_screen.dart';
 
 class MainHomeScren extends StatefulWidget {
@@ -18,7 +19,7 @@ class MainHomeScren extends StatefulWidget {
   State<MainHomeScren> createState() => _MainHomeScrenState();
 }
 
-class _MainHomeScrenState extends State<MainHomeScren>  with WidgetsBindingObserver{
+class _MainHomeScrenState extends State<MainHomeScren> with WidgetsBindingObserver {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   List<Widget> screens = <Widget>[
@@ -33,8 +34,7 @@ class _MainHomeScrenState extends State<MainHomeScren>  with WidgetsBindingObser
     FireMessaging.instance.listenMessaging(context);
     FireMessaging.instance.setupInteractMessage(context);
     Eraser.clearAllAppNotifications();
-    Provider.of<HomeProvider>(context, listen: false)
-        .setCurrentScreenIndex(index: 0, listen: false);
+    Provider.of<HomeProvider>(context, listen: false).setCurrentScreenIndex(index: 0, listen: false);
   }
 
   @override
@@ -49,6 +49,7 @@ class _MainHomeScrenState extends State<MainHomeScren>  with WidgetsBindingObser
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<HomeProvider>(builder: (context, provider, _) {
@@ -68,19 +69,24 @@ class _MainHomeScrenState extends State<MainHomeScren>  with WidgetsBindingObser
                 textColor: Colors.white,
                 fontweight: FontWeight.w600,
               ),
+              actions: [
+                IconButton(
+                    onPressed: ()  async {
+                      await Utils.aboutAppDialog(context);
+                    },
+                    icon: const Icon(
+                      Icons.info_outlined,
+                      color: Color.fromARGB(255, 190, 190, 190),
+                    ))
+              ],
             ),
             body: screens[provider.currentScreenIndex],
-            bottomNavigationBar: BottomNavigationBar(
-                currentIndex: provider.currentScreenIndex,
-                onTap: (index) => provider.setCurrentScreenIndex(index: index),
-                selectedItemColor: AppColor.theme,
-                items: [
-                  BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-                  BottomNavigationBarItem(
-                      icon: Icon(Icons.calendar_month_outlined), label: "Joined"),
-                  BottomNavigationBarItem(
-                      icon: Icon(Icons.person), label: "Profile"),
-                ]),
+            bottomNavigationBar:
+                BottomNavigationBar(currentIndex: provider.currentScreenIndex, onTap: (index) => provider.setCurrentScreenIndex(index: index), selectedItemColor: AppColor.theme, items: [
+              BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+              BottomNavigationBarItem(icon: Icon(Icons.calendar_month_outlined), label: "Joined"),
+              BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
+            ]),
           ),
         ),
       );

@@ -10,6 +10,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../viewmodels/providers/media_provider.dart';
 import 'common_flushbar.dart';
@@ -41,6 +42,60 @@ class Utils {
   static TimeOfDay stringToTimeOfDay(String tod) {
     final format = DateFormat.jm(); //"6:00 AM"
     return TimeOfDay.fromDateTime(format.parse(tod));
+  }
+
+  static 
+  Future<dynamic> aboutAppDialog(BuildContext context) {
+    return showDialog(
+        context: context,
+        builder: (context) => SimpleDialog(
+              contentPadding: const EdgeInsets.all(20),
+              backgroundColor: Color.fromARGB(255, 224, 224, 224),
+              children: [
+                Row(
+                  children: [
+                    SizedBox(
+                      height: 12.w,
+                      width: 12.w,
+                      child: Image.asset(Images.applogoRounded),
+                    ),
+                    HGap(2.w),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Txt(
+                          "EventFlow",
+                          fontsize: 2.6.t,
+                          fontweight: FontWeight.bold,
+                          // style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        Txt(
+                          "Version : 1.0.0",
+                          fontsize: 1.7.t,
+                          fontweight: FontWeight.w400,
+                          textColor: Color.fromARGB(255, 95, 95, 95),
+                        )
+                      ],
+                    )
+                  ],
+                ),
+                VGap(2.h),
+                Txt("Developed by Nayan Parmar", fontsize: 2.2.t, fontweight: FontWeight.w500),
+                InkWell(
+                  onTap: () async {
+                    Navigator.pop(context);
+                    final Uri url = Uri.parse("https://nmparmarr.github.io/i/");
+
+                    if (!await launchUrl(url)) {
+                      // ignore: use_build_context_synchronously
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Some error occured..try again later..!")));
+                    }
+                  },
+                  child: Txt("https://nmparmarr.github.io/i/", fontsize: 1.9.t, fontweight: FontWeight.w400, textColor: Color.fromARGB(255, 0, 108, 196)),
+                ),
+                HGap(1.h)
+              ],
+            ));
   }
 
   static Future<dynamic> deleteConfirmationDialoag(BuildContext context, {required String eventName, required Function onDeleteEvent}) {
@@ -292,22 +347,6 @@ class Utils {
           });
         });
   }
-
-  // static Future<bool> requestCameraPermission() async {
-  //   final result = await Permission.camera.request();
-  //   if (result == PermissionStatus.granted) {
-  //     return true;
-  //   }
-  //   return false;
-  // }
-
-  // static Future<bool> requestGalleryPermission() async {
-  //   final result = await Permission.storage.request();
-  //   if (result == PermissionStatus.granted) {
-  //     return true;
-  //   }
-  //   return false;
-  // }
 
   static Future<bool> requestPermission({required RequestType requestType}) async {
     DeviceInfoPlugin plugin = DeviceInfoPlugin();

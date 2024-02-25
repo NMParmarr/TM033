@@ -1,5 +1,6 @@
 class Images {
   /// PNG IMAGES
+  static const String applogoRounded = "assets/images/applogoRounded.png";
   static const String applogoDark = "assets/images/applogoDark.png";
   static const String applogoLight = "assets/images/applogoLight.png";
   static const String applogoWithName = "assets/images/applogoWithName.png";

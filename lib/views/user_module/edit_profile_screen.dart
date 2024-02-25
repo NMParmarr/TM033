@@ -258,7 +258,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Color.fromARGB(255, 155, 155, 155),
                                   ),
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
                                   icon: Icon(Icons.close, color: Colors.white),
                                   label: Txt("Discard", textColor: Colors.white))),
                           HGap(2.w),

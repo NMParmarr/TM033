@@ -271,7 +271,6 @@ class _EditOrgProfileScreenState extends State<EditOrgProfileScreen> {
                         backgroundColor: Color.fromARGB(255, 155, 155, 155),
                       ),
                       onPressed: () {
-                        clearTextControllers();
                         Navigator.pop(context);
                       },
                       icon: Icon(Icons.close, color: Colors.white),
@@ -288,11 +287,10 @@ class _EditOrgProfileScreenState extends State<EditOrgProfileScreen> {
                       showLoader(context);
                       String imageUrl = "";
                       if (context.read<MediaProvider>().imagePath.toString().trim() != "") {
-                        if(context.read<MediaProvider>().imagePath.startsWith("http")){
+                        if (context.read<MediaProvider>().imagePath.startsWith("http")) {
                           imageUrl = context.read<MediaProvider>().imagePath;
                         } else {
-
-                        imageUrl = await context.read<MediaProvider>().uploadImage(imagePath: context.read<MediaProvider>().imagePath.toString().trim());
+                          imageUrl = await context.read<MediaProvider>().uploadImage(imagePath: context.read<MediaProvider>().imagePath.toString().trim());
                         }
                       }
                       bool res = await provider.updateOrgDetails(updatedJsonData: {

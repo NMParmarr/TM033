@@ -20,11 +20,13 @@ class EventsList extends StatelessWidget {
   final List<EventModel> events;
   final bool? shrinkWrap;
   final ScrollPhysics? physics;
+  final String? noEventMsg;
   final Future<void> Function() onRefresh;
   const EventsList(
       {super.key,
       required this.events,
       this.shrinkWrap,
+      this.noEventMsg,
       this.physics,
       required this.onRefresh});
 
@@ -32,7 +34,7 @@ class EventsList extends StatelessWidget {
   Widget build(BuildContext context) {
     return events.length <= 0
         ? SingleChildScrollView(
-            child: Utils.noDataFoundWidget(msg: "No Events Found..!"))
+            child: Utils.noDataFoundWidget(msg: noEventMsg ?? "No Events Found..!"))
         : RefreshIndicator(
             onRefresh: onRefresh,
             child: ListView.builder(

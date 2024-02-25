@@ -168,18 +168,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: [
             FutureBuilder<List<EventModel>>(
                 future: FireServices.instance.fetchJoinedAllEvents(userId: user!.id!),
-                builder: (context, upcomingEvents) {
-                  if (upcomingEvents.hasData) {
+                builder: (context, joinedAllEvents) {
+                  if (joinedAllEvents.hasData) {
                     return EventsList(
                       onRefresh: () async {
                         setState(() {});
                       },
-                      events: upcomingEvents.data ?? [],
+                      events: joinedAllEvents.data ?? [],
                       // shrinkWrap: true,
                       // physics: NeverScrollableScrollPhysics()
                     );
-                  } else if (upcomingEvents.hasError) {
-                    print(" --- err dfdfsdgh : ${upcomingEvents.error}");
+                  } else if (joinedAllEvents.hasError) {
+                    print(" --- err dfdfsdgh : ${joinedAllEvents.error}");
                     return Center(child: Icon(Icons.error, color: AppColor.theme));
                   } else {
                     return Center(child: Image.asset(Images.loadingGif));
