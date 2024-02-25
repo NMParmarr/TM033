@@ -12,6 +12,7 @@ import '../../data/datasource/services/connection/network_checker_widget.dart';
 import '../../data/datasource/services/firebase/firebase_services.dart';
 import '../../data/models/event_model.dart';
 import '../../data/models/event_type.dart';
+import '../../globles.dart';
 import '../../resources/helper/shared_preferences.dart';
 import '../../utils/constants/app_constants.dart';
 import '../../utils/constants/image_constants.dart';
@@ -173,8 +174,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                         await provider.refresh();
                                       },
                                       events: provider.searchQueryString == ""
-                                          ? eventSnap.data!
-                                          : eventSnap.data!.where((element) => element.eventName!.toLowerCase().contains(provider.searchQueryString)).toList());
+                                          ? eventSnap.data!.where((element) => isAfter(element.eventDate!, element.eventTime!))
+                                              .toList()
+                                          : eventSnap.data!.where((element) => isAfter(element.eventDate!, element.eventTime!))
+                                              .toList().where((element) => element.eventName!.toLowerCase().contains(provider.searchQueryString)).toList());
                                 });
                               } else if (eventSnap.hasError) {
                                 print(" --- err events snap -- ${eventSnap.error}");

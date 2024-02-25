@@ -22,19 +22,12 @@ class EventsList extends StatelessWidget {
   final ScrollPhysics? physics;
   final String? noEventMsg;
   final Future<void> Function() onRefresh;
-  const EventsList(
-      {super.key,
-      required this.events,
-      this.shrinkWrap,
-      this.noEventMsg,
-      this.physics,
-      required this.onRefresh});
+  const EventsList({super.key, required this.events, this.shrinkWrap, this.noEventMsg, this.physics, required this.onRefresh});
 
   @override
   Widget build(BuildContext context) {
     return events.length <= 0
-        ? SingleChildScrollView(
-            child: Utils.noDataFoundWidget(msg: noEventMsg ?? "No Events Found..!"))
+        ? SingleChildScrollView(child: Utils.noDataFoundWidget(msg: noEventMsg ?? "No Events Found..!"))
         : RefreshIndicator(
             onRefresh: onRefresh,
             child: ListView.builder(
@@ -44,29 +37,20 @@ class EventsList extends StatelessWidget {
               itemBuilder: (context, index) {
                 return InkWell(
                   onTap: () {
-                    Navigator.pushNamed(context, Routes.eventDetails,
-                        arguments: {
-                          'orgId': events[index].orgId!,
-                          'eventId': events[index].eventId!
-                        });
+                    Navigator.pushNamed(context, Routes.eventDetails, arguments: {'orgId': events[index].orgId!, 'eventId': events[index].eventId!});
                   },
                   child: Card(
                     elevation: 3,
-                    margin:
-                        EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.8.h),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15)),
-                    child: (events[index].image == null ||
-                            events[index].image?.trim() == "")
+                    margin: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.8.h),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                    child: (events[index].image == null || events[index].image?.trim() == "")
                         ? Container(
                             alignment: Alignment.bottomCenter,
                             height: 23.h,
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(15),
                                 // boxShadow: [BoxShadow(blurRadius: 6, color: Colors.grey)],
-                                image: DecorationImage(
-                                    image: AssetImage(Images.imagePlaceholder),
-                                    fit: BoxFit.fill)),
+                                image: DecorationImage(image: AssetImage(Images.imagePlaceholder), fit: BoxFit.fill)),
                             child: _eventDetailContainer(index))
                         : CustomNetworkImage(
                             alignment: Alignment.bottomCenter,
@@ -85,9 +69,7 @@ class EventsList extends StatelessWidget {
   Widget _eventDetailContainer(int index) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 0.3.h),
-      decoration: BoxDecoration(
-          color: Colors.black45,
-          borderRadius: BorderRadius.vertical(bottom: Radius.circular(15))),
+      decoration: BoxDecoration(color: Colors.black45, borderRadius: BorderRadius.vertical(bottom: Radius.circular(15))),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -103,16 +85,12 @@ class EventsList extends StatelessWidget {
               ),
               Row(
                 children: [
-                  Icon(Icons.watch_later_outlined,
-                      size: 2.h, color: Colors.white),
+                  Icon(Icons.watch_later_outlined, size: 2.h, color: Colors.white),
                   HGap(2.w),
                   Builder(builder: (context) {
-                    final date =
-                        getFormattedDate(date: events[index].eventDate);
+                    final date = getFormattedDate(date: events[index].eventDate);
                     print("--> date : $date");
-                    final time = events[index].eventTime != null
-                        ? get12HrsTime(context, time: events[index].eventTime!)
-                        : "--:--";
+                    final time = events[index].eventTime != null ? get12HrsTime(context, time: events[index].eventTime!) : "--:--";
                     return Txt(
                       "$date  $time",
                       fontsize: 1.6.t,
@@ -123,8 +101,7 @@ class EventsList extends StatelessWidget {
               ),
               Row(
                 children: [
-                  Icon(Icons.location_on_outlined,
-                      size: 2.h, color: Colors.white),
+                  Icon(Icons.location_on_outlined, size: 2.h, color: Colors.white),
                   HGap(2.w),
                   Txt(
                     events[index].location ?? "--",
@@ -150,60 +127,34 @@ class EventsList extends StatelessWidget {
                 stream: FireServices.instance.fetchSingleUser(id: userId.data!),
                 builder: (context, user) {
                   return StreamBuilder<bool>(
-                      stream: FireServices.instance.isUserJoinedEvent(
-                          orgId: events[index].orgId!,
-                          eventId: events[index].eventId!,
-                          userId: userId.data!),
+                      stream: FireServices.instance.isUserJoinedEvent(orgId: events[index].orgId!, eventId: events[index].eventId!, userId: userId.data!),
                       builder: (context, isUserJoined) {
                         return Visibility(
-                          visible: FireServices.instance.isAfterOrToday(
-                              events[index].eventDate!, currentDate.toString()),
+                          visible: (FireServices.instance.isAfterOrToday(events[index].eventDate!, currentDate.toString()) && isAfter(events[index].eventDate!, events[index].eventTime!)),
                           child: ElevatedButton.icon(
                               style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      (isUserJoined.connectionState ==
-                                              ConnectionState.waiting)
-                                          ? Colors.grey
-                                          : (isUserJoined.hasData &&
-                                                  isUserJoined.data!)
-                                              ? AppColor.orange
-                                              : AppColor.primary),
+                                  backgroundColor: (isUserJoined.connectionState == ConnectionState.waiting)
+                                      ? Colors.grey
+                                      : (isUserJoined.hasData && isUserJoined.data!)
+                                          ? AppColor.orange
+                                          : AppColor.primary),
                               onPressed: () async {
-                                if ((isUserJoined.hasData &&
-                                    isUserJoined.data!)) {
-                                  await Utils.leaveConfirmationDialog(context,
-                                      orgId: events[index].orgId!,
-                                      eventId: events[index].eventId!,
-                                      userId: userId.data!);
+                                if ((isUserJoined.hasData && isUserJoined.data!)) {
+                                  await Utils.leaveConfirmationDialog(context, orgId: events[index].orgId!, eventId: events[index].eventId!, userId: userId.data!);
                                 } else {
                                   if (!user.data!.isProfileCompleted!) {
-                                    showFlushbar(context,
-                                        "Complete your profile to join the event..!");
+                                    showFlushbar(context, "Complete your profile to join the event..!");
                                     return;
                                   }
-                                  await Utils.joinConfirmationDialog(context,
-                                      orgId: events[index].orgId!,
-                                      eventId: events[index].eventId!,
-                                      userId: userId.data!);
+                                  await Utils.joinConfirmationDialog(context, orgId: events[index].orgId!, eventId: events[index].eventId!, userId: userId.data!);
                                 }
                               },
                               icon: Icon(
-                                (isUserJoined.hasData && isUserJoined.data!)
-                                    ? Icons.arrow_circle_left_outlined
-                                    : Icons.login,
-                                color: (isUserJoined.connectionState ==
-                                        ConnectionState.waiting)
-                                    ? Colors.grey
-                                    : Colors.white,
+                                (isUserJoined.hasData && isUserJoined.data!) ? Icons.arrow_circle_left_outlined : Icons.login,
+                                color: (isUserJoined.connectionState == ConnectionState.waiting) ? Colors.grey : Colors.white,
                               ),
-                              label: Txt(
-                                  isUserJoined.hasData && (isUserJoined.data!)
-                                      ? "Leave"
-                                      : "Join",
-                                  textColor: (isUserJoined.connectionState ==
-                                          ConnectionState.waiting)
-                                      ? Colors.grey
-                                      : Colors.white)),
+                              label: Txt(isUserJoined.hasData && (isUserJoined.data!) ? "Leave" : "Join",
+                                  textColor: (isUserJoined.connectionState == ConnectionState.waiting) ? Colors.grey : Colors.white)),
                         );
                       });
                 });

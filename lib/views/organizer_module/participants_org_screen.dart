@@ -13,6 +13,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../data/datasource/services/connection/network_checker_widget.dart';
+import '../../globles.dart';
 
 class ParticipantsOrgScreen extends StatefulWidget {
   const ParticipantsOrgScreen({super.key});
@@ -59,7 +60,7 @@ class _ParticipantsOrgScreenState extends State<ParticipantsOrgScreen> {
                                         onRefresh: () async {
                                           setState(() {});
                                         },
-                                        events: upcomingEvents.data!);
+                                        events: upcomingEvents.data!.where((element) => isAfter(element.eventDate!, element.eventTime!)).toList());
                                   } else if (upcomingEvents.hasError) {
                                     print(" --- err dfdfsdgh : ${upcomingEvents.error}");
                                     return Center(child: Icon(Icons.error, color: AppColor.theme));
@@ -73,9 +74,9 @@ class _ParticipantsOrgScreenState extends State<ParticipantsOrgScreen> {
                                   if (pastEvents.hasData) {
                                     return EventsOrgList(
                                         onRefresh: () async {
-                                          await context.read<HomeProvider>().refresh();
+                                          setState(() {});
                                         },
-                                        events: pastEvents.data ?? []);
+                                        events: pastEvents.data!.where((element) => isBefore(element.eventDate!, element.eventTime!)).toList());
                                   } else if (pastEvents.hasError) {
                                     print(" --- err df5adfs : ${pastEvents.error}");
                                     return Center(child: Icon(Icons.error, color: AppColor.theme));

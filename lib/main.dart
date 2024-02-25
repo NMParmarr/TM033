@@ -18,6 +18,7 @@ import 'utils/size_config.dart';
 import 'viewmodels/providers/theme_provider.dart';
 import 'package:eventflow/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:url_strategy/url_strategy.dart';
 
 /// 1/5: define a navigator key
 // final navigatorKey = GlobalKey<NavigatorState>();
@@ -37,11 +38,11 @@ Future<void> main() async {
 
   HttpOverrides.global = MyHttpOverrides();
 
+  setPathUrlStrategy();
+
   runApp(MultiProvider(
     providers: [
-      StreamProvider(
-          create: (context) => NetworkService.instance.controller.stream,
-          initialData: NetworkStatus.offline),
+      StreamProvider(create: (context) => NetworkService.instance.controller.stream, initialData: NetworkStatus.offline),
       ChangeNotifierProvider(create: (context) => di.sl<ThemeProvider>()),
       ChangeNotifierProvider(create: (context) => di.sl<AuthProvider>()),
       ChangeNotifierProvider(create: (context) => di.sl<HomeProvider>()),
@@ -68,10 +69,8 @@ class _MyAppState extends State<MyApp> {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
-    return LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) {
-      return OrientationBuilder(
-          builder: (BuildContext context2, Orientation orientation) {
+    return LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
+      return OrientationBuilder(builder: (BuildContext context2, Orientation orientation) {
         SizeConfig.init(constraints, orientation);
         return MaterialApp(
           navigatorKey: MyApp.navigatorKey,
@@ -79,10 +78,7 @@ class _MyAppState extends State<MyApp> {
           title: App.appName,
           theme: ThemeData(
               scaffoldBackgroundColor: Colors.white,
-              elevatedButtonTheme: ElevatedButtonThemeData(
-                  style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.resolveWith(
-                          (states) => AppColor.theme))),
+              elevatedButtonTheme: ElevatedButtonThemeData(style: ButtonStyle(backgroundColor: MaterialStateProperty.resolveWith((states) => AppColor.theme))),
               // useMaterial3: false,
               colorScheme: ColorScheme.fromSeed(seedColor: AppColor.theme),
               iconTheme: IconThemeData(color: AppColor.theme),

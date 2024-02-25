@@ -8,6 +8,7 @@ import 'package:eventflow/utils/constants/image_constants.dart';
 import 'package:eventflow/utils/size_config.dart';
 import 'package:flutter/material.dart';
 import '../../data/datasource/services/connection/network_checker_widget.dart';
+import '../../data/models/participant.dart';
 import '../../data/models/user_model.dart';
 import '../../resources/helper/shared_preferences.dart';
 import '../../utils/common_flushbar.dart';
@@ -48,7 +49,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
     return Scaffold(
       bottomNavigationBar: Visibility(
-        visible: FireServices.instance.isAfterOrToday(event.eventDate!, currentDate.toString()),
+        visible: (FireServices.instance.isAfterOrToday(event.eventDate!, currentDate.toString()) && isAfter(event.eventDate!, event.eventTime!)),
         child: Container(
             margin: EdgeInsets.only(left: 2.w, right: 2.w, bottom: 0.5.h, top: 0.5.h),
             child: FutureBuilder<String?>(
@@ -224,11 +225,15 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                             children: [
                               Icon(Icons.groups_2, color: AppColor.primary),
                               HGap(3.w),
-                              Txt(
-                                "23 Participants",
-                                fontsize: 2.t,
-                                textColor: Colors.black,
-                              )
+                              StreamBuilder<List<Participant>>(
+                                  stream: FireServices.instance.fetchJoinedParticipants(orgId: widget.orgId, eventId: widget.eventId),
+                                  builder: (context, participants) {
+                                    return Txt(
+                                      "${participants.data?.length ?? "--"} ${participants.data != null && participants.data!.length == 1 ? "Participant" : "Participants"}",
+                                      fontsize: 2.t,
+                                      textColor: Colors.black,
+                                    );
+                                  })
                             ],
                           ),
                           VGap(1.3.h),

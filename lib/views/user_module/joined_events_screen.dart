@@ -10,6 +10,7 @@ import '../../data/datasource/services/connection/network_checker_widget.dart';
 import '../../data/datasource/services/firebase/firebase_services.dart';
 import '../../data/models/event_model.dart';
 import '../../data/models/user_model.dart';
+import '../../globles.dart';
 import '../../resources/helper/shared_preferences.dart';
 import '../../utils/constants/app_constants.dart';
 import '../../utils/constants/color_constants.dart';
@@ -32,29 +33,18 @@ class _JoinedEventsScreenState extends State<JoinedEventsScreen> {
         body: DefaultTabController(
           length: 2,
           child: Column(children: [
-            TabBar(
-                labelStyle: GoogleFonts.philosopher(),
-                indicatorSize: TabBarIndicatorSize.tab,
-                tabs: [
-                  Tab(
-                      child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.calendar_month_sharp),
-                      HGap(1.w),
-                      Text("Upcoming")
-                    ],
-                  )),
-                  Tab(
-                      child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.watch_later_outlined),
-                      HGap(1.w),
-                      Text("Past")
-                    ],
-                  ))
-                ]),
+            TabBar(labelStyle: GoogleFonts.philosopher(), indicatorSize: TabBarIndicatorSize.tab, tabs: [
+              Tab(
+                  child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [Icon(Icons.calendar_month_sharp), HGap(1.w), Text("Upcoming")],
+              )),
+              Tab(
+                  child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [Icon(Icons.watch_later_outlined), HGap(1.w), Text("Past")],
+              ))
+            ]),
             VGap(2.h),
             Expanded(
                 child: FutureBuilder<String?>(
@@ -62,82 +52,59 @@ class _JoinedEventsScreenState extends State<JoinedEventsScreen> {
                     builder: (context, userId) {
                       if (userId.hasData) {
                         return StreamBuilder<UserModel>(
-                            stream: FireServices.instance
-                                .fetchSingleUser(id: userId.data!),
+                            stream: FireServices.instance.fetchSingleUser(id: userId.data!),
                             builder: (context, user) {
                               if (user.hasData) {
                                 return TabBarView(
                                   children: [
                                     FutureBuilder<List<EventModel>>(
-                                        future: FireServices.instance
-                                            .fetchJoinedUpcomingEvents(
-                                                userId: user.data!.id!),
+                                        future: FireServices.instance.fetchJoinedUpcomingEvents(userId: user.data!.id!),
                                         builder: (context, upcomingEvents) {
                                           if (upcomingEvents.hasData) {
                                             return EventsList(
+                                                noEventMsg: "No joined upcoming events.!",
                                                 onRefresh: () async {
-                                                  Provider.of<HomeProvider>(
-                                                          context,
-                                                          listen: false)
-                                                      .refresh();
+                                                  Provider.of<HomeProvider>(context, listen: false).refresh();
                                                 },
-                                                events:
-                                                    upcomingEvents.data ?? []);
+                                                events: upcomingEvents.data!.where((element) => isAfter(element.eventDate!, element.eventTime!)).toList());
                                           } else if (upcomingEvents.hasError) {
-                                            print(
-                                                " --- err dfdfsdgh : ${upcomingEvents.error}");
-                                            return Center(
-                                                child: Icon(Icons.error,
-                                                    color: AppColor.theme));
+                                            print(" --- err dfdfsdgh : ${upcomingEvents.error}");
+                                            return Center(child: Icon(Icons.error, color: AppColor.theme));
                                           } else {
-                                            return Center(
-                                                child: Image.asset(
-                                                    Images.loadingGif));
+                                            return Center(child: Image.asset(Images.loadingGif));
                                           }
                                         }),
                                     FutureBuilder<List<EventModel>>(
-                                        future: FireServices.instance
-                                            .fetchJoinedPastEvents(
-                                                userId: user.data!.id!),
+                                        future: FireServices.instance.fetchJoinedPastEvents(userId: user.data!.id!),
                                         builder: (context, pastEvents) {
                                           print(" --> --> ");
                                           if (pastEvents.hasData) {
+                                            print(pastEvents.data?.length);
                                             return EventsList(
+                                                noEventMsg: "No joined past events..!",
                                                 onRefresh: () async {
-                                                  context
-                                                      .read<HomeProvider>()
-                                                      .refresh();
+                                                  context.read<HomeProvider>().refresh();
                                                 },
-                                                events: pastEvents.data ?? []);
+                                                events: pastEvents.data!.where((element) => isBefore(element.eventDate!, element.eventTime!)).toList());
                                           } else if (pastEvents.hasError) {
-                                            print(
-                                                " --- err df5adfs : ${pastEvents.error}");
-                                            return Center(
-                                                child: Icon(Icons.error,
-                                                    color: AppColor.theme));
+                                            print(" --- err df5adfs : ${pastEvents.error}");
+                                            return Center(child: Icon(Icons.error, color: AppColor.theme));
                                           } else {
-                                            return Center(
-                                                child: Image.asset(
-                                                    Images.loadingGif));
+                                            return Center(child: Image.asset(Images.loadingGif));
                                           }
                                         }),
                                   ],
                                 );
                               } else if (userId.hasError) {
-                                print(
-                                    " --- err dfkjlaiejlkf : ${userId.error}");
-                                return Center(
-                                    child: Icon(Icons.error,
-                                        color: AppColor.theme));
+                                print(" --- err dfkjlaiejlkf : ${userId.error}");
+                                return Center(child: Icon(Icons.error, color: AppColor.theme));
                               } else {
-                                return Center(
-                                    child: Image.asset(Images.loadingGif));
+                                return Center(child: Image.asset(Images.loadingGif));
                               }
                             });
                       } else if (userId.hasError) {
                         print(" --- err dfkjlaiejlkf : ${userId.error}");
-                        return Center(
-                            child: Icon(Icons.error, color: AppColor.theme));
+                        return Center(child: Icon(Icons.error, color: AppColor.theme));
                       } else {
                         return Center(child: Image.asset(Images.loadingGif));
                       }

@@ -39,6 +39,7 @@ dependencies:
   image_cropper:
   permission_handler:
   device_info_plus:
+  url_strategy:
 
 dev_dependencies:
   flutter_test:
